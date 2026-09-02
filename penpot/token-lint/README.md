@@ -57,10 +57,6 @@ monorepo — see its root README for the full picture. The short version:
   plugin's own `start:dev` below). Go to Penpot, then `Plugins`, and enter
   `http://localhost:4400/manifest.json`
 - Or, from this folder directly: `npm run start:dev` — same thing
-- To instead test the path-based URL this plugin is served under in
-  production (`/penpot/token-lint/`), use `npm run dev -- token-lint` and
-  `npm run serve` from the monorepo root (two terminals) and enter
-  `http://localhost:4400/penpot/token-lint/manifest.json`
 - Create a `Branch` and open a `Pull Request`
 - _Let's do this_
 
