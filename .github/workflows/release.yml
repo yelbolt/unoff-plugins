@@ -98,7 +98,7 @@ jobs:
         id: zip
         run: |
           zip_name="${{ steps.meta.outputs.name }}.zip"
-          (cd "${{ matrix.plugin }}/dist" && zip -r "$GITHUB_WORKSPACE/$zip_name" .)
+          (cd "dist/${{ matrix.plugin }}" && zip -r "$GITHUB_WORKSPACE/$zip_name" .)
           unzip -l "$zip_name"
           echo "zip_name=$zip_name" >> "$GITHUB_OUTPUT"
 
@@ -128,7 +128,11 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ matrix.plugin }}/dist
-          destination_dir: ${{ matrix.plugin }}
+          # Each plugin's vite.config.ts already builds into dist/<platform>/<name>/,
+          # so publishing the whole dist/ tree from this job (which only ever
+          # contains the one plugin just built) lands it at the matching path
+          # on gh-pages. keep_files: true stops this from wiping every other
+          # plugin already published there.
+          publish_dir: dist
           keep_files: true
           publish_branch: gh-pages

@@ -88,7 +88,7 @@ jobs:
         with:
           name: plugin-${{ steps.meta.outputs.slug }}
           path: |
-            ${{ matrix.plugin }}/dist/index.html
-            ${{ matrix.plugin }}/dist/plugin.js
-            ${{ matrix.plugin }}/dist/manifest.json
+            dist/${{ matrix.plugin }}/index.html
+            dist/${{ matrix.plugin }}/plugin.js
+            dist/${{ matrix.plugin }}/manifest.json
           retention-days: 5

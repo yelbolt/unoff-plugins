@@ -9,6 +9,14 @@ export default defineConfig(({ mode }) => {
   const isDev = mode === 'development'
   const isPlugin = process.env.IS_PLUGIN === 'true'
 
+  // Every plugin lives at <repo-root>/<platform>/<name>/ and builds into the
+  // monorepo's shared <repo-root>/dist/<platform>/<name>/, so the local dist
+  // tree mirrors the path-based URL structure it's served under (locally and
+  // on GitHub Pages) without any per-plugin configuration.
+  const platform = path.basename(path.resolve(__dirname, '..'))
+  const pluginName = path.basename(__dirname)
+  const outDir = path.resolve(__dirname, '../../dist', platform, pluginName)
+
   return {
     plugins: [
       preact(),
@@ -20,7 +28,7 @@ export default defineConfig(({ mode }) => {
               project: env.SENTRY_PROJECT,
               authToken: env.SENTRY_AUTH_TOKEN,
               sourcemaps: {
-                assets: './dist/**',
+                assets: path.join(outDir, '**'),
                 filesToDeleteAfterUpload: isDev ? undefined : '**/*.map',
               },
               release: {
@@ -63,7 +71,7 @@ export default defineConfig(({ mode }) => {
       target: 'es2015',
       sourcemap: true,
       minify: !isDev,
-      outDir: path.resolve(__dirname, 'dist'),
+      outDir,
       watch: isDev ? {} : null,
       emptyOutDir: false,
       ...(isPlugin
@@ -79,7 +87,7 @@ export default defineConfig(({ mode }) => {
             rollupOptions: {
               input: path.resolve(__dirname, './index.html'),
               output: {
-                dir: path.resolve(__dirname, 'dist'),
+                dir: outDir,
                 entryFileNames: 'ui.js',
                 assetFileNames: 'assets/[name].[hash][extname]',
                 sourcemapExcludeSources: false,
