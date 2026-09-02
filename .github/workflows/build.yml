@@ -30,10 +30,17 @@ jobs:
           head-sha: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (github.event_name == 'push' && github.event.after || '') }}
 
   build:
-    name: Build ${{ matrix.plugin }}
+    name: Build ${{ matrix.plugin.path }}
     needs: detect
     if: needs.detect.outputs.matrix != '[]'
     runs-on: ubuntu-latest
+    # Each plugin's own GitHub Environment holds its plugin-specific secrets
+    # (Sentry/Mixpanel/LemonSqueezy keys, etc.) under the same names used
+    # below; secrets.* falls back to the repository-level secret of that
+    # name for anything not overridden there (shared infra like the auth/CORS
+    # worker URLs). Create the environment in Settings > Environments,
+    # named exactly like matrix.plugin.slug (e.g. "penpot-token-lint").
+    environment: ${{ matrix.plugin.slug }}
     strategy:
       fail-fast: false
       matrix:
@@ -49,7 +56,7 @@ jobs:
 
       - name: Create env files
         run: |
-          touch "${{ matrix.plugin }}/.env.local" "${{ matrix.plugin }}/.env.sentry-build-plugin"
+          touch "${{ matrix.plugin.path }}/.env.local" "${{ matrix.plugin.path }}/.env.sentry-build-plugin"
           {
             echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}"
             echo "VITE_SUPABASE_PUBLIC_ANON_KEY=${{ secrets.VITE_SUPABASE_PUBLIC_ANON_KEY }}"
@@ -66,29 +73,25 @@ jobs:
             echo "VITE_LEMONSQUEEZY_API_KEY=${{ secrets.VITE_LEMONSQUEEZY_API_KEY }}"
             echo "VITE_TOLGEE_URL=${{ secrets.VITE_TOLGEE_URL }}"
             echo "VITE_TOLGEE_API_KEY=${{ secrets.VITE_TOLGEE_API_KEY }}"
-          } >> "${{ matrix.plugin }}/.env.local"
+          } >> "${{ matrix.plugin.path }}/.env.local"
           {
             echo "SENTRY_ORG=${{ secrets.SENTRY_ORG }}"
             echo "SENTRY_PROJECT=${{ secrets.SENTRY_PROJECT }}"
             echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}"
-          } >> "${{ matrix.plugin }}/.env.sentry-build-plugin"
+          } >> "${{ matrix.plugin.path }}/.env.sentry-build-plugin"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build:prod --workspace="${{ matrix.plugin }}"
-
-      - name: Compute artifact name
-        id: meta
-        run: echo "slug=$(echo '${{ matrix.plugin }}' | tr '/' '-')" >> "$GITHUB_OUTPUT"
+        run: npm run build:prod --workspace="${{ matrix.plugin.path }}"
 
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: plugin-${{ steps.meta.outputs.slug }}
+          name: plugin-${{ matrix.plugin.slug }}
           path: |
-            dist/${{ matrix.plugin }}/index.html
-            dist/${{ matrix.plugin }}/plugin.js
-            dist/${{ matrix.plugin }}/manifest.json
+            dist/${{ matrix.plugin.path }}/index.html
+            dist/${{ matrix.plugin.path }}/plugin.js
+            dist/${{ matrix.plugin.path }}/manifest.json
           retention-days: 5

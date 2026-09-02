@@ -26,7 +26,12 @@ inputs:
 
 outputs:
   matrix:
-    description: JSON array of "platform/name" workspace paths
+    description: >
+      JSON array of { path: "platform/name", slug: "platform-name" }.
+      `slug` is a GitHub Environment-safe name (no "/"), meant to be used as
+      the job's `environment:` so each plugin's own Environment secrets
+      (e.g. its Sentry/Mixpanel/LemonSqueezy keys) are picked up, falling
+      back to repository secrets for whatever isn't overridden there.
     value: ${{ steps.detect.outputs.matrix }}
 
 runs:
@@ -103,5 +108,8 @@ runs:
         if [ "${#plugins[@]}" -eq 0 ]; then
           echo "matrix=[]" >> "$GITHUB_OUTPUT"
         else
-          printf '%s\n' "${plugins[@]}" | jq -R . | jq -sc . | sed 's/^/matrix=/' >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${plugins[@]}" \
+            | jq -R '{path: ., slug: (. | gsub("/"; "-"))}' \
+            | jq -sc . \
+            | sed 's/^/matrix=/' >> "$GITHUB_OUTPUT"
         fi
