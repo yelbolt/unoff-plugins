@@ -11,8 +11,7 @@ unoff-plugins/
 ├── framer/   (ready, empty)
 ├── sketch/   (ready, empty)
 ├── scripts/  build.mjs, changelog.mjs — the tooling behind the commands below
-├── dist/     shared build output: dist/<platform>/<name>/ (gitignored)
-└── CHANGELOG.md   monorepo/tooling changes — each plugin has its own for product changes
+└── dist/     shared build output: dist/<platform>/<name>/ (gitignored)
 ```
 
 Each plugin is a normal npm workspace: its own `package.json`, its own build
@@ -99,8 +98,9 @@ folder with a `package.json`, and its build output lands in the shared
 
 Add entries to a plugin's `[Unreleased]` section in its own `CHANGELOG.md` as
 you work — `release.yml` pulls that section into the GitHub release notes and
-bumps the file automatically when the plugin ships. This root `CHANGELOG.md`
-tracks changes to the monorepo/tooling itself and is maintained by hand.
+bumps the file automatically when the plugin ships. The root itself is just
+where commands are run from, not a released thing — it has no changelog of
+its own.
 
 ## Support
 
