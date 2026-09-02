@@ -2,26 +2,42 @@
 
 # Token Lint
 
-<!-- Describe what your plugin does in 2-3 sentences -->
-Token Lint is a Penpot plugin that helps you...
+Token Lint audits a Penpot file against its own active design tokens and
+tells you exactly where it drifted — a hard-coded color, a nudged spacing, an
+overridden instance — then fixes it in one action instead of forcing a
+layer-by-layer hunt.
 
-<!-- Optional: Add context about why you built this plugin -->
-<!-- The idea behind this plugin comes from... -->
+Design tokens answer *what the system says values should be*. Token Lint
+answers the two questions token creation/import plugins don't: **where is
+that system not applied?** and **how do I fix that without going shape by
+shape?**
 
 ## Features
 
-<!-- List the main features of your plugin -->
-This plugin allows you to:
-- Feature 1 description
-- Feature 2 description
-- Feature 3 description
-- Feature 4 description
-- Feature 5 description
+- **Audit** a selection, page, or the whole document, scoped to the
+  categories you pick (color, spacing, radius, typography, dimension).
+  Returns a coverage rate and a deviation list grouped by value — never
+  layer by layer — and prioritized as exact match, near match, or orphan.
+- **Select on canvas** the layers behind any deviation group directly from
+  the report.
+- **Apply** a proposed token to a single occurrence, a whole group, or every
+  exact match in scope in one action — with a report of what changed and
+  what was skipped, and why.
+- **Automatic matching** for near/orphan groups, using perceptual color
+  distance rather than raw RGB distance. It only ever suggests — nothing is
+  written without validating each suggestion individually.
+- **Create a token from a deviation** that has no match, into whichever
+  active token set you choose, without touching token-set management beyond
+  that one action.
+
+Token refactoring (renaming/swapping a token across every reference) and set
+hygiene (unused tokens, broken aliases, duplicates) are out of scope for this
+plugin — that's Design Token Manager's territory.
 
 ## Documentation
 
-<!-- If you have documentation, add the link here -->
-<!-- The full documentation is available at [your-docs-url.com](https://your-docs-url.com) -->
+The full architecture documentation is free and open to everyone:
+[uno.ylb.lt/docs](https://uno.ylb.lt/docs).
 
 ## Contribution
 
@@ -34,11 +50,15 @@ Have you encountered a bug? Could a feature be improved?
 Go to the `Issues` section and browse the existing tickets or create a new one.
 
 ### Development
-- Clone this repository (or fork it)
-- Install dependencies with `npm install`
-- Run `npm run start:dev` to watch in development mode
-- Run `npm run start:ext` to run the external services such as the workers ansd the auth lobby
-- Go to Penpot, then `Plugins`, type this url: `http://localhost:4400/manifest.json` and validate
+This plugin lives in the [unoff-plugins](https://github.com/yelbolt/unoff-plugins)
+monorepo — see its root README for the full picture. The short version:
+- Clone the monorepo (or fork it) and run `npm install` at its root
+- From the monorepo root: `npm run dev -- token-lint` to build in watch mode,
+  then `npm run serve` in another terminal. Go to Penpot, then `Plugins`,
+  and enter `http://localhost:4400/penpot/token-lint/manifest.json`
+- Or, from this folder directly: `npm run start:dev`, then the URL is
+  `http://localhost:4400/manifest.json` instead (no path prefix — this
+  serves only this plugin, not the shared monorepo dist tree)
 - Create a `Branch` and open a `Pull Request`
 - _Let's do this_
 
@@ -57,9 +77,9 @@ A spec declares the `layers` it touches (`canvas`, `bridge`, `ui`, `config`, `ex
 The full architecture documentation is free and open to everyone: [uno.ylb.lt/docs](https://uno.ylb.lt/docs). Guidance tailored to your own plugin — monitoring, analytics, licensing — is the part you unlock: [see what it takes](https://uno.ylb.lt/start).
 
 ### Beta test
-- Go to the `Actions` sections and access the `Build and Download UI Color Palette` tab
-- Click `Run workflow`, then select a branch and confirm
-- Wait a minute, and once finished, download the artifact (which is a ZIP file containing the plugin)
+- Go to the `Actions` section of the monorepo and open the `Build plugins` workflow
+- Click `Run workflow`, select a branch, enter `token-lint` (or `penpot/token-lint`) as the plugin, and confirm
+- Wait a minute, and once finished, download the `plugin-penpot-token-lint` artifact (a ZIP file containing the plugin, unzipped flat — `manifest.json` at its root)
 - You can use a third-party tool to create a local server from the unzipped artifact, such as MAMP, WAMP, LAMP, etc
 - Go to Penpot, then `Plugins`, type this url: `http://localhost:{customPort}/manifest.json` and validate
 - _Enjoy!_
