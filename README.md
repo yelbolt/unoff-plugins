@@ -19,6 +19,12 @@ Each plugin is a normal npm workspace: its own `package.json`, its own build
 scripts, its own `README.md` with plugin-specific setup. This root README only
 covers what's common across all of them.
 
+**This monorepo is specific to this project.** UNOFF as a framework scaffolds
+one plugin per its own standalone repo, each with its own independent release
+lifecycle — that's still the default `@unoff/cli` produces. Bundling several
+plugins into one repo with a shared build/CI setup is a deliberate choice made
+here, not how the framework works in general.
+
 ## Getting started
 
 ```bash
@@ -30,16 +36,21 @@ local development — see that plugin's own README for which keys it expects.
 
 ## Commands
 
-Run from the repo root. Every one accepts an optional target after `--`:
-nothing (everything), a platform name (`penpot`), a bare plugin name
-(`token-lint`, resolved automatically wherever it lives), or an explicit
-`platform/name`.
+Run from the repo root. Every one takes the same optional target after `--` —
+think of it as a flag choosing which plugin(s) the command applies to. Pass
+one, or omit it entirely:
+- omitted → every plugin, every platform
+- a platform name (`penpot`) → every plugin under that platform
+- a bare plugin name (`token-lint`) → just that plugin, resolved automatically
+  wherever it lives
+- an explicit `platform/name` → same, disambiguated (only needed if a bare
+  name exists under more than one platform)
 
 ```bash
 npm run build                        # production build, every plugin
 npm run build -- penpot              # production build, every plugin under penpot/
 npm run build -- token-lint          # production build, just that plugin
-npm run build -- penpot/token-lint   # same, explicit path (only needed if a name is ambiguous)
+npm run build -- penpot/token-lint   # same, explicit path
 
 npm run dev -- token-lint            # same targeting, but development mode (watches for changes)
 
@@ -90,3 +101,8 @@ Add entries to a plugin's `[Unreleased]` section in its own `CHANGELOG.md` as
 you work — `release.yml` pulls that section into the GitHub release notes and
 bumps the file automatically when the plugin ships. This root `CHANGELOG.md`
 tracks changes to the monorepo/tooling itself and is maintained by hand.
+
+## Support
+
+- [Follow on LinkedIn](https://uno.ylb.lt/network)
+- [Support the author](https://uno.ylb.lt/author)

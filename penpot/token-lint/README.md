@@ -124,8 +124,7 @@ Scaffolded with [`@unoff/cli`](https://github.com/yelbolt/unoff-cli) — `npx @u
 - Technology/Library used thanks to [author](link)
 -->
 
-<!-- Optional: Add support/sponsor links -->
-<!-- ## Support
-- [Follow on LinkedIn](https://linkedin.com/...)
-- [Support the author](https://ko-fi.com/...)
--->
+## Support
+
+- [Follow on LinkedIn](https://uno.ylb.lt/network)
+- [Support the author](https://uno.ylb.lt/author)
