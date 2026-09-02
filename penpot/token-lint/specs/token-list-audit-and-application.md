@@ -23,8 +23,9 @@ So files drift. A color gets typed by hand, a spacing gets nudged, an instance g
 4. They expand a group — for example “`#3B82F6` used on 47 layers, resolves to `color.action.primary`” — and select those layers on canvas to see what is affected.
 5. They apply the proposed token, **case by case or in bulk**: one occurrence, a whole group, or every exact match in the scope in a single action. The plugin announces the exact count, applies, then reports what changed and what was skipped, with reasons.
 6. For groups with no obvious target, they open automatic matching: the plugin suggests the nearest existing token with its residual difference. They validate or reject each suggestion individually.
-7. Separately, they run token refactoring to swap or rename a token and propagate every reference.
-8. Separately again, they run set hygiene to find unused tokens, broken aliases, duplicate values, scale gaps and off-convention names.
+7. When nothing fits, either an orphan value or a near match they refuse to snap, they create the token from the audit itself: they pick a destination among the active sets, keep or edit the proposed name, and the plugin creates the token then applies it to the group.
+8. Separately, they run token refactoring to swap or rename a token and propagate every reference.
+9. Separately again, they run set hygiene to find unused tokens, broken aliases, duplicate values, scale gaps and off-convention names.
 
 ## Rules
 
@@ -41,13 +42,18 @@ So files drift. A color gets typed by hand, a spacing gets nudged, an instance g
 - A token type incompatible with the target property is refused explicitly.
 - Automatic matching uses **perceptual** color distance, not RGB distance. Numeric matching uses the nearest step on the scale.
 - **Automatic matching never writes anything without explicit human validation.** Ties surface every candidate; no candidate is auto-elected.
-- When no token sits within a reasonable radius (a NEAR or ORPHAN group), offer to create one instead of forcing a bad match — via Penpot's own `TokenSet.addToken()`, into an active set the user picks, using the deviation's own raw value. This never touches a shape; it only makes the deviation applicable. Creating a token is otherwise scoped narrowly (see Out of scope).
+- When no token sits within a reasonable radius, suggest creating one instead of forcing a bad match.
+- **Token creation is available on any orphan value and on any near match**, directly from the audit. It is the only creation the plugin does: one deviating value becomes one token, which is then applied.
+- Creation requires picking a destination among the **active** sets. An unapplied or disabled set is never offered, and the destination is never chosen silently.
+- The plugin proposes a default name built from the token type and the value, separated by dots: `color.3b82f6`, `spacing.12`, `radius.8`. The name stays editable before creation.
+- A name that already exists in the target set is refused, with the option to apply that existing token instead of creating a duplicate.
+- Once created, the token is applied to the group that triggered the creation, in a single undoable action, and the coverage rate is recomputed.
 - Refactoring resolves alias chains end to end and displays them. Circular chains are refused with an explanation.
 - Set hygiene is informational; it proposes an action only when the fix is unambiguous.
 
 ## Out of scope
 
-- Editing, renaming, or deleting existing tokens, and any token-set/theme management (creating new sets, organizing groups) — that remains Design Token Manager's territory. The one exception: creating a single new token *from a flagged deviation* (NEAR/ORPHAN groups) is in scope — see the automatic-matching rule above. The user picks which existing active set it lands in; anything beyond that one-shot creation (new sets, editing, deleting) still belongs to Design Token Manager.
+- Managing token sets: bulk creation, editing, renaming outside a deviation, import, export. That stays Design Token Manager's territory, so plug into it rather than compete with it. The single exception is creating one token from one deviation, described above.
 - Export to code.
 - Git synchronization.
 - Audit history and trend tracking.
@@ -60,6 +66,7 @@ So files drift. A color gets typed by hand, a spacing gets nudged, an instance g
 - [ ]  A bulk application is undoable with a single editor undo.
 - [ ]  The report clearly separates deviations on main components from those on instances.
 - [ ]  Automatic matching never applies anything without explicit validation.
+- [ ]  Creating a token from a deviation never writes into an inactive set, and the created token is applied to its group in the same undoable action.
 - [ ]  Refactoring a token with a three-level alias chain updates every reference in it.
 
 ## Implementation notes
