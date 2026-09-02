@@ -724,6 +724,15 @@ export default class DeviationGroupRow extends PureComponent<
                   })}
                 />
               )}
+              {group.mainComponentCount > 0 && (
+                <IconChip
+                  iconType="PICTO"
+                  iconName="warning"
+                  text={t('tokenLint.report.group.mainComponentCount', {
+                    count: group.mainComponentCount,
+                  })}
+                />
+              )}
             </div>
           }
           rightPartSlot={
@@ -779,16 +788,6 @@ export default class DeviationGroupRow extends PureComponent<
           isListItem={false}
           alignment="CENTER"
         />
-
-        {group.mainComponentCount > 0 && (
-          <div className={layouts['snackbar--tight']}>
-            <Chip>
-              {t('tokenLint.report.group.mainComponentCount', {
-                count: group.mainComponentCount,
-              })}
-            </Chip>
-          </div>
-        )}
 
         {isExpanded && (
           <List padding="0 0 0 var(--size-pos-xsmall)">

@@ -7,7 +7,6 @@ import {
   collectAuditableProperties,
   type RawOccurrenceCandidate,
 } from './auditableProperties'
-import type { Shape } from '@penpot/plugin-types'
 import type { TokenCategory } from '../../app/types/tokens'
 import type {
   AuditProgress,
@@ -36,16 +35,18 @@ const zeroByCategory = (): Record<TokenCategory, number> => ({
 
 // Exported — bridges/audit/applyTokens.ts reuses this exact compliance
 // check both to skip already-compliant properties and to verify a write
-// actually took.
+// actually took. Always checks `candidate.ownerShape`, never the traversed
+// shape directly — for a property inherited unmodified from a component's
+// main instance, the token binding (if any) lives on the main shape, not
+// on the instance (see auditableProperties.ts).
 export const isCandidateCompliant = (
-  shape: Shape,
   candidate: RawOccurrenceCandidate
 ): boolean => {
   // Empty tokenProperties (currently only `lineHeight`) means there's no
   // discrete TokenProperty to check — never counted compliant.
   if (candidate.tokenProperties.length === 0) return false
   return candidate.tokenProperties.every((property) =>
-    isPropertyTokenBound(shape, property)
+    isPropertyTokenBound(candidate.ownerShape, property)
   )
 }
 
@@ -94,7 +95,7 @@ export const runAudit = (
         for (const candidate of candidates) {
           auditableByCategory[candidate.category]++
 
-          const isCompliant = isCandidateCompliant(traversed.shape, candidate)
+          const isCompliant = isCandidateCompliant(candidate)
           if (isCompliant) compliantByCategory[candidate.category]++
 
           const match = isCompliant

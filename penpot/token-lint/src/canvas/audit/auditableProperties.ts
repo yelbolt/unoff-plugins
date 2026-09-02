@@ -24,6 +24,15 @@ export interface RawOccurrenceCandidate {
   tokenProperties: TokenProperty[]
   ownership: OccurrenceOwnership
   componentMainId?: string
+  /**
+   * The shape whose `.tokens` map actually governs this property, and
+   * where a fix must be written. Equal to the traversed shape itself,
+   * except when the property is inherited unmodified from a component's
+   * main instance (ownership redirected to 'MAIN_COMPONENT' below) — an
+   * instance that never overrides a property carries no token binding of
+   * its own for it, only the main shape does.
+   */
+  ownerShape: Shape
   isHidden: boolean
   isLocked: boolean
   isOffBoard: boolean
@@ -130,6 +139,7 @@ const push = (
   let ownership = traversed.ownership
   let shapeId = traversed.shape.id
   let shapeName = traversed.shape.name
+  let ownerShape = traversed.shape
   let componentMainId: string | undefined
 
   if (traversed.ownership === 'INSTANCE_OVERRIDE') {
@@ -143,9 +153,15 @@ const push = (
       typeof rawRefValue === 'number' ? roundNumeric(rawRefValue) : rawRefValue
 
     if (refShape && refValue !== undefined && refValue === normalizedRawValue) {
+      // Not a genuine override — the instance mirrors its main unchanged,
+      // so the main shape (not this instance) is the one that carries the
+      // token binding, if any. Checking compliance against the instance
+      // here would always read an empty `.tokens` map and misreport an
+      // already-tokened property as a raw-value deviation.
       ownership = 'MAIN_COMPONENT'
       shapeId = refShape.id
       shapeName = refShape.name
+      ownerShape = refShape
     } else componentMainId = refShape?.id
   }
   // MAIN_COMPONENT (naturally traversed, or redirected above): deviations
@@ -161,6 +177,7 @@ const push = (
     tokenProperties,
     ownership,
     componentMainId,
+    ownerShape,
     isHidden: traversed.isHidden,
     isLocked: traversed.isLocked,
     isOffBoard: traversed.isOffBoard,

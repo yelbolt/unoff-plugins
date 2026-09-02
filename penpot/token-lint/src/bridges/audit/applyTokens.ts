@@ -1,4 +1,3 @@
-import { roundNumeric } from '../../utils/numeric'
 import { resolveScope } from '../../canvas/traversal/select'
 import { buildResolvedIndex } from '../../canvas/tokens/buildResolvedIndex'
 import { applyTokenToShape } from '../../canvas/tokens/applyToken'
@@ -7,7 +6,6 @@ import { matchValue } from '../../canvas/audit/matchValue'
 import { groupKey, stableHash } from '../../canvas/audit/buildReport'
 import {
   collectAuditableProperties,
-  readValueAtPath,
   type RawOccurrenceCandidate,
 } from '../../canvas/audit/auditableProperties'
 import type { Shape, Token, TokenProperty } from '@penpot/plugin-types'
@@ -98,7 +96,7 @@ const gatherResolvedCandidates = (
   for (const traversed of included) {
     const candidates = collectAuditableProperties(traversed, request.categories)
     for (const candidate of candidates) {
-      if (isCandidateCompliant(traversed.shape, candidate)) continue
+      if (isCandidateCompliant(candidate)) continue
       const match = matchValue(candidate.rawValue, candidate.category, index)
       results.push({
         shape: traversed.shape,
@@ -122,18 +120,6 @@ const skipItem = (
   propertyPath: candidate.propertyPath,
   reason,
 })
-
-const resolveWriteTarget = (shape: Shape, propertyPath: string): Shape => {
-  if (!shape.isComponentInstance()) return shape
-  const ref = shape.componentRefShape()
-  if (!ref) return shape // shape IS the main instance
-  const normalize = (value: string | number | undefined) =>
-    typeof value === 'number' ? roundNumeric(value) : value
-  const current = normalize(readValueAtPath(shape, propertyPath))
-  const refValue = normalize(readValueAtPath(ref, propertyPath))
-  const isGenuinelyOverridden = current !== refValue
-  return isGenuinelyOverridden ? shape : ref
-}
 
 const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -175,10 +161,10 @@ const precheckAndIssue = (
   if (!isTokenCompatible(token, candidate.tokenProperties))
     return { skip: skipItem(candidate, 'TYPE_INCOMPATIBLE') }
 
-  if (isCandidateCompliant(shape, candidate))
+  if (isCandidateCompliant(candidate))
     return { skip: skipItem(candidate, 'ALREADY_APPLIED') }
 
-  const target = resolveWriteTarget(shape, candidate.propertyPath)
+  const target = candidate.ownerShape
 
   const outcome = applyTokenToShape(target, token, candidate.tokenProperties)
   if (!outcome.success) return { skip: skipItem(candidate, 'WRITE_FAILED') }
@@ -210,7 +196,7 @@ const verifyIssuedWrites = async (
 
     const stillPending: WriteIssued[] = []
     for (const item of pending)
-      if (isCandidateCompliant(item.target, item.candidate)) applied.push(item)
+      if (isCandidateCompliant(item.candidate)) applied.push(item)
       else stillPending.push(item)
 
     pending = stillPending

@@ -1,9 +1,8 @@
 import { selectShapesOnCanvas } from '../../canvas/selection/selectShapes'
 
-/** SELECT_LAYERS_ON_CANVAS handler — wraps canvas/selection/selectShapes.ts. */
-export const selectLayers = (shapeIds: string[]): void => {
+export const selectLayers = async (shapeIds: string[]): Promise<void> => {
   try {
-    const { resolved, selectionApplied } = selectShapesOnCanvas(shapeIds)
+    const { resolved, selectionApplied } = await selectShapesOnCanvas(shapeIds)
     penpot.ui.sendMessage({
       type: 'LAYERS_SELECTED',
       data: { requested: shapeIds.length, resolved, selectionApplied },
