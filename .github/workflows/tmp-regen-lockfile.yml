@@ -1,7 +1,8 @@
 name: (temp) Regenerate lockfile on Linux
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [fix/rollup-linux-lockfile]
 
 jobs:
   regen:
