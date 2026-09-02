@@ -1,6 +1,6 @@
 # unoff-plugins
 
-Monorepo of plugins built with the [UNOFF](https://unoff.dev) framework, organized by design tool platform.
+Monorepo of plugins built with the [Unoff](https://unoff.dev) framework, organized by design tool platform.
 
 ```
 unoff-plugins/
@@ -18,7 +18,7 @@ Each plugin is a normal npm workspace: its own `package.json`, its own build
 scripts, its own `README.md` with plugin-specific setup. This root README only
 covers what's common across all of them.
 
-**This monorepo is specific to this project.** UNOFF as a framework scaffolds
+**This monorepo is specific to this project.** Unoff as a framework scaffolds
 one plugin per its own standalone repo, each with its own independent release
 lifecycle — that's still the default `@unoff/cli` produces. Bundling several
 plugins into one repo with a shared build/CI setup is a deliberate choice made
