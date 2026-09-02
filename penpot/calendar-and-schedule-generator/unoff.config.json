@@ -1,0 +1,10 @@
+{
+  "assistants": [
+    "claude"
+  ],
+  "specsDir": "specs",
+  "skillsPath": ".claude/skills/unoff-create-plugin",
+  "platform": "penpot",
+  "pluginName": "Calendar and Schedule Generator",
+  "penpotUrl": "https://design.penpot.app"
+}

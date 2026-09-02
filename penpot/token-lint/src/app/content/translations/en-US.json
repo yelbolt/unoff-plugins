@@ -1,0 +1,420 @@
+{
+  "about": {
+    "attributions": {
+      "preact": {
+        "preact": "Preact",
+        "sentence": "• The UI is built using {preact}"
+      },
+      "supabase": {
+        "sentence": "• Remote date is stored using {supabase}",
+        "supabase": "Supabase"
+      },
+      "title": "Attributions",
+      "unoff": {
+        "author": "Aurélien Grimaud",
+        "sentence": "• The component integration is powered by {unoff} by {author}",
+        "unoff": "Unoff"
+      },
+      "vite": {
+        "sentence": "• The build tool is powered by {vite}",
+        "vite": "Vite"
+      }
+    },
+    "information": {
+      "contribution": {
+        "sentence": "• Contributions are welcome on {repository}"
+      },
+      "creator": {
+        "sentence": "• Created and maintained by {author}"
+      },
+      "sourceCode": {
+        "sentence": "• Source code is licensed under {license}"
+      },
+      "version": "Version {version}"
+    },
+    "title": "About {pluginName}"
+  },
+  "announcements": {
+    "cta": {
+      "gotIt": "Got it",
+      "learnMore": "Learn more",
+      "next": "Next"
+    }
+  },
+  "empty": "-",
+  "error": {
+    "activatedLicense": "This license key is not valid and cannot be activated. Please check it and try again. If the problem persists, please contact support.",
+    "announcements": "The announcements cannot be loaded",
+    "authentication": "The authentication has failed",
+    "badResponse": "The response is not valid",
+    "generic": "Something went wrong",
+    "noInternetConnection": "The connection with the remote service is unavailable",
+    "onboarding": "The onboarding cannot be loaded",
+    "timeout": "The authentication has been timed out",
+    "unavailableAi": "The AI service is currently unavailable. Please try again later.",
+    "unlinkedLicense": "Your license key \"{licenseKey}\" is no longer valid or cannot be unlinked remotely. Please unlink it locally in order to replace it with a new one. If the problem persists, please contact support."
+  },
+  "global": {
+    "description": {
+      "label": "Description",
+      "placeholder": "What's it for?"
+    }
+  },
+  "info": {
+    "announcements": "There is no announcement for now",
+    "onboarding": "There is no onboarding for now",
+    "signOut": "See you later"
+  },
+  "tokenLint": {
+    "contexts": {
+      "auditReport": "Audit report",
+      "auditSetup": "Audit setup"
+    },
+    "report": {
+      "apply": {
+        "confirmCount": "You are about to apply {count, plural, one {{count} exact match} other {# exact matches}} across {groups, plural, one {{groups} group} other {# groups}}. This action is undoable with a single undo.",
+        "skippedReason": {
+          "ALREADY_APPLIED": "The token was already applied",
+          "AMBIGUOUS_CANDIDATES": "Several tokens matched — pick one to apply",
+          "LOCKED": "The layer is locked",
+          "SHAPE_NOT_FOUND": "The layer could not be found",
+          "TIER_NOT_APPLICABLE": "This deviation has no validated match yet",
+          "TYPE_INCOMPATIBLE": "The token type does not match this property",
+          "WRITE_FAILED": "The value could not be written"
+        }
+      },
+      "category": {
+        "all": "All"
+      },
+      "applyAll": {
+        "cancelCta": "Cancel",
+        "confirmCta": "Apply now",
+        "confirmTitle": "Apply all exact matches",
+        "cta": "Apply all exact matches",
+        "description": "{count, plural, one {{count} hard-coded value matches an active token exactly} other {# hard-coded values match an active token exactly}}, across {groups, plural, one {{groups} group} other {# groups}}.",
+        "resultAlreadyCompliant": "Already up to date — these values already match their token, nothing to apply.",
+        "resultClose": "Close",
+        "resultSummary": "Applied {applied} of {announced} announced occurrences.",
+        "resultTitle": "Apply all exact matches — result",
+        "skippedGroupHeader": "{count, plural, one {{count} occurrence skipped — {reason}} other {# occurrences skipped — {reason}}}",
+        "skippedSummary": {
+          "AMBIGUOUS_CANDIDATES": "{count, plural, one {{count} occurrence skipped — multiple tokens matched, pick one per group below} other {# occurrences skipped — multiple tokens matched, pick one per group below}}",
+          "TYPE_INCOMPATIBLE": "{count, plural, one {{count} occurrence skipped — the token type doesn't match this property} other {# occurrences skipped — the token type doesn't match this property}}"
+        }
+      },
+      "coverage": {
+        "helperText": "Share of audited properties whose value already matches an active token — not a share of shapes or of the whole file.",
+        "nonCompliantCount": "{count, plural, one {{count} non-compliant occurrence} other {# non-compliant occurrences}}",
+        "rate": "{rate}% coverage",
+        "title": "Coverage"
+      },
+      "empty": "Run an audit to see the report here.",
+      "emptyFilter": {
+        "fullyCompliantAll": "Everything is compliant — no hard-coded value left to fix in this scope.",
+        "fullyCompliantCategory": "{category} is fully compliant — no hard-coded value left to fix.",
+        "noAuditableAll": "No auditable properties in this scope.",
+        "noAuditableCategory": "No {category} properties in this scope."
+      },
+      "group": {
+        "applied": "Applied",
+        "candidateConfirmed": "{tokenName} ({resolvedValue}) matches exactly and will be applied",
+        "createToken": {
+          "cancelCta": "Cancel",
+          "confirmCta": "Create token",
+          "cta": "Create token",
+          "description": "A new token will be created with the value {rawValue}, then applied to every occurrence in this group.",
+          "dialogTitle": "Create token",
+          "failure": {
+            "CREATE_FAILED": "The token could not be created — check the name and try again.",
+            "NAME_ALREADY_EXISTS": "A token already has this name in that set — pick another one.",
+            "NO_ACTIVE_SET": "No active token set — activate one in Design Token Manager."
+          },
+          "nameLabel": "Token name",
+          "namePlaceholder": "token.name",
+          "setLabel": "Token set",
+          "success": "Token {tokenName} created"
+        },
+        "cta": {
+          "apply": "Apply to all occurrences",
+          "applyOccurrence": "Apply to this occurrence",
+          "expand": "Show occurrences",
+          "selectAll": "Select all occurrences on canvas",
+          "selectOccurrence": "Select this occurrence on canvas"
+        },
+        "instanceOverrideCount": "{count, plural, one {{count} instance override} other {# instance overrides}}",
+        "mainComponentCount": "{count, plural, one {{count} main component} other {# main components}}",
+        "nearMatch": "≈ {tokenName} ({resolvedValue})",
+        "noMatchNote": "No comparable token",
+        "occurrenceCount": "{count, plural, one {{count} occurrence} other {# occurrences}}",
+        "residual": "Δ {value}",
+        "resolvedValueHelper": "Resolved value: {value}"
+      },
+      "occurrence": {
+        "property": {
+          "bottomPadding": "Bottom padding",
+          "columnGap": "Column gap",
+          "fill": "Fill {index}",
+          "fontSize": "Font size",
+          "fontWeight": "Font weight",
+          "height": "Height",
+          "leftPadding": "Left padding",
+          "letterSpacing": "Letter spacing",
+          "lineHeight": "Line height",
+          "radius": "Radius",
+          "rightPadding": "Right padding",
+          "rowGap": "Row gap",
+          "strokeColor": "Stroke {index}",
+          "strokeWidth": "Stroke {index} width",
+          "topPadding": "Top padding",
+          "width": "Width"
+        }
+      },
+      "ownership": {
+        "INSTANCE_OVERRIDE": "Instance override",
+        "MAIN_COMPONENT": "Main component",
+        "STANDALONE": "Standalone"
+      },
+      "tier": {
+        "exact": {
+          "title": "Exact matches"
+        },
+        "near": {
+          "title": "Near matches"
+        },
+        "orphan": {
+          "title": "Orphan values"
+        }
+      },
+      "toast": {
+        "alreadyCompliant": "Already up to date — nothing to apply.",
+        "bulkNoneApplied": "{count, plural, one {No occurrences were applied — 1 item was skipped, see details below} other {No occurrences were applied — # items were skipped, see details below}}",
+        "groupApplied": "{applied, plural, one {{applied} occurrence updated} other {# occurrences updated}}",
+        "occurrenceApplied": "Token applied"
+      }
+    },
+    "running": {
+      "deviations": "{count, plural, one {{count} deviation found} other {# deviations found}} so far",
+      "progress": "Scanned {scanned} of {total} shapes"
+    },
+    "service": {
+      "cta": {
+        "back": "Back to setup",
+        "cancel": "Cancel"
+      },
+      "title": {
+        "report": "Audit report",
+        "running": "Auditing…",
+        "setup": "Audit setup"
+      }
+    },
+    "setup": {
+      "auditFailedNotice": "The audit failed unexpectedly. You can try running it again.",
+      "cancelledNotice": "The previous audit was cancelled after scanning {count} shapes.",
+      "category": {
+        "color": "Color",
+        "dimension": "Dimension",
+        "radius": "Radius",
+        "spacing": "Spacing",
+        "title": "Categories",
+        "typography": "Typography"
+      },
+      "cta": {
+        "runAudit": "Run audit"
+      },
+      "options": {
+        "excludeHidden": "Exclude hidden elements",
+        "excludeHiddenHelper": "Skip layers with visibility turned off.",
+        "excludeLocked": "Exclude locked elements",
+        "excludeLockedHelper": "Skip layers that are locked on the canvas.",
+        "excludeOffBoard": "Exclude off-board elements",
+        "excludeOffBoardHelper": "Skip shapes that aren't nested inside a board — elements floating loose on the canvas.",
+        "title": "Options"
+      },
+      "scope": {
+        "document": "Document",
+        "page": "Page",
+        "selection": "Selection",
+        "title": "Scope"
+      }
+    }
+  },
+  "onboarding": {
+    "cta": {
+      "gotIt": "Got it",
+      "learnMore": "Learn more",
+      "next": "Next"
+    }
+  },
+  "pending": {
+    "announcements": "Pending announcements…",
+    "onboarding": "Pending onboarding…",
+    "primaryAction": "………",
+    "secondaryAction": "………"
+  },
+  "plan": {
+    "credits": {
+      "amount": "{count, plural, one {1 credit left} other {# credits left} =0 {No credit left}}",
+      "fees": {
+        "myFee": "My action's fee: {fee} cdts"
+      },
+      "renew": "Credits will renew at {date}. Upgrade to Pro for unlimited credits."
+    },
+    "dev": "Dev plan",
+    "free": "Basic plan",
+    "getPro": "Go Pro",
+    "pro": "Pro plan",
+    "trial": "Trial",
+    "trialEnded": "Your trial has ended",
+    "trialFeedback": "How was it?",
+    "trialTimeDays": "{count, plural, one {{count} day left in this trial} other {# days left in this trial}}",
+    "trialTimeHours": "{count, plural, one {{count} hour left in this trial} other {# hours left in this trial}}",
+    "tryPro": "Try Pro"
+  },
+  "platform": {
+    "figma": "Figma",
+    "framer": "Framer",
+    "penpot": "Penpot",
+    "sketch": "Sketch"
+  },
+  "pricing": {
+    "activate": {
+      "cta": "Manage license",
+      "text": "Enter your license key after purchasing to unlock Pro features",
+      "title": "Activate Pro"
+    },
+    "discount": {
+      "amount": "20% off"
+    },
+    "planA": {
+      "cta": "Go Pro",
+      "subtitle": "$5 /month",
+      "text": "Using Lemon Squeezy transactional services to process payments and manage subscriptions",
+      "title": "Plan A"
+    },
+    "planB": {
+      "cta": "Go Pro",
+      "subtitle": "$15 /month",
+      "text": "Using Lemon Squeezy transactional services to process payments and manage subscriptions",
+      "title": "Plan B"
+    },
+    "title": "Subscribe to {pluginName} Pro"
+  },
+  "proPlan": {
+    "trial": {
+      "cta": "Enable the {hours}-hour trial",
+      "message": "Unlock advanced features for {hours} hours with the Pro plan. You will be able to access premium functionality and enhanced capabilities.",
+      "option": "Go Pro directly",
+      "title": "Would you like to upgrade to the Pro plan within the next {hours} hours?"
+    },
+    "welcome": {
+      "cta": "Let's build",
+      "message": "This upgrade will unlock a range of advanced tools and features. We hope you will enjoy the benefits.",
+      "title": "Welcome to {pluginName} Pro!",
+      "trial": "This upgrade will unlock a range of advanced tools and features. We hope you will enjoy the benefits for the next {hours} hours."
+    }
+  },
+  "report": {
+    "cta": "Submit your issue",
+    "email": {
+      "label": "Email",
+      "placeholder": "Optional"
+    },
+    "fullName": {
+      "label": "Full name",
+      "placeholder": "Optional"
+    },
+    "message": {
+      "label": "Message (required)",
+      "placeholder": "Describe the issue you encountered by trying to describe the steps to reproduce it."
+    },
+    "title": "Report a bug"
+  },
+  "separator": "・",
+  "shortcuts": {
+    "author": "Support the author",
+    "chat": "Chat with us",
+    "community": "Join our community",
+    "email": "Contact support",
+    "feedback": "Submit feedback",
+    "follow": "Support us",
+    "news": "What's new",
+    "onboarding": "Quick start",
+    "repository": "Contribute",
+    "request": "Share your ideas",
+    "tooltips": {
+      "documentation": "Read the documentation",
+      "helpMenu": "Help/Support menu",
+      "userMenu": "User menu"
+    }
+  },
+  "success": {
+    "activatedLicense": "The license key \"{licenseKey}\" has been activated",
+    "report": "Thanks for your report",
+    "unlinkedLicense": "Your license key \"{licenseKey}\" has been unlinked"
+  },
+  "user": {
+    "cookies": {
+      "back": "Back",
+      "close": "Close",
+      "consent": "Accept all",
+      "customize": "Customize cookies",
+      "deny": "Deny all",
+      "privacyPolicy": "Read our Privacy Policy",
+      "save": "Save preferences",
+      "vendors": "By accepting this, you agree to our use of cookies and other technologies for the purposes listed above.",
+      "welcome": "{pluginName} uses cookies to understand how you use our application and to improve your experience."
+    },
+    "language": {
+      "englishUS": "English (US)",
+      "frenchFR": "Français (FR)",
+      "label": "Change language",
+      "suggestion": {
+        "fr": {
+          "cta": "Passer en Français",
+          "message": "Il semble que la langue de votre navigateur soit le français. Souhaitez-vous changer ?"
+        }
+      },
+      "title": "Language"
+    },
+    "license": {
+      "cta": {
+        "activate": "Activate your license",
+        "manage": "Manage your license",
+        "unlink": "Unlink your license",
+        "unlinkLocally": "Unlink your license locally",
+        "validate": "Verify"
+      },
+      "key": {
+        "label": "License key",
+        "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX"
+      },
+      "messages": {
+        "activate": "Enter your license key to unlock the Pro features",
+        "active": "Valid",
+        "unactive": "Not valid"
+      },
+      "name": {
+        "helper": "This name will be used to identify your license",
+        "label": "License name",
+        "placeholder": "*Your name*'s license"
+      }
+    },
+    "manageLicense": "Manage license",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "updateConsent": "Manage cookies",
+    "updatePreferences": "Update preferences",
+    "welcomeMessage": "Hello {username}"
+  },
+  "vendors": {
+    "functional": {
+      "description": "Cookies that are necessary for the application to work",
+      "name": "Functional"
+    },
+    "mixpanel": {
+      "description": "A top analytics platform for tracking and understanding user interactions",
+      "name": "Mixpanel"
+    }
+  },
+  "warning": {}
+}

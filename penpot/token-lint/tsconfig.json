@@ -1,0 +1,39 @@
+{
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "vite.config.ts",
+    "env.d.ts",
+    "vite-env.d.ts",
+  ],
+  "compilerOptions": {
+    "target": "ES2015",
+    "lib": [
+      "ES2019",
+      "DOM",
+      "ES6",
+      "DOM.Iterable",
+      "ScriptHost"
+    ],
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./node_modules/@penpot"
+    ],
+    "types": ["plugin-types"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "skipLibCheck": true,
+    "paths": {
+      "react": ["./node_modules/preact/compat/"],
+      "react/jsx-runtime": ["./node_modules/preact/jsx-runtime"],
+      "react-dom": ["./node_modules/preact/compat/"],
+      "react-dom/*": ["./node_modules/preact/compat/*"],
+      "@ui-lib/*": ["./packages/ui-ui-color-palette/src/*"],
+    }
+  }
+}

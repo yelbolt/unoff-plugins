@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "penpot": {
+      "url": "https://design.penpot.app/mcp/stream?userToken=${PENPOT_USER_TOKEN}"
+    },
+    "penpot-dev": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:4401/mcp",
+        "--allow-http"
+      ]
+    }
+  }
+}

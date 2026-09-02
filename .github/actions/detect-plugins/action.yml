@@ -1,0 +1,78 @@
+name: Detect changed plugins
+description: >
+  Resolves which "<platform>/<plugin>" workspaces should be built/released:
+  either a single one requested manually, or every workspace touched between
+  two git refs. Falls back to scanning all workspaces when no refs are given
+  or the base ref is unusable (e.g. a brand new branch).
+
+inputs:
+  plugin:
+    description: 'Specific "platform/name" workspace to target. Empty means auto-detect.'
+    required: false
+    default: ''
+  base-sha:
+    description: 'Git ref to diff from. Empty means "scan all workspaces".'
+    required: false
+    default: ''
+  head-sha:
+    description: 'Git ref to diff to.'
+    required: false
+    default: ''
+
+outputs:
+  matrix:
+    description: JSON array of "platform/name" workspace paths
+    value: ${{ steps.detect.outputs.matrix }}
+
+runs:
+  using: composite
+  steps:
+    - id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        is_workspace() {
+          [ -f "$1/package.json" ]
+        }
+
+        scan_all() {
+          find . -mindepth 3 -maxdepth 3 -name package.json -not -path "*/node_modules/*" \
+            | sed -e 's|^\./||' -e 's|/package.json$||'
+        }
+
+        PLUGIN_INPUT="${{ inputs.plugin }}"
+        BASE_SHA="${{ inputs.base-sha }}"
+        HEAD_SHA="${{ inputs.head-sha }}"
+        ZERO_SHA="0000000000000000000000000000000000000000"
+
+        if [ -n "$PLUGIN_INPUT" ]; then
+          if ! is_workspace "$PLUGIN_INPUT"; then
+            echo "::error::'$PLUGIN_INPUT' is not a known plugin workspace (missing package.json)"
+            exit 1
+          fi
+          candidates="$PLUGIN_INPUT"
+        elif [ -n "$BASE_SHA" ] && [ -n "$HEAD_SHA" ] && [ "$BASE_SHA" != "$ZERO_SHA" ]; then
+          changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true)
+          if [ -z "$changed" ]; then
+            candidates=""
+          else
+            candidates=$(echo "$changed" | awk -F/ 'NF>=3 {print $1"/"$2}' | sort -u)
+          fi
+        else
+          candidates=$(scan_all)
+        fi
+
+        plugins=()
+        while IFS= read -r p; do
+          [ -z "$p" ] && continue
+          if is_workspace "$p"; then
+            plugins+=("$p")
+          fi
+        done <<< "$candidates"
+
+        if [ "${#plugins[@]}" -eq 0 ]; then
+          echo "matrix=[]" >> "$GITHUB_OUTPUT"
+        else
+          printf '%s\n' "${plugins[@]}" | jq -R . | jq -sc . | sed 's/^/matrix=/' >> "$GITHUB_OUTPUT"
+        fi

@@ -1,0 +1,321 @@
+{
+  "about": {
+    "attributions": {
+      "preact": {
+        "preact": "Preact",
+        "sentence": "• L'interface utilisateur est construite avec {preact}"
+      },
+      "supabase": {
+        "sentence": "• Les palettes distantes sont stockées avec {supabase}",
+        "supabase": "Supabase"
+      },
+      "title": "Attributions",
+      "unoff": {
+        "author": "Aurélien Grimaud",
+        "sentence": "• L'intégration des composants est alimentée par {unoff} par {author}",
+        "unoff": "Unoff"
+      },
+      "vite": {
+        "sentence": "• L'outil de build est alimenté par {vite}",
+        "vite": "Vite"
+      }
+    },
+    "information": {
+      "contribution": {
+        "sentence": "• Les contributions sont les bienvenues sur {repository}"
+      },
+      "creator": {
+        "sentence": "• Créé et maintenu par {author}"
+      },
+      "sourceCode": {
+        "sentence": "• Le code source est sous licence {license}"
+      },
+      "version": "Version {version}"
+    },
+    "title": "À propos de {pluginName}"
+  },
+  "announcements": {
+    "cta": {
+      "gotIt": "Compris",
+      "learnMore": "En savoir plus",
+      "next": "Suivant"
+    }
+  },
+  "empty": "-",
+  "error": {
+    "activatedLicense": "Cette clé de licence n'est pas valide et ne peut être activée. Veuillez la vérifier et réessayer. Si le problème persiste, veuillez contacter le support.",
+    "announcements": "Les annonces ne peuvent pas être chargées",
+    "authentication": "L'authentification a échoué",
+    "badResponse": "La réponse n'est pas valide",
+    "generic": "Quelque chose s'est mal passé",
+    "noInternetConnection": "La connexion avec le service distant est indisponible",
+    "onboarding": "L'intégration ne peut pas être chargée",
+    "timeout": "L'authentification a expiré",
+    "unavailableAi": "Le service IA est actuellement indisponible. Veuillez réessayer plus tard.",
+    "unlinkedLicense": "Votre clé de licence \"{licenseKey}\" n'est plus valide ou ne peut pas être dissociée à distance. Veuillez la dissocier localement pour la remplacer par une nouvelle. Si le problème persiste, veuillez contacter le support."
+  },
+  "global": {
+    "description": {
+      "label": "Description",
+      "placeholder": "À quoi ça sert ?"
+    }
+  },
+  "info": {
+    "announcements": "Il n'y a pas d'annonce pour l'instant",
+    "onboarding": "Il n'y a pas d'intégration pour l'instant",
+    "signOut": "À bientôt"
+  },
+  "template": {
+    "colorPalette": {
+      "cta": {
+        "generate": "Générer la palette"
+      },
+      "empty": "Saisissez une couleur hex pour générer une palette de 9 teintes sur le canevas.",
+      "input": {
+        "placeholder": "#FF5733"
+      }
+    },
+    "contexts": {
+      "firstContext": "Bienvenue",
+      "secondContext": "Exemples"
+    },
+    "layerInspector": {
+      "cta": {
+        "inspect": "Inspecter la sélection"
+      },
+      "empty": "Sélectionnez un calque dans Penpot, puis cliquez sur 'Inspecter' pour voir ses propriétés.",
+      "noSelection": "Aucun calque sélectionné. Sélectionnez-en un dans Penpot pour l'inspecter.",
+      "properties": {
+        "fill": "Couleur",
+        "height": "Hauteur",
+        "name": "Nom",
+        "opacity": "Opacité",
+        "type": "Type",
+        "width": "Largeur",
+        "x": "X",
+        "y": "Y"
+      }
+    },
+    "subcontexts": {
+      "toDoList": "Liste de tâches",
+      "colorPalette": "Palette de couleurs",
+      "layerInspector": "Inspecteur de calques"
+    },
+    "ToDoList": {
+      "cta": {
+        "add": "Ajouter",
+        "generateOnCanvas": "Générer la checklist"
+      },
+      "empty": "Aucun élément pour l'instant. Ajoutez-en un ci-dessus.",
+      "input": {
+        "placeholder": "Nouvel élément…"
+      }
+    },
+    "welcome": {
+      "description": "Arrêtez de passer des semaines à connecter des services entre eux. L'authentification, les paiements, l'analytics et le pont canvas sont déjà là — il ne reste que votre produit. Décrivez-le sous forme de spec, et votre assistant IA le construit à partir des skills unoff. Ils sont gratuits, open source, et arrivent directement dans votre dossier.",
+      "signature": "Fièrement expédié avec Unoff par {author}",
+      "steps": {
+        "assistant": {
+          "description": "Installe les skills, les règles du projet et les agents par couche pour l'assistant que vous utilisez — Claude, Copilot, Cursor, Windsurf ou Codex.",
+          "label": "1. Configurez votre assistant"
+        },
+        "specs": {
+          "description": "C'est l'étape qui compte. Une spec dit ce que fait une fonctionnalité, les règles qu'elle doit respecter et les couches qu'elle touche — pour que votre assistant sache exactement quels skills lire avant d'écrire la moindre ligne.",
+          "label": "2. Décrivez ce que vous construisez"
+        },
+        "sync": {
+          "description": "Régénère l'index des specs et y pointe chaque fichier d'instructions d'assistant. À relancer à chaque modification d'une spec.",
+          "label": "3. Reliez le tout"
+        },
+        "title": "Commencez ici"
+      },
+      "support": {
+        "cta": {
+          "docs": "Lire la documentation",
+          "unlock": "Débloquer un créneau"
+        },
+        "description": "La documentation est gratuite et ouverte à tous — toute l'architecture, couche par couche. L'accompagnement sur mesure sur votre propre plugin, sur le monitoring, l'analytics ou le licensing, est la partie à débloquer : voyez les conditions et réservez votre créneau."
+      },
+      "title": "Bienvenue dans {pluginName} — un template prêt pour la production pour créer des plugins Penpot."
+    }
+  },
+  "onboarding": {
+    "cta": {
+      "gotIt": "Compris",
+      "learnMore": "En savoir plus",
+      "next": "Suivant"
+    }
+  },
+  "pending": {
+    "announcements": "Annonces en attente…",
+    "onboarding": "Intégration en attente…",
+    "primaryAction": "………",
+    "secondaryAction": "………"
+  },
+  "plan": {
+    "credits": {
+      "amount": "{count, plural, one {1 crédit restant} other {# crédits restants} =0 {Aucun crédit restant}}",
+      "fees": {
+        "myFee": "Frais de mon action : {fee} cdts"
+      },
+      "renew": "Les crédits se renouvelleront le {date}. Passez à Pro pour des crédits illimités."
+    },
+    "dev": "Forfait Dev",
+    "free": "Forfait Basic",
+    "getPro": "Passer à Pro",
+    "pro": "Forfait Pro",
+    "trial": "Essai",
+    "trialEnded": "Votre essai est terminé",
+    "trialFeedback": "Comment c'était ?",
+    "trialTimeDays": "{count, plural, one {1 jour restant dans cet essai} other {# jours restants dans cet essai}}",
+    "trialTimeHours": "{count, plural, one {1 heure restante dans cet essai} other {# heures restantes dans cet essai}}",
+    "tryPro": "Essayer Pro"
+  },
+  "platform": {
+    "figma": "Figma",
+    "framer": "Framer",
+    "penpot": "Penpot",
+    "sketch": "Sketch"
+  },
+  "pricing": {
+    "activate": {
+      "cta": "Gérer la licence",
+      "text": "Entrez votre clé de licence après l'achat pour débloquer les fonctionnalités Pro",
+      "title": "Activer Pro"
+    },
+    "discount": {
+      "amount": "20% de réduction"
+    },
+    "planA": {
+      "cta": "Passer à Pro",
+      "subtitle": "5$ /mois",
+      "text": "Utilisant les services transactionnels de Lemon Squeezy pour traiter les paiements et gérer les abonnements",
+      "title": "Plan A"
+    },
+    "planB": {
+      "cta": "Passer à Pro",
+      "subtitle": "15$ /mois",
+      "text": "Utilisant les services transactionnels de Lemon Squeezy pour traiter les paiements et gérer les abonnements",
+      "title": "Plan B"
+    },
+    "title": "S'abonner à {pluginName} Pro"
+  },
+  "proPlan": {
+    "trial": {
+      "cta": "Activer l'essai de {hours} heures",
+      "message": "Débloquez des fonctionnalités avancées pendant {hours} heures avec le forfait Pro. Vous pourrez accéder aux fonctionnalités premium et aux capacités améliorées.",
+      "option": "Passer directement à Pro",
+      "title": "Souhaitez-vous passer au forfait Pro dans les prochaines {hours} heures ?"
+    },
+    "welcome": {
+      "cta": "C'est parti",
+      "message": "Cette mise à niveau débloquera une gamme d'outils et de fonctionnalités avancés. Nous espérons que vous apprécierez les avantages.",
+      "title": "Bienvenue dans {pluginName} Pro !",
+      "trial": "Cette mise à niveau débloquera une gamme d'outils et de fonctionnalités avancés. Nous espérons que vous apprécierez les avantages pendant les prochaines {hours} heures."
+    }
+  },
+  "report": {
+    "cta": "Soumettre votre problème",
+    "email": {
+      "label": "Email",
+      "placeholder": "Optionnel"
+    },
+    "fullName": {
+      "label": "Nom complet",
+      "placeholder": "Optionnel"
+    },
+    "message": {
+      "label": "Message (requis)",
+      "placeholder": "Décrivez le problème que vous avez rencontré en essayant de décrire les étapes pour le reproduire."
+    },
+    "title": "Signaler un bug"
+  },
+  "separator": "・",
+  "shortcuts": {
+    "author": "Soutenir l'auteur",
+    "chat": "Discuter avec nous",
+    "community": "Rejoindre notre communauté",
+    "email": "Contacter le support",
+    "feedback": "Soumettre des commentaires",
+    "follow": "Nous soutenir",
+    "news": "Quoi de neuf",
+    "onboarding": "Démarrage rapide",
+    "repository": "Contribuer",
+    "request": "Partagez vos idées",
+    "tooltips": {
+      "documentation": "Lire la documentation",
+      "helpMenu": "Menu Aide / Support",
+      "userMenu": "Menu utilisateur"
+    }
+  },
+  "success": {
+    "activatedLicense": "La clé de licence \"{licenseKey}\" a été activée",
+    "report": "Merci pour votre signalement",
+    "unlinkedLicense": "Votre clé de licence \"{licenseKey}\" a été dissociée"
+  },
+  "user": {
+    "cookies": {
+      "back": "Retour",
+      "close": "Fermer",
+      "consent": "Tout accepter",
+      "customize": "Personnaliser les cookies",
+      "deny": "Tout refuser",
+      "privacyPolicy": "Lire notre Politique de confidentialité",
+      "save": "Enregistrer les préférences",
+      "vendors": "En acceptant ceci, vous acceptez notre utilisation de cookies et d'autres technologies aux fins énumérées ci-dessus.",
+      "welcome": "{pluginName} utilise des cookies pour comprendre comment vous utilisez notre application et améliorer votre expérience."
+    },
+    "language": {
+      "englishUS": "English (US)",
+      "frenchFR": "Français (FR)",
+      "label": "Changer de langue",
+      "suggestion": {
+        "en": {
+          "cta": "Switch to English",
+          "message": "It looks like your browser language is English. Would you like to switch?"
+        }
+      },
+      "title": "Langue"
+    },
+    "license": {
+      "cta": {
+        "activate": "Activer votre licence",
+        "manage": "Gérer votre licence",
+        "unlink": "Dissocier votre licence",
+        "unlinkLocally": "Dissocier votre licence localement",
+        "validate": "Vérifier"
+      },
+      "key": {
+        "label": "Clé de licence",
+        "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX"
+      },
+      "messages": {
+        "activate": "Entrez votre clé de licence pour débloquer les fonctionnalités Pro",
+        "active": "Valide",
+        "unactive": "Non valide"
+      },
+      "name": {
+        "helper": "Ce nom sera utilisé pour identifier votre licence",
+        "label": "Nom de la licence",
+        "placeholder": "Licence de *Votre nom*"
+      }
+    },
+    "manageLicense": "Gérer la licence",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "updateConsent": "Gérer les cookies",
+    "updatePreferences": "Mettre à jour les préférences",
+    "welcomeMessage": "Bonjour {username}"
+  },
+  "vendors": {
+    "functional": {
+      "description": "Cookies nécessaires au fonctionnement de l'application",
+      "name": "Fonctionnel"
+    },
+    "mixpanel": {
+      "description": "Une plateforme d'analyse de premier plan pour le suivi et la compréhension des interactions des utilisateurs",
+      "name": "Mixpanel"
+    }
+  },
+  "warning": {}
+}
