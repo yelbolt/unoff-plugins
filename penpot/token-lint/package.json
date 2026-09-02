@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/a-ng-d/unoff-plugins",
+    "url": "https://github.com/yelbolt/unoff-plugins",
     "directory": "penpot/token-lint"
   },
   "keywords": [

@@ -1,4 +1,4 @@
-![GitHub package.json version](https://img.shields.io/github/package-json/v/a-ng-d/unoff-plugins?filename=penpot%2Fcalendar-and-schedule-generator%2Fpackage.json&color=informational) ![GitHub last commit](https://img.shields.io/github/last-commit/a-ng-d/unoff-plugins?path=penpot%2Fcalendar-and-schedule-generator&color=informational) ![GitHub](https://img.shields.io/github/license/a-ng-d/unoff-plugins?color=informational)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/yelbolt/unoff-plugins?filename=penpot%2Fcalendar-and-schedule-generator%2Fpackage.json&color=informational) ![GitHub last commit](https://img.shields.io/github/last-commit/yelbolt/unoff-plugins?path=penpot%2Fcalendar-and-schedule-generator&color=informational) ![GitHub](https://img.shields.io/github/license/yelbolt/unoff-plugins?color=informational)
 
 # Calendar and Schedule Generator
 
