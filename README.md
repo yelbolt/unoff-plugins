@@ -93,17 +93,59 @@ folder with a `package.json`, and its build output lands in the shared
 
 ## CI and releases
 
-- **`build.yml`** validates every plugin touched by a push or PR to `dev`.
-- **`release.yml`** runs when a `release//...` branch's PR merges into `dev`
-  (or manually via `workflow_dispatch`). For each plugin it built: creates a
-  GitHub Release (its notes pulled from that plugin's own `CHANGELOG.md`,
-  see below) and deploys to GitHub Pages under `/<platform>/<name>/`,
-  without touching any other plugin already published there.
-- Secrets shared by every plugin (auth/CORS worker URLs, Notion, Tolgee...)
-  are repository-level secrets. Secrets that differ per plugin (Sentry,
-  Mixpanel, LemonSqueezy...) live in that plugin's own GitHub Environment
-  (`penpot-token-lint`, `penpot-calendar-and-schedule-generator`, ...),
-  which overrides the repository-level value of the same name.
+- **`build.yml`** validates every plugin touched by a push or PR to `dev` —
+  no release, just a build.
+- **`release.yml`** is what actually ships a plugin. See below for the
+  process, and [Secrets and variables](#secrets-and-variables) for how it's
+  configured per plugin.
+
+### Releasing a plugin
+
+1. Work on a branch, adding entries to that plugin's own `CHANGELOG.md`
+   under `[Unreleased]` as you go (see [Changelog](#changelog)).
+2. When it's ready to ship, bump its version — from its folder,
+   `npm version minor` (or `patch`/`major`) `--no-git-tag-version`, or edit
+   `package.json` directly — and commit it.
+3. Name the branch `release//...` (required — it's what `release.yml`'s
+   trigger checks for) and open a PR into `dev`.
+4. Merge it. `release.yml` fires, detects which plugin(s) changed in that
+   PR, and for each one:
+   - builds it in production mode
+   - extracts its `CHANGELOG.md` `[Unreleased]` section and creates a
+     GitHub Release tagged `<platform>-<name>-v<version>`, using that
+     section as the release notes
+   - uploads the build as a zip release asset
+   - deploys the build to GitHub Pages at `/<platform>/<name>/` — the
+     static files that URL serves are now updated, without touching any
+     other plugin already published there
+   - bumps that plugin's `CHANGELOG.md` (`[Unreleased]` becomes
+     `[<version>] - <date>`, with a fresh empty `[Unreleased]` above it)
+     and commits that back to `dev`
+
+`release.yml` can also be triggered manually (`workflow_dispatch`, same
+plugin/platform/bare-name targeting as the local commands) to release
+outside the branch/PR flow.
+
+### Secrets and variables
+
+Every plugin's own GitHub Environment (Settings → Environments →
+`penpot-token-lint`, `penpot-calendar-and-schedule-generator`, ...) holds
+everything that plugin's build needs — there's nothing at the repository
+level. Each plugin's config is fully self-contained instead of partly
+depending on shared repo state, even where two plugins currently happen to
+use the same value.
+
+Within an environment, split by kind:
+- **Secrets** (masked in logs, `secrets.*` in the workflow) — keys and
+  tokens: `VITE_SUPABASE_PUBLIC_ANON_KEY`, `VITE_MIXPANEL_TOKEN`,
+  `VITE_NOTION_API_KEY`, `VITE_LEMONSQUEEZY_API_KEY`,
+  `VITE_TOLGEE_API_KEY`, `SENTRY_AUTH_TOKEN`.
+- **Variables** (plain text, `vars.*`) — everything else: URLs, IDs,
+  org/project names (`VITE_SUPABASE_URL`, `VITE_SENTRY_DSN`,
+  `VITE_AUTH_WORKER_URL`, `VITE_AUTH_URL`, `VITE_ANNOUNCEMENTS_WORKER_URL`,
+  `VITE_CORS_WORKER_URL`, `VITE_NOTION_ANNOUNCEMENTS_ID`,
+  `VITE_NOTION_ONBOARDING_ID`, `VITE_LEMONSQUEEZY_URL`, `VITE_TOLGEE_URL`,
+  `SENTRY_ORG`, `SENTRY_PROJECT`).
 
 ## Changelog
 
