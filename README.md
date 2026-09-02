@@ -18,6 +18,13 @@ Each plugin is a normal npm workspace: its own `package.json`, its own build
 scripts, its own `README.md` with plugin-specific setup. This root README only
 covers what's common across all of them.
 
+## Plugins
+
+| Plugin | Platform | Status |
+| --- | --- | --- |
+| [Token Lint](penpot/token-lint) | Penpot | 🧪 Testing |
+| [Calendar and Schedule Generator](penpot/calendar-and-schedule-generator) | Penpot | 🚧 Work in progress |
+
 **This monorepo is specific to this project.** Unoff as a framework scaffolds
 one plugin per its own standalone repo, each with its own independent release
 lifecycle — that's still the default `@unoff/cli` produces. Bundling several

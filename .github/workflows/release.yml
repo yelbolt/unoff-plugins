@@ -137,6 +137,9 @@ jobs:
           asset_name: ${{ steps.zip.outputs.zip_name }}
           asset_content_type: application/zip
 
+      - name: Copy root directory page
+        run: cp index.html dist/index.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
