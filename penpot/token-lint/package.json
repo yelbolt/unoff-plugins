@@ -5,7 +5,11 @@
   "description": "",
   "author": "Aurélien Grimaud",
   "license": "MIT",
-  "repository": "https://github.com/a-ng-d/token-lint",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a-ng-d/unoff-plugins",
+    "directory": "penpot/token-lint"
+  },
   "keywords": [
     "penpot-plugin",
     "unoff-plugin",

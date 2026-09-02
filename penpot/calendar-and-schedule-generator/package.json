@@ -5,7 +5,11 @@
   "description": "",
   "author": "Aurélien Grimaud",
   "license": "MIT",
-  "repository": "https://github.com/a-ng-d/calendar-and-schedule-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a-ng-d/unoff-plugins",
+    "directory": "penpot/calendar-and-schedule-generator"
+  },
   "keywords": [
     "penpot-plugin",
     "unoff-plugin",
