@@ -53,12 +53,14 @@ Go to the `Issues` section and browse the existing tickets or create a new one.
 This plugin lives in the [unoff-plugins](https://github.com/yelbolt/unoff-plugins)
 monorepo — see its root README for the full picture. The short version:
 - Clone the monorepo (or fork it) and run `npm install` at its root
-- From the monorepo root: `npm run dev -- token-lint` to build in watch mode,
-  then `npm run serve` in another terminal. Go to Penpot, then `Plugins`,
-  and enter `http://localhost:4400/penpot/token-lint/manifest.json`
-- Or, from this folder directly: `npm run start:dev`, then the URL is
-  `http://localhost:4400/manifest.json` instead (no path prefix — this
-  serves only this plugin, not the shared monorepo dist tree)
+- From the monorepo root: `npm run start -- token-lint` (delegates to this
+  plugin's own `start:dev` below). Go to Penpot, then `Plugins`, and enter
+  `http://localhost:4400/manifest.json`
+- Or, from this folder directly: `npm run start:dev` — same thing
+- To instead test the path-based URL this plugin is served under in
+  production (`/penpot/token-lint/`), use `npm run dev -- token-lint` and
+  `npm run serve` from the monorepo root (two terminals) and enter
+  `http://localhost:4400/penpot/token-lint/manifest.json`
 - Create a `Branch` and open a `Pull Request`
 - _Let's do this_
 

@@ -13,10 +13,10 @@
   "scripts": {
     "build": "node scripts/build.mjs production",
     "dev": "node scripts/build.mjs development",
+    "start": "node scripts/build.mjs start",
     "build:penpot": "node scripts/build.mjs production penpot",
     "dev:penpot": "node scripts/build.mjs development penpot",
-    "serve": "http-server dist -p 4400 --cors -c-1",
-    "start:penpot": "npm run dev:penpot & npm run serve"
+    "serve": "http-server dist -p 4400 --cors -c-1"
   },
   "devDependencies": {
     "http-server": "^14.1.1"

@@ -35,8 +35,8 @@ local development — see that plugin's own README for which keys it expects.
 
 ## Commands
 
-Run from the repo root. Every one takes the same optional target after `--` —
-think of it as a flag choosing which plugin(s) the command applies to. Pass
+`build` and `dev` run from the repo root and take the same optional target
+after `--` — a flag choosing which plugin(s) the command applies to. Pass
 one, or omit it entirely:
 - omitted → every plugin, every platform
 - a platform name (`penpot`) → every plugin under that platform
@@ -51,24 +51,40 @@ npm run build -- penpot              # production build, every plugin under penp
 npm run build -- token-lint          # production build, just that plugin
 npm run build -- penpot/token-lint   # same, explicit path
 
-npm run dev -- token-lint            # same targeting, but development mode (watches for changes)
-
-npm run serve                        # serves dist/ on :4400 with CORS, so
-                                      # http://localhost:4400/penpot/token-lint/manifest.json
-                                      # resolves exactly like it will on GitHub Pages
+npm run dev -- token-lint            # same targeting, development mode (watches for changes, no server)
 
 npm run build:penpot / dev:penpot    # shorthands for `-- penpot`
-npm run start:penpot                 # dev:penpot + serve together
 ```
 
-Every build — whichever way it's invoked — lands in the same
-`dist/<platform>/<name>/` tree; each plugin's `vite.config.ts` resolves its
-own `outDir` there. That's also exactly the shape the CI deploys to GitHub
-Pages, so what you test locally with `npm run serve` is what ships.
+Both are pure pass-throughs to each plugin's own `build` / `build:prod`
+script — nothing root-level is reimplemented, so what runs is exactly what
+that plugin's own `package.json` already defines. Whichever way a build is
+invoked, it lands in the same `dist/<platform>/<name>/` tree (each plugin's
+`vite.config.ts` resolves its own `outDir` there) — also exactly the shape
+CI deploys to GitHub Pages.
 
-Each plugin's own scripts (`build:prod`, `typecheck`, `lint`, `format`, ...)
-still work unchanged from inside its own folder — the root commands are a
-thin pass-through, not a replacement.
+Two more, for actually running a plugin locally:
+
+```bash
+npm run start -- token-lint   # delegates entirely to token-lint's own
+                               # start:dev (build watch + its own preview
+                               # server on :4400 — same as running it from
+                               # inside penpot/token-lint/ directly).
+                               # Takes exactly one plugin: its preview
+                               # server owns a fixed port, so more than one
+                               # at once would collide.
+
+npm run serve                 # serves the whole dist/ tree on :4400 with
+                               # CORS, so http://localhost:4400/penpot/token-lint/manifest.json
+                               # resolves exactly like it will on GitHub
+                               # Pages. Useful for exercising more than one
+                               # plugin at a time — pair it with
+                               # `npm run dev -- penpot` (or no target at
+                               # all) running in another terminal.
+```
+
+Each plugin's own scripts (`build:prod`, `start:dev`, `typecheck`, `lint`,
+`format`, ...) still work unchanged from inside its own folder.
 
 ## Adding a new plugin
 
