@@ -1,0 +1,32 @@
+name: (temp) Regenerate lockfile on Linux
+
+on:
+  workflow_dispatch:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Regenerate package-lock.json
+        run: |
+          rm -f package-lock.json
+          npm install
+
+      - name: Verify linux rollup binary is now locked
+        run: grep -q '"node_modules/@rollup/rollup-linux-x64-gnu"' package-lock.json
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: regenerate package-lock.json on linux [skip ci]"
+          file_pattern: package-lock.json
+          branch: ${{ github.ref_name }}
