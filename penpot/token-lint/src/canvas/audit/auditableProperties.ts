@@ -4,46 +4,25 @@ import type { TraversedShape } from '../traversal/select'
 import type { TokenCategory } from '../../app/types/tokens'
 import type { OccurrenceOwnership } from '../../app/types/audit'
 
-/**
- * One auditable (propertyPath, rawValue) pair found on a shape, already
- * resolved against component-instance inheritance — never an
- * inherited/computed value.
- */
 export interface RawOccurrenceCandidate {
   shapeId: string
   shapeName: string
   propertyPath: string
   category: TokenCategory
   rawValue: string | number
-  /**
-   * Penpot TokenProperty name(s) this value maps to for `shape.applyToken`.
-   * Empty array = no discrete TokenProperty targets this value alone
-   * (currently only `lineHeight`) — apply must refuse with
-   * ApplySkipReason.TYPE_INCOMPATIBLE rather than touch anything.
-   */
+  // Empty array = no discrete TokenProperty for this value (lineHeight) —
+  // apply must refuse with ApplySkipReason.TYPE_INCOMPATIBLE.
   tokenProperties: TokenProperty[]
   ownership: OccurrenceOwnership
   componentMainId?: string
-  /**
-   * The shape whose `.tokens` map actually governs this property, and
-   * where a fix must be written. Equal to the traversed shape itself,
-   * except when the property is inherited unmodified from a component's
-   * main instance (ownership redirected to 'MAIN_COMPONENT' below) — an
-   * instance that never overrides a property carries no token binding of
-   * its own for it, only the main shape does.
-   */
+  // Shape whose `.tokens` map governs this property — the traversed shape,
+  // or the main shape when the property is inherited, not overridden.
   ownerShape: Shape
   isHidden: boolean
   isLocked: boolean
   isOffBoard: boolean
 }
 
-/**
- * Reads the raw value at a canonical property path off any shape. Used both
- * to enumerate a shape's own properties and, for component instances, to
- * read the same path off `componentRefShape()` so a genuine override can be
- * told apart from an inherited value.
- */
 export const readValueAtPath = (
   shape: Shape,
   propertyPath: string
@@ -79,9 +58,7 @@ export const readValueAtPath = (
   }
 
   if (penpot.utils.types.isText(shape)) {
-    // fontSize/lineHeight/letterSpacing are typed `string | 'mixed'` at
-    // runtime; 'mixed' means multiple runs with different values, and a
-    // bare `Number(...)` would turn that into NaN — see parseNumericLike.
+    // 'mixed' (multiple runs, different values) must not become NaN.
     if (propertyPath === 'fontSize') return parseNumericLike(shape.fontSize)
     if (propertyPath === 'fontWeight') return shape.fontWeight
     if (propertyPath === 'lineHeight') return parseNumericLike(shape.lineHeight)
@@ -92,9 +69,6 @@ export const readValueAtPath = (
   return undefined
 }
 
-// Corner properties are the only TokenProperty Penpot exposes for radius —
-// there is no flat 'borderRadius' TokenProperty. Applying a radius token
-// means writing all four.
 const RADIUS_TOKEN_PROPERTIES: TokenProperty[] = [
   'borderRadiusTopLeft',
   'borderRadiusTopRight',
@@ -116,18 +90,13 @@ const push = (
   traversed: TraversedShape,
   propertyPath: string,
   category: TokenCategory,
-  // Typed `string | number | undefined` per the .d.ts, but an unset
-  // color/stroke property can come back as `null` at runtime (e.g.
-  // `fillColor` on a fill bound to a library color reference). `== null`
-  // catches both so it never becomes an "auditable" candidate.
+  // Runtime can return `null` (e.g. a fill bound to a library color) even
+  // though the .d.ts says `string | number | undefined`.
   rawValue: string | number | null | undefined,
   tokenProperties: TokenProperty[]
 ): void => {
   if (rawValue == null) return
 
-  // Collapse floating-point noise (see roundNumeric) before this value
-  // becomes a grouping key or is shown to the user. Also drop NaN values
-  // (a 'mixed' text run, or an unparseable string) the same way as null.
   const normalizedRawValue: string | number =
     typeof rawValue === 'number' ? roundNumeric(rawValue) : rawValue
   if (
@@ -147,26 +116,16 @@ const push = (
     const rawRefValue = refShape
       ? readValueAtPath(refShape, propertyPath)
       : undefined
-    // Round the reference side too, otherwise two identical values with
-    // independent float noise could be misread as a real override.
     const refValue: string | number | undefined =
       typeof rawRefValue === 'number' ? roundNumeric(rawRefValue) : rawRefValue
 
     if (refShape && refValue !== undefined && refValue === normalizedRawValue) {
-      // Not a genuine override — the instance mirrors its main unchanged,
-      // so the main shape (not this instance) is the one that carries the
-      // token binding, if any. Checking compliance against the instance
-      // here would always read an empty `.tokens` map and misreport an
-      // already-tokened property as a raw-value deviation.
       ownership = 'MAIN_COMPONENT'
       shapeId = refShape.id
       shapeName = refShape.name
       ownerShape = refShape
     } else componentMainId = refShape?.id
   }
-  // MAIN_COMPONENT (naturally traversed, or redirected above): deviations
-  // inside a component are counted once, on the main component — this
-  // occurrence IS that single count.
 
   candidates.push({
     shapeId,
@@ -184,7 +143,6 @@ const push = (
   })
 }
 
-/** Enumerates every auditable (propertyPath, rawValue) pair on one shape, for the requested categories only. */
 export const collectAuditableProperties = (
   traversed: TraversedShape,
   categories: TokenCategory[]
@@ -198,9 +156,7 @@ export const collectAuditableProperties = (
   const wantsDimension = categories.includes('dimension')
   const wantsTypography = categories.includes('typography')
 
-  // ── Color: fills (image/gradient/library-reference fills excluded) ───
-  // A fill bound to a library color asset isn't a hardcoded value, so it
-  // has no business being audited as one.
+  // A fill/stroke bound to a library color asset isn't a hardcoded value.
   if (wantsColor && shape.fills !== 'mixed')
     shape.fills.forEach((fill, i) => {
       if (fill.fillColorGradient || fill.fillImage) return
@@ -215,8 +171,6 @@ export const collectAuditableProperties = (
       )
     })
 
-  // ── Color: strokes ────────────────────────────────────────────────────
-  // Same library-color-reference exclusion as fills, above.
   if (wantsColor)
     shape.strokes.forEach((stroke, i) => {
       if (stroke.strokeColorGradient) return
@@ -231,7 +185,6 @@ export const collectAuditableProperties = (
       )
     })
 
-  // ── Dimension: stroke width ──────────────────────────────────────────
   if (wantsDimension)
     shape.strokes.forEach((stroke, i) => {
       push(
@@ -244,7 +197,6 @@ export const collectAuditableProperties = (
       )
     })
 
-  // ── Radius ────────────────────────────────────────────────────────────
   if (wantsRadius)
     push(
       candidates,
@@ -255,7 +207,6 @@ export const collectAuditableProperties = (
       RADIUS_TOKEN_PROPERTIES
     )
 
-  // ── Spacing: flex layout gaps + padding ──────────────────────────────
   if (wantsSpacing && penpot.utils.types.isBoard(shape) && shape.flex)
     for (const propertyPath of Object.keys(FLEX_TOKEN_PROPERTY))
       push(
@@ -267,9 +218,7 @@ export const collectAuditableProperties = (
         [FLEX_TOKEN_PROPERTY[propertyPath]]
       )
 
-  // ── Dimension: width/height, fixed sizing only ───────────────────────
-  // Inherited/computed values are not deviations — hug and fill sizing are
-  // computed, not authored, so they never produce an occurrence.
+  // Hug/fill sizing is computed, not authored — never a deviation.
   if (
     wantsDimension &&
     (penpot.utils.types.isBoard(shape) ||
@@ -289,10 +238,7 @@ export const collectAuditableProperties = (
       push(candidates, traversed, 'height', 'dimension', shape.height, ['height'])
   }
 
-  // ── Typography ────────────────────────────────────────────────────────
   if (wantsTypography && penpot.utils.types.isText(shape)) {
-    // See parseNumericLike usage in readValueAtPath above for why a bare
-    // `Number(...)` call is not safe here.
     push(
       candidates,
       traversed,
@@ -309,11 +255,7 @@ export const collectAuditableProperties = (
       shape.fontWeight,
       ['fontWeight']
     )
-    // No discrete TokenProperty targets lineHeight alone — only the
-    // composite 'typography' property does, and applying that would also
-    // rewrite fontSize/fontWeight/letterSpacing/fontFamilies as a side
-    // effect. Reported for coverage/visibility, but apply must refuse it
-    // (empty tokenProperties -> ApplySkipReason.TYPE_INCOMPATIBLE).
+    // lineHeight has no discrete TokenProperty — only composite 'typography'.
     push(
       candidates,
       traversed,

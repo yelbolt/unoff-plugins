@@ -124,10 +124,7 @@ const skipItem = (
 const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
-// Batch-level, not per-shape: Penpot GH #9290's eventual-consistency lag can
-// make every write in a bulk apply report WRITE_FAILED before turning out to
-// actually be on canvas, so this waits once per round for the whole
-// still-pending batch rather than once per shape.
+// GH #9290: a write can silently no-op even on success — poll before trusting it.
 const POST_WRITE_RECHECK_ATTEMPTS = 4
 const POST_WRITE_RECHECK_DELAY_MS = 50
 
@@ -141,12 +138,6 @@ interface PrecheckResult {
   skip?: ApplySkippedItem
 }
 
-/**
- * Every synchronous, pre-write guard a candidate must clear (tier, lock
- * state, token/property compatibility, already-compliant), then issues the
- * write via `applyTokenToShape`. Does NOT verify the write — see
- * `verifyIssuedWrites` for that separate, batched step.
- */
 const precheckAndIssue = (
   resolved: ResolvedCandidate,
   token: Token
@@ -172,15 +163,6 @@ const precheckAndIssue = (
   return { issued: { candidate, target } }
 }
 
-/**
- * Verifies a batch of just-issued writes, re-reading `shape.tokens` in
- * rounds separated by a short shared delay instead of once, immediately.
- * Trusting `applyTokenToShape`'s own success signal alone lets Penpot GH
- * #9290's "silent no-op" through; a same-tick re-read catches that but then
- * false-positives on genuine writes that aren't visible yet. Polling a few
- * rounds resolves both: a real success shows compliant within a round or
- * two, a genuine no-op stays non-compliant until every round is exhausted.
- */
 const verifyIssuedWrites = async (
   issued: WriteIssued[]
 ): Promise<{ applied: WriteIssued[]; failed: WriteIssued[] }> => {
@@ -205,11 +187,8 @@ const verifyIssuedWrites = async (
   return { applied, failed: pending }
 }
 
-// Serializes every undo-blocked write region onto a single module-level
-// queue. Needed because a write region spans an `await`
-// (verifyIssuedWrites' delay): Penpot's undoBlockBegin/undoBlockFinish
-// pairing assumes nothing else runs between them, so two apply requests
-// fired close together could otherwise interleave their undo blocks.
+// Serializes undo blocks — two apply requests overlapping across an
+// await would otherwise interleave undoBlockBegin/undoBlockFinish pairs.
 let applyQueue: Promise<unknown> = Promise.resolve()
 
 const runWithinUndoBlock = <T>(fn: () => Promise<T>): Promise<T> => {
@@ -223,8 +202,6 @@ const runWithinUndoBlock = <T>(fn: () => Promise<T>): Promise<T> => {
   }
 
   const result = applyQueue.then(run, run)
-  // Keep the queue alive even if this run rejects — a failed apply must not
-  // wedge later requests. The rejection still propagates via `result`.
   applyQueue = result.then(
     () => undefined,
     () => undefined
@@ -375,8 +352,6 @@ const applyAllExactMatches = async (
       }
     }
 
-    // Every issued write across every group in this bulk run is verified
-    // together, in one shared set of delay rounds (see verifyIssuedWrites).
     const { applied, failed } = await verifyIssuedWrites(issued)
     failed.forEach((item) => skipped.push(skipItem(item.candidate, 'WRITE_FAILED')))
 

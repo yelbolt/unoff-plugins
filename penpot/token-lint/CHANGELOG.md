@@ -19,3 +19,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   written.
 - Creating a new token from an unmatched deviation, into an active token
   set of the user's choice.
+
+### Fixed
+- Selecting a deviation whose shape lives on a page other than the one
+  currently open (a component's main definition, or a DOCUMENT-scope
+  result) now switches to that page first, instead of silently failing to
+  select and zooming into empty space on the active page.
+- A property already governed by a token — on a main component, an
+  instance, or a standalone element — no longer shows up as a false
+  deviation. Compliance is now checked against the shape that actually
+  owns the token binding for that property, rather than always the
+  traversed shape.
+- The "main component" deviation count now gets the same warning styling
+  as instance overrides, instead of a plain, easy-to-miss chip.

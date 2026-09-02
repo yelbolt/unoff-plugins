@@ -33,31 +33,17 @@ const zeroByCategory = (): Record<TokenCategory, number> => ({
   dimension: 0,
 })
 
-// Exported — bridges/audit/applyTokens.ts reuses this exact compliance
-// check both to skip already-compliant properties and to verify a write
-// actually took. Always checks `candidate.ownerShape`, never the traversed
-// shape directly — for a property inherited unmodified from a component's
-// main instance, the token binding (if any) lives on the main shape, not
-// on the instance (see auditableProperties.ts).
+// Reused by bridges/audit/applyTokens.ts to skip already-compliant
+// properties and to verify a write took.
 export const isCandidateCompliant = (
   candidate: RawOccurrenceCandidate
 ): boolean => {
-  // Empty tokenProperties (currently only `lineHeight`) means there's no
-  // discrete TokenProperty to check — never counted compliant.
   if (candidate.tokenProperties.length === 0) return false
   return candidate.tokenProperties.every((property) =>
     isPropertyTokenBound(candidate.ownerShape, property)
   )
 }
 
-/**
- * Orchestrates the audit: traversal (Select) -> resolved-value index ->
- * per-shape property enumeration -> compliance check -> value matching ->
- * report. Chunks the shape list via setTimeout(fn, 0) so a large document
- * stays interruptible, checking `callbacks.isCancelled()` at the top of
- * every chunk. The cancellation flag itself lives in bridges/audit/runAudit.ts,
- * flipped by CANCEL_AUDIT.
- */
 export const runAudit = (
   request: RunAuditRequest,
   callbacks: RunAuditCallbacks
@@ -70,12 +56,6 @@ export const runAudit = (
     const occurrences: OccurrenceInput[] = []
     const auditableByCategory = zeroByCategory()
     const compliantByCategory = zeroByCategory()
-
-    // Temporary debug instrumentation — logs a small, capped sample of raw
-    // vs. matched-token values to devtools. TODO: remove once the matching/
-    // compliance pipeline is confirmed reliable against a real document.
-    const MAX_SAMPLE_LOGS = 8
-    let sampleLogsEmitted = 0
 
     let cursor = 0
     let scannedShapes = 0
@@ -117,27 +97,6 @@ export const runAudit = (
               isLocked: candidate.isLocked,
               isOffBoard: candidate.isOffBoard,
             })
-
-          if (sampleLogsEmitted < MAX_SAMPLE_LOGS) {
-            sampleLogsEmitted++
-            console.debug('[token-lint] sample candidate:', {
-              shape: traversed.shape.name,
-              property: candidate.propertyPath,
-              category: candidate.category,
-              rawValue: candidate.rawValue,
-              rawValueTypeof: typeof candidate.rawValue,
-              tokenProperties: candidate.tokenProperties,
-              'shape.tokens': traversed.shape.tokens,
-              isCompliant,
-              tier: match?.tier,
-              candidateTokens: match?.candidateTokens.map((t) => ({
-                tokenName: t.tokenName,
-                resolvedValue: t.resolvedValue,
-                resolvedValueTypeof: typeof t.resolvedValue,
-                residual: t.residual,
-              })),
-            })
-          }
         }
 
         scannedShapes++
@@ -170,19 +129,6 @@ export const runAudit = (
         totalShapesScanned: scannedShapes,
         totalShapesSkipped: excludedCount,
         durationMs: now - startedAt,
-      })
-
-      // Temporary debug instrumentation — see the MAX_SAMPLE_LOGS comment above.
-      console.debug('[token-lint] audit summary:', {
-        scannedShapes,
-        excludedCount,
-        auditableByCategory,
-        compliantByCategory,
-        deviationsByTier: {
-          exact: occurrences.filter((o) => o.tier === 'EXACT').length,
-          near: occurrences.filter((o) => o.tier === 'NEAR').length,
-          orphan: occurrences.filter((o) => o.tier === 'ORPHAN').length,
-        },
       })
 
       resolve({ status: 'completed', report })

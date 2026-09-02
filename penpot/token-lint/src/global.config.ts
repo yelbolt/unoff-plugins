@@ -34,7 +34,7 @@ const globalConfig: Config = {
     pluginName: 'Token Lint',
     authorName: 'Aurélien Grimaud',
     licenseName: 'MIT',
-    repositoryName: 'token-lint',
+    repositoryName: 'unoff-plugins',
   },
   plan: {
     isProEnabled: false,
@@ -61,7 +61,7 @@ const globalConfig: Config = {
       ? 'http://localhost:4400'
       : 'https://plugins.unoff.dev/penpot/token-lint',
     documentationUrl: '',
-    repositoryUrl: 'https://github.com/yelbolt/unoff-plugins',
+    repositoryUrl: 'https://github.com/yelbolt/unoff-plugins/penpot/token-lint',
     communityUrl: 'https://uno.ylb.lt/community',
     supportEmail: '',
     feedbackUrl: '',
@@ -69,7 +69,8 @@ const globalConfig: Config = {
     requestsUrl: 'https://github.com/yelbolt/unoff-plugins/issues',
     networkUrl: 'https://uno.ylb.lt/network',
     authorUrl: 'https://uno.ylb.lt/author',
-    licenseUrl: 'https://github.com/yelbolt/unoff-plugins/blob/main/LICENSE',
+    licenseUrl:
+      'https://github.com/yelbolt/unoff-plugins/blob/main/penpot/token-lint/LICENSE',
     privacyUrl: '',
     storeUrl: '',
     storeManagementUrl: '',
