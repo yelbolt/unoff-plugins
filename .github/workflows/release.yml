@@ -51,6 +51,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # For a merged-PR trigger, default checkout can land on the PR's
+          # head commit rather than the branch it merged into; check out the
+          # real branch explicitly so the changelog bump commit (below) has
+          # something well-defined to push to.
+          ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
 
       - uses: actions/setup-node@v4
         with:
@@ -99,6 +104,19 @@ jobs:
             echo "tag=${{ matrix.plugin.slug }}-v$version"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract changelog
+        id: changelog
+        run: |
+          entry=$(node scripts/changelog.mjs extract "${{ matrix.plugin.path }}/CHANGELOG.md")
+          if [ -z "$entry" ]; then
+            entry="_No changelog entries recorded for this release._"
+          fi
+          {
+            echo "body<<CHANGELOG_EOF"
+            echo "$entry"
+            echo "CHANGELOG_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Zip plugin
         id: zip
         run: |
@@ -117,7 +135,7 @@ jobs:
           release_name: ${{ matrix.plugin.path }} v${{ steps.meta.outputs.version }}
           body: |
             ## What's changed
-            Release of `${{ matrix.plugin.path }}` version ${{ steps.meta.outputs.version }}.
+            ${{ steps.changelog.outputs.body }}
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
@@ -141,3 +159,20 @@ jobs:
           publish_dir: dist
           keep_files: true
           publish_branch: gh-pages
+
+      - name: Bump changelog
+        run: node scripts/changelog.mjs bump "${{ matrix.plugin.path }}/CHANGELOG.md" "${{ steps.meta.outputs.version }}"
+
+      - name: Commit changelog bump
+        # Best-effort: the release/deploy above already succeeded regardless
+        # of this step. If two plugins release in the same run, both matrix
+        # jobs push to the same branch — let a losing push fail quietly
+        # rather than fail the whole release.
+        continue-on-error: true
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: >-
+            chore(${{ matrix.plugin.path }}): bump changelog for
+            v${{ steps.meta.outputs.version }} [skip ci]
+          file_pattern: ${{ matrix.plugin.path }}/CHANGELOG.md
+          branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
