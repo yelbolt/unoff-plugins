@@ -1,4 +1,5 @@
 import path from 'path'
+import { readFileSync } from 'fs'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { defineConfig, loadEnv } from 'vite'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
@@ -9,10 +10,10 @@ export default defineConfig(({ mode }) => {
   const isDev = mode === 'development'
   const isPlugin = process.env.IS_PLUGIN === 'true'
 
-  // Every plugin lives at <repo-root>/<platform>/<name>/ and builds into the
-  // monorepo's shared <repo-root>/dist/<platform>/<name>/, so the local dist
-  // tree mirrors the path-based URL structure it's served under (locally and
-  // on GitHub Pages) without any per-plugin configuration.
+  const { version: appVersion } = JSON.parse(
+    readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')
+  )
+
   const platform = path.basename(path.resolve(__dirname, '..'))
   const pluginName = path.basename(__dirname)
   const outDir = path.resolve(__dirname, '../../dist', platform, pluginName)
@@ -48,7 +49,7 @@ export default defineConfig(({ mode }) => {
     ],
 
     define: {
-      __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+      __APP_VERSION__: JSON.stringify(appVersion),
     },
 
     resolve: {
