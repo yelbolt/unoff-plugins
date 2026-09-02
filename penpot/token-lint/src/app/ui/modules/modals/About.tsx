@@ -155,13 +155,6 @@ export default class About extends PureComponent<AboutProps> {
         },
       },
       {
-        key: 'supabase',
-        template: 'about.attributions.supabase.sentence',
-        values: {
-          supabase: `<a href='https://supabase.com/' target='_blank' rel='noreferrer'>${this.props.t('about.attributions.supabase.supabase')}</a>`,
-        },
-      },
-      {
         key: 'unoff',
         template: 'about.attributions.unoff.sentence',
         values: {
