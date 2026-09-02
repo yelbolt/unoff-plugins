@@ -140,7 +140,7 @@ jobs:
       - name: Copy root directory page
         run: cp index.html dist/index.html
 
-      - name: Deploy to GitHub Pages
+      - name: Store build output on gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -160,3 +160,31 @@ jobs:
             v${{ steps.meta.outputs.version }} [skip ci]
           file_pattern: ${{ matrix.plugin.path }}/CHANGELOG.md
           branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
+
+  deploy-pages:
+    name: Deploy GitHub Pages
+    needs: release
+    if: always() && needs.release.result != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
