@@ -1,13 +1,18 @@
 name: Detect changed plugins
 description: >
   Resolves which "<platform>/<plugin>" workspaces should be built/released:
-  either a single one requested manually, or every workspace touched between
-  two git refs. Falls back to scanning all workspaces when no refs are given
-  or the base ref is unusable (e.g. a brand new branch).
+  a specific one requested manually (by bare name, platform name, or
+  "platform/name"), or every workspace touched between two git refs. Falls
+  back to scanning all workspaces when no refs are given or the base ref is
+  unusable (e.g. a brand new branch). Mirrors scripts/build.mjs's target
+  resolution so a manual dispatch behaves like the equivalent local command.
 
 inputs:
   plugin:
-    description: 'Specific "platform/name" workspace to target. Empty means auto-detect.'
+    description: >
+      Plugin to target: a bare name ("token-lint"), a platform ("penpot",
+      every plugin under it), or an explicit "platform/name". Empty means
+      auto-detect from the triggering push/PR.
     required: false
     default: ''
   base-sha:
@@ -47,11 +52,35 @@ runs:
         ZERO_SHA="0000000000000000000000000000000000000000"
 
         if [ -n "$PLUGIN_INPUT" ]; then
-          if ! is_workspace "$PLUGIN_INPUT"; then
-            echo "::error::'$PLUGIN_INPUT' is not a known plugin workspace (missing package.json)"
-            exit 1
-          fi
-          candidates="$PLUGIN_INPUT"
+          case "$PLUGIN_INPUT" in
+            */*)
+              if ! is_workspace "$PLUGIN_INPUT"; then
+                echo "::error::'$PLUGIN_INPUT' is not a known plugin workspace (missing package.json)"
+                exit 1
+              fi
+              candidates="$PLUGIN_INPUT"
+              ;;
+            *)
+              if [ -d "$PLUGIN_INPUT" ]; then
+                candidates=$(scan_all | awk -F/ -v p="$PLUGIN_INPUT" '$1==p')
+                if [ -z "$candidates" ]; then
+                  echo "::error::No plugin workspace found under platform '$PLUGIN_INPUT'"
+                  exit 1
+                fi
+              else
+                matches=$(scan_all | awk -F/ -v n="$PLUGIN_INPUT" '$2==n')
+                match_count=$(printf '%s' "$matches" | grep -c . || true)
+                if [ "$match_count" -eq 0 ]; then
+                  echo "::error::No plugin or platform named '$PLUGIN_INPUT' found"
+                  exit 1
+                elif [ "$match_count" -gt 1 ]; then
+                  echo "::error::'$PLUGIN_INPUT' is ambiguous across platforms ($(echo "$matches" | tr '\n' ' ')). Use \"platform/name\" instead."
+                  exit 1
+                fi
+                candidates="$matches"
+              fi
+              ;;
+          esac
         elif [ -n "$BASE_SHA" ] && [ -n "$HEAD_SHA" ] && [ "$BASE_SHA" != "$ZERO_SHA" ]; then
           changed=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true)
           if [ -z "$changed" ]; then

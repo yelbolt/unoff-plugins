@@ -11,9 +11,10 @@
     "sketch/*"
   ],
   "scripts": {
-    "build:all": "npm run build:prod --workspaces --if-present",
-    "build:penpot": "node scripts/build-platform.mjs penpot production",
-    "dev:penpot": "node scripts/build-platform.mjs penpot development",
+    "build": "node scripts/build.mjs production",
+    "dev": "node scripts/build.mjs development",
+    "build:penpot": "node scripts/build.mjs production penpot",
+    "dev:penpot": "node scripts/build.mjs development penpot",
     "serve": "http-server dist -p 4400 --cors -c-1",
     "start:penpot": "npm run dev:penpot & npm run serve"
   },

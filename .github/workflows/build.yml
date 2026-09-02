@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       plugin:
-        description: 'Specific plugin to build ("platform/name"). Leave empty to build every plugin changed by this run.'
+        description: 'Plugin to build: a bare name ("token-lint"), a platform ("penpot"), or "platform/name". Leave empty to build every plugin changed by this run.'
         required: false
 
 jobs:

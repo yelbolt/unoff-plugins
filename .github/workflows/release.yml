@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       plugin:
-        description: 'Specific plugin to release ("platform/name"). Leave empty to release every plugin changed by this run.'
+        description: 'Plugin to release: a bare name ("token-lint"), a platform ("penpot"), or "platform/name". Leave empty to release every plugin changed by this run.'
         required: false
 
 jobs:
