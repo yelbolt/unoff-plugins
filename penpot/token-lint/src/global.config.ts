@@ -61,7 +61,8 @@ const globalConfig: Config = {
       ? 'http://localhost:4400'
       : 'https://plugins.unoff.dev/penpot/token-lint',
     documentationUrl: '',
-    repositoryUrl: 'https://github.com/yelbolt/unoff-plugins/penpot/token-lint',
+    repositoryUrl:
+      'https://github.com/yelbolt/unoff-plugins/tree/main/penpot/token-lint',
     communityUrl: 'https://uno.ylb.lt/community',
     supportEmail: '',
     feedbackUrl: '',
