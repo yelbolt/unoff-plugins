@@ -34,14 +34,6 @@ jobs:
     needs: detect
     if: needs.detect.outputs.matrix != '[]'
     runs-on: ubuntu-latest
-    # Each plugin's own GitHub Environment holds everything it needs — no
-    # repository-level secrets or variables, so each plugin's config is
-    # fully self-contained rather than partly relying on shared repo state.
-    # Split by kind: keys/tokens go in that environment's Secrets (masked,
-    # `secrets.*`), everything else (URLs, IDs, org/project names) in its
-    # Variables (plain, `vars.*`). Create the environment in Settings >
-    # Environments, named exactly like matrix.plugin.slug (e.g.
-    # "penpot-token-lint").
     environment: ${{ matrix.plugin.slug }}
     strategy:
       fail-fast: false
