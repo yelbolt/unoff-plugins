@@ -182,9 +182,6 @@ const loadUI = async () => {
         }),
 
       // ── Audit ────────────────────────────────────────────────────────
-      // RUN_AUDIT is the one action here that replies multiple times over
-      // time (AUDIT_STARTED -> repeated SHAPES_SCANNED -> AUDIT_COMPLETED /
-      // AUDIT_CANCELLED) — see bridges/audit/runAudit.ts.
       RUN_AUDIT: () => runAudit(path.data),
       CANCEL_AUDIT: () => cancelAudit(),
       SELECT_LAYERS_ON_CANVAS: () => selectLayers(path.data.shapeIds),
@@ -253,9 +250,6 @@ const loadUI = async () => {
 }
 
 // ── Selection helper ──────────────────────────────────────────────────────
-// Token Lint only needs to know the selection changed and how many shapes
-// are in it (e.g. to gate a SELECTION-scope audit).
-
 const sendSelectionInfo = () => {
   penpot.ui.sendMessage({
     type: 'SELECTION_CHANGED',
