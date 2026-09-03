@@ -16,10 +16,14 @@ import { applyTokens } from './audit/applyTokens'
 
 const loadUI = async () => {
   // Setup UI
-  penpot.ui.open('Token Lint', globalConfig.urls.uiUrl, {
-    width: globalConfig.limits.width,
-    height: globalConfig.limits.height,
-  })
+  penpot.ui.open(
+    `Token Lint${globalConfig.env.isDev && ' /dev'}`,
+    globalConfig.urls.uiUrl,
+    {
+      width: globalConfig.limits.width,
+      height: globalConfig.limits.height,
+    }
+  )
 
   // Listen to messages from UI to Canvas
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
