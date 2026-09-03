@@ -1,4 +1,4 @@
-# unoff-plugins
+# Unoff Plugins
 
 Monorepo of plugins built with the [Unoff](https://unoff.dev) framework, organized by design tool platform.
 
