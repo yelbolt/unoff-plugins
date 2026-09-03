@@ -5,6 +5,11 @@ All notable changes to this plugin are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Changed
+- Translation strings no longer use em dashes or en dashes; sentences are
+  now split with a comma, a colon, parentheses, or a period instead.
+
+## [0.3.2] - 2026-09-03
 ### Fixed
 - The whole UI was frozen and unresponsive on first launch, with no error:
   the consent screen is disabled in this plugin, but the interface was
