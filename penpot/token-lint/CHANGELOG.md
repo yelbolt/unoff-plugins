@@ -5,6 +5,12 @@ All notable changes to this plugin are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+### Fixed
+- The manifest's `code`/`icon` paths now resolve relative to the manifest
+  itself instead of the domain root, so the plugin loads correctly from
+  its hosted path instead of 404ing.
+
+## [0.3.0] - 2026-09-02
 ### Added
 - Token audit across a chosen scope (selection, page, or document) and
   category (color, spacing, radius, typography, dimension), returning a
