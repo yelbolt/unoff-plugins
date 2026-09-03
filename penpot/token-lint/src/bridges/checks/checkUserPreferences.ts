@@ -29,7 +29,7 @@ const checkUserPreferences = async () => {
     type: 'CHECK_USER_PREFERENCES',
     data: {
       userLanguage: userLanguage,
-      isSuggestedLanguageDisplayed: isSuggestedLanguageDisplayed,
+      isSuggestedLanguageDisplayed: isSuggestedLanguageDisplayed === 'true',
     },
   })
 }
