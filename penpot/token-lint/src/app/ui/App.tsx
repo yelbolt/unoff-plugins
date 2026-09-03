@@ -457,7 +457,8 @@ class App extends Component<AppProps, AppState> {
             },
             '*'
           )
-        }).catch(() => {
+        }).catch((error) => {
+          console.error(error)
           return
         })
       }
