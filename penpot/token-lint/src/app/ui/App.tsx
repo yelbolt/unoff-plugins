@@ -457,18 +457,13 @@ class App extends Component<AppProps, AppState> {
             },
             '*'
           )
+        }).catch((error) => {
+          console.error(error)
+          return
         })
       }
 
       const postMessage = () => {
-        // An ERROR notification arriving mid-audit (e.g. a Canvas-side
-        // crash during RUN_AUDIT — see bridges/audit/runAudit.ts, which
-        // catches and reports via this exact POST_MESSAGE path rather than
-        // throwing) must not leave AuditService's RUNNING view stuck on the
-        // spinner forever. Flip $auditStatus to 'ERROR' so it re-derives
-        // back to the SETUP view, where the existing "Run audit" button
-        // doubles as "try again". The toast banner below still surfaces the
-        // actual error message via the pre-existing notification path.
         if (path.data.type === 'ERROR' && $auditStatus.get() === 'RUNNING')
           setAuditError()
 
@@ -793,7 +788,9 @@ class App extends Component<AppProps, AppState> {
         <main
           className="ui"
           inert={
-            this.state.modalContext !== 'EMPTY' || this.state.mustUserConsent
+            this.state.modalContext !== 'EMPTY' ||
+            (this.state.mustUserConsent &&
+              this.features.USER_CONSENT.isActive())
           }
         >
           <Feature
