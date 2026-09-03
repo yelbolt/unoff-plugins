@@ -1,6 +1,7 @@
 {
   "name": "Token Lint",
   "description": "",
+  "version": 2,
   "code": "./plugin.js",
   "icon": "./plugin_icon.webp",
   "permissions": [
