@@ -113,7 +113,7 @@ folder with a `package.json`, and its build output lands in the shared
 2. When it's ready to ship, bump its version — from its folder,
    `npm version minor` (or `patch`/`major`) `--no-git-tag-version`, or edit
    `package.json` directly — and commit it.
-3. Name the branch `release//...` (required — it's what `release.yml`'s
+3. Name the branch `release/...` (required — it's what `release.yml`'s
    trigger checks for) and open a PR into `dev`.
 4. Merge it. `release.yml` fires, detects which plugin(s) changed in that
    PR, and for each one:
