@@ -1,8 +1,8 @@
 {
   "name": "Calendar and Schedule Generator",
   "description": "",
-  "code": "./plugin.js",
-  "icon": "./plugin_icon.webp",
+  "code": "/plugin.js",
+  "icon": "/plugin_icon.webp",
   "permissions": [
     "content:read",
     "content:write",
