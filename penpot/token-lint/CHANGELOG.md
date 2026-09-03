@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Fixed
+- The whole UI was frozen and unresponsive on first launch, with no error:
+  the consent screen is disabled in this plugin, but the interface was
+  still marked inert while waiting for a consent decision that could
+  never happen. It now stays interactive when the consent feature itself
+  is off.
+- A failed announcements check (misconfigured or unreachable worker) no
+  longer surfaces as an unhandled promise rejection.
+
+## [0.3.1] - 2026-09-03
+### Fixed
 - The manifest's `code`/`icon` paths now resolve relative to the manifest
   itself instead of the domain root, so the plugin loads correctly from
   its hosted path instead of 404ing.
