@@ -17,7 +17,7 @@ import { applyTokens } from './audit/applyTokens'
 const loadUI = async () => {
   // Setup UI
   penpot.ui.open(
-    `Token Lint${globalConfig.env.isDev && ' /dev'}`,
+    `Token Lint${globalConfig.env.isDev ? ' /dev' : ''}`,
     globalConfig.urls.uiUrl,
     {
       width: globalConfig.limits.width,
