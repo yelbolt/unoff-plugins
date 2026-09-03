@@ -112,15 +112,15 @@
       }
     },
     "welcome": {
-      "description": "Arrêtez de passer des semaines à connecter des services entre eux. L'authentification, les paiements, l'analytics et le pont canvas sont déjà là — il ne reste que votre produit. Décrivez-le sous forme de spec, et votre assistant IA le construit à partir des skills unoff. Ils sont gratuits, open source, et arrivent directement dans votre dossier.",
+      "description": "Arrêtez de passer des semaines à connecter des services entre eux. L'authentification, les paiements, l'analytics et le pont canvas sont déjà là : il ne reste que votre produit. Décrivez-le sous forme de spec, et votre assistant IA le construit à partir des skills unoff. Ils sont gratuits, open source, et arrivent directement dans votre dossier.",
       "signature": "Fièrement expédié avec Unoff par {author}",
       "steps": {
         "assistant": {
-          "description": "Installe les skills, les règles du projet et les agents par couche pour l'assistant que vous utilisez — Claude, Copilot, Cursor, Windsurf ou Codex.",
+          "description": "Installe les skills, les règles du projet et les agents par couche pour l'assistant que vous utilisez (Claude, Copilot, Cursor, Windsurf ou Codex).",
           "label": "1. Configurez votre assistant"
         },
         "specs": {
-          "description": "C'est l'étape qui compte. Une spec dit ce que fait une fonctionnalité, les règles qu'elle doit respecter et les couches qu'elle touche — pour que votre assistant sache exactement quels skills lire avant d'écrire la moindre ligne.",
+          "description": "C'est l'étape qui compte. Une spec dit ce que fait une fonctionnalité, les règles qu'elle doit respecter et les couches qu'elle touche. Ainsi, votre assistant sait exactement quels skills lire avant d'écrire la moindre ligne.",
           "label": "2. Décrivez ce que vous construisez"
         },
         "sync": {
@@ -134,9 +134,9 @@
           "docs": "Lire la documentation",
           "unlock": "Débloquer un créneau"
         },
-        "description": "La documentation est gratuite et ouverte à tous — toute l'architecture, couche par couche. L'accompagnement sur mesure sur votre propre plugin, sur le monitoring, l'analytics ou le licensing, est la partie à débloquer : voyez les conditions et réservez votre créneau."
+        "description": "La documentation est gratuite et ouverte à tous : toute l'architecture, couche par couche. L'accompagnement sur mesure sur votre propre plugin, sur le monitoring, l'analytics ou le licensing, est la partie à débloquer : voyez les conditions et réservez votre créneau."
       },
-      "title": "Bienvenue dans {pluginName} — un template prêt pour la production pour créer des plugins Penpot."
+      "title": "Bienvenue dans {pluginName} : un template prêt pour la production pour créer des plugins Penpot."
     }
   },
   "onboarding": {

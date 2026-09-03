@@ -1,6 +1,6 @@
 {
   "name": "Token Lint",
-  "description": "Audit a Penpot file against its own active design tokens and tells you exactly where it drifted — a hard-coded color, a nudged spacing, an overridden instance — then fixes it in one action instead of forcing a layer-by-layer hunt.",
+  "description": "Audit a Penpot file against its own active design tokens and tells you exactly where it drifted: a hard-coded color, a nudged spacing, an overridden instance. Then fixes it in one action instead of forcing a layer-by-layer hunt.",
   "version": 2,
   "code": "./plugin.js",
   "icon": "./plugin_icon.webp",
