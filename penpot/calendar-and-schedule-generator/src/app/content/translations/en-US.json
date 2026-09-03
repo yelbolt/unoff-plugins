@@ -112,15 +112,15 @@
       }
     },
     "welcome": {
-      "description": "Stop wiring services together for weeks. Auth, payments, analytics and the canvas bridge are already here — what is left is your product. Write it down as a spec, and your AI assistant builds it against the unoff skills. They are free, open source, and they land straight in your folder.",
+      "description": "Stop wiring services together for weeks. Auth, payments, analytics and the canvas bridge are already here: what is left is your product. Write it down as a spec, and your AI assistant builds it against the unoff skills. They are free, open source, and they land straight in your folder.",
       "signature": "Proudly shipped with Unoff by {author}",
       "steps": {
         "assistant": {
-          "description": "Installs the skills, the project rules and the layer agents for whichever assistant you use — Claude, Copilot, Cursor, Windsurf or Codex.",
+          "description": "Installs the skills, the project rules and the layer agents for whichever assistant you use (Claude, Copilot, Cursor, Windsurf or Codex).",
           "label": "1. Set up your assistant"
         },
         "specs": {
-          "description": "This is the one that matters. A spec says what a feature does, the rules it must respect, and which layers it touches — so your assistant knows exactly which skills to read before writing a line.",
+          "description": "This is the one that matters. A spec says what a feature does, the rules it must respect, and which layers it touches. This way your assistant knows exactly which skills to read before writing a line.",
           "label": "2. Describe what you build"
         },
         "sync": {
@@ -134,9 +134,9 @@
           "docs": "Read the docs",
           "unlock": "Unlock a spot"
         },
-        "description": "The docs are free and open to everyone — the whole architecture, layer by layer. Guidance tailored to your own plugin, on monitoring, analytics or licensing, is the part you unlock: see what it takes and reserve your spot."
+        "description": "The docs are free and open to everyone: the whole architecture, layer by layer. Guidance tailored to your own plugin, on monitoring, analytics or licensing, is the part you unlock: see what it takes and reserve your spot."
       },
-      "title": "Welcome to {pluginName} — a production-ready template for building Penpot plugins."
+      "title": "Welcome to {pluginName}: a production-ready template for building Penpot plugins."
     }
   },
   "onboarding": {
