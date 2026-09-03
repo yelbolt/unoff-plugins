@@ -5,12 +5,15 @@ project built on the unoff stack.
 
 ## Documentation
 
-**[.claude/skills/unoff-create-plugin/core.md](.claude/skills/unoff-create-plugin/core.md)** — stack facts, architecture,
+**[../../.claude/skills/unoff-create-plugin/core.md](../../.claude/skills/unoff-create-plugin/core.md)** — stack facts, architecture,
 the message contract, platform differences. Load it before writing code.
 
-**[.claude/skills/unoff-create-plugin/SKILL.md](.claude/skills/unoff-create-plugin/SKILL.md)** — the routing index. It
+**[../../.claude/skills/unoff-create-plugin/SKILL.md](../../.claude/skills/unoff-create-plugin/SKILL.md)** — the routing index. It
 maps each task to the one file that covers it. Load only what the task needs;
 do not preload a layer.
+
+The skill library and agents live at the repo root (`../../.claude/`), shared
+across every plugin in this monorepo instead of duplicated per plugin.
 
 Product behaviour — what this plugin does, as opposed to how it is built — lives
 in `specs/`. See `specs/INDEX.md`.
@@ -101,7 +104,7 @@ the routing entry in `loadUI.ts`. A missing one is a silent no-op.
 This project pairs **implementation skills** (how we build) with **functional
 specs** (what the product does). Read both before writing code.
 
-- **How** → `.claude/skills/unoff-create-plugin/` — architecture, conventions, platform APIs
+- **How** → `../../.claude/skills/unoff-create-plugin/` — architecture, conventions, platform APIs
 - **What** → `specs/INDEX.md` — product behaviour and rules
 
 When a task maps to a spec below, load that spec **and** the skill files for

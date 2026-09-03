@@ -3,7 +3,7 @@
 # Functional specs
 
 What this product does. The **how** lives in the unoff skill library at
-`.claude/skills/unoff-create-plugin/` — these two are meant to be read together.
+`../../.claude/skills/unoff-create-plugin/` (shared at the repo root) — these two are meant to be read together.
 
 | Spec | Description | Layers | Platforms | Status |
 | ---- | ----------- | ------ | --------- | ------ |
@@ -17,7 +17,7 @@ What this product does. The **how** lives in the unoff skill library at
    declaring the work finished.
 3. Load the implementation skills for the layers it declares:
 
-| Layer | Load from `.claude/skills/unoff-create-plugin/` |
+| Layer | Load from `../../.claude/skills/unoff-create-plugin/` |
 | ----- | ---------------------------- |
 | `canvas` | `canvas/<platform>/canvas-api.md`, `canvas/<platform>/data-storage.md`, `canvas/<platform>/document-generation.md` |
 | `bridge` | `bridge/<platform>/communication-pattern.md`, `bridge/<platform>/bridge-functions.md` |

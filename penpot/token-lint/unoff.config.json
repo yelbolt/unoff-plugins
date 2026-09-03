@@ -3,7 +3,7 @@
     "claude"
   ],
   "specsDir": "specs",
-  "skillsPath": ".claude/skills/unoff-create-plugin",
+  "skillsPath": "../../.claude/skills/unoff-create-plugin",
   "platform": "penpot",
   "pluginName": "Token Lint",
   "penpotUrl": "https://design.penpot.app"
