@@ -75,7 +75,7 @@
         "confirmCount": "You are about to apply {count, plural, one {{count} exact match} other {# exact matches}} across {groups, plural, one {{groups} group} other {# groups}}. This action is undoable with a single undo.",
         "skippedReason": {
           "ALREADY_APPLIED": "The token was already applied",
-          "AMBIGUOUS_CANDIDATES": "Several tokens matched — pick one to apply",
+          "AMBIGUOUS_CANDIDATES": "Several tokens matched: pick one to apply",
           "LOCKED": "The layer is locked",
           "SHAPE_NOT_FOUND": "The layer could not be found",
           "TIER_NOT_APPLICABLE": "This deviation has no validated match yet",
@@ -92,26 +92,26 @@
         "confirmTitle": "Apply all exact matches",
         "cta": "Apply all exact matches",
         "description": "{count, plural, one {{count} hard-coded value matches an active token exactly} other {# hard-coded values match an active token exactly}}, across {groups, plural, one {{groups} group} other {# groups}}.",
-        "resultAlreadyCompliant": "Already up to date — these values already match their token, nothing to apply.",
+        "resultAlreadyCompliant": "Already up to date: these values already match their token, nothing to apply.",
         "resultClose": "Close",
         "resultSummary": "Applied {applied} of {announced} announced occurrences.",
-        "resultTitle": "Apply all exact matches — result",
-        "skippedGroupHeader": "{count, plural, one {{count} occurrence skipped — {reason}} other {# occurrences skipped — {reason}}}",
+        "resultTitle": "Apply all exact matches: result",
+        "skippedGroupHeader": "{count, plural, one {{count} occurrence skipped: {reason}} other {# occurrences skipped: {reason}}}",
         "skippedSummary": {
-          "AMBIGUOUS_CANDIDATES": "{count, plural, one {{count} occurrence skipped — multiple tokens matched, pick one per group below} other {# occurrences skipped — multiple tokens matched, pick one per group below}}",
-          "TYPE_INCOMPATIBLE": "{count, plural, one {{count} occurrence skipped — the token type doesn't match this property} other {# occurrences skipped — the token type doesn't match this property}}"
+          "AMBIGUOUS_CANDIDATES": "{count, plural, one {{count} occurrence skipped: multiple tokens matched, pick one per group below} other {# occurrences skipped: multiple tokens matched, pick one per group below}}",
+          "TYPE_INCOMPATIBLE": "{count, plural, one {{count} occurrence skipped: the token type doesn't match this property} other {# occurrences skipped: the token type doesn't match this property}}"
         }
       },
       "coverage": {
-        "helperText": "Share of audited properties whose value already matches an active token — not a share of shapes or of the whole file.",
+        "helperText": "Share of audited properties whose value already matches an active token (not a share of shapes or of the whole file).",
         "nonCompliantCount": "{count, plural, one {{count} non-compliant occurrence} other {# non-compliant occurrences}}",
         "rate": "{rate}% coverage",
         "title": "Coverage"
       },
       "empty": "Run an audit to see the report here.",
       "emptyFilter": {
-        "fullyCompliantAll": "Everything is compliant — no hard-coded value left to fix in this scope.",
-        "fullyCompliantCategory": "{category} is fully compliant — no hard-coded value left to fix.",
+        "fullyCompliantAll": "Everything is compliant: no hard-coded value left to fix in this scope.",
+        "fullyCompliantCategory": "{category} is fully compliant: no hard-coded value left to fix.",
         "noAuditableAll": "No auditable properties in this scope.",
         "noAuditableCategory": "No {category} properties in this scope."
       },
@@ -125,9 +125,9 @@
           "description": "A new token will be created with the value {rawValue}, then applied to every occurrence in this group.",
           "dialogTitle": "Create token",
           "failure": {
-            "CREATE_FAILED": "The token could not be created — check the name and try again.",
-            "NAME_ALREADY_EXISTS": "A token already has this name in that set — pick another one.",
-            "NO_ACTIVE_SET": "No active token set — activate one in Design Token Manager."
+            "CREATE_FAILED": "The token could not be created. Check the name and try again.",
+            "NAME_ALREADY_EXISTS": "A token already has this name in that set. Pick another one.",
+            "NO_ACTIVE_SET": "No active token set. Activate one in Design Token Manager."
           },
           "nameLabel": "Token name",
           "namePlaceholder": "token.name",
@@ -186,8 +186,8 @@
         }
       },
       "toast": {
-        "alreadyCompliant": "Already up to date — nothing to apply.",
-        "bulkNoneApplied": "{count, plural, one {No occurrences were applied — 1 item was skipped, see details below} other {No occurrences were applied — # items were skipped, see details below}}",
+        "alreadyCompliant": "Already up to date, nothing to apply.",
+        "bulkNoneApplied": "{count, plural, one {No occurrences were applied: 1 item was skipped, see details below} other {No occurrences were applied: # items were skipped, see details below}}",
         "groupApplied": "{applied, plural, one {{applied} occurrence updated} other {# occurrences updated}}",
         "occurrenceApplied": "Token applied"
       }
@@ -227,7 +227,7 @@
         "excludeLocked": "Exclude locked elements",
         "excludeLockedHelper": "Skip layers that are locked on the canvas.",
         "excludeOffBoard": "Exclude off-board elements",
-        "excludeOffBoardHelper": "Skip shapes that aren't nested inside a board — elements floating loose on the canvas.",
+        "excludeOffBoardHelper": "Skip shapes that aren't nested inside a board: elements floating loose on the canvas.",
         "title": "Options"
       },
       "scope": {
