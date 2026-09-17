@@ -35,6 +35,12 @@ const TIER_TITLE_KEY: Record<DeviationTier, string> = {
   ORPHAN: 'tokenLint.report.tier.orphan.title',
 }
 
+const GROUP_SEPARATOR_STYLE: Record<string, string> = {
+  paddingTop: 'var(--space-inset-300)',
+  paddingBottom: 'var(--space-inset-300)',
+  borderBottom: 'var(--section-border)',
+}
+
 export default class DeviationTierSection extends PureComponent<
   DeviationTierSectionProps
 > {
@@ -66,16 +72,22 @@ export default class DeviationTierSection extends PureComponent<
             isListItem={false}
           />
         }
-        body={groups.map((group) => ({
+        body={groups.map((group, index) => ({
           node: (
-            <DeviationGroupRow
-              {...this.props}
-              key={group.id}
-              group={group}
-              scope={scope}
-              categories={categories}
-              options={options}
-            />
+            <div
+              style={
+                index < groups.length - 1 ? GROUP_SEPARATOR_STYLE : undefined
+              }
+            >
+              <DeviationGroupRow
+                {...this.props}
+                key={group.id}
+                group={group}
+                scope={scope}
+                categories={categories}
+                options={options}
+              />
+            </div>
           ),
           spacingModifier: 'TIGHT',
         }))}

@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import mixpanel from 'mixpanel-browser'
-import { commons, penpotColors, penpotTypes } from '@unoff/ui'
+import { commons, penpotModes, penpotTypes } from '@unoff/ui'
 import { TolgeeProvider } from '@tolgee/react'
 import * as Sentry from '@sentry/react'
 import globalConfig from '../global.config'
@@ -129,7 +129,7 @@ window.addEventListener('pluginMessage', ((event: MessageEvent) => {
 
 // Penpot Theme
 void commons
-void penpotColors
+void penpotModes
 void penpotTypes
 
 // Render

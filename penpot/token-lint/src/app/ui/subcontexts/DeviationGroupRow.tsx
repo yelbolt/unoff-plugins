@@ -710,6 +710,14 @@ export default class DeviationGroupRow extends PureComponent<
                 />
               )}
               <span className={texts.type}>{String(group.rawValue)}</span>
+              {group.category === 'typography' && (
+                <Chip state="INACTIVE">
+                  {getPropertyLabel(
+                    group.occurrences[0]?.propertyPath ?? '',
+                    t
+                  )}
+                </Chip>
+              )}
               <Chip>
                 {t('tokenLint.report.group.occurrenceCount', {
                   count: remainingOccurrences.length,
