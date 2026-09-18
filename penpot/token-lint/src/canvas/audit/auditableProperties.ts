@@ -1,5 +1,5 @@
 import { parseNumericLike, roundNumeric } from '../../utils/numeric'
-import type { Shape, TokenProperty } from '@penpot/plugin-types'
+import type { Shape, Text, TokenProperty } from '@penpot/plugin-types'
 import type { TraversedShape } from '../traversal/select'
 import type { TokenCategory } from '../../app/types/tokens'
 import type { OccurrenceOwnership } from '../../app/types/audit'
@@ -23,6 +23,16 @@ export interface RawOccurrenceCandidate {
   isOffBoard: boolean
 }
 
+// Penpot's shape API and its own textDecoration token don't share a
+// vocabulary ('line-through' vs. the token's 'strike-through') — remapped
+// here, at the read site, so rawValue already speaks the token's language
+// everywhere downstream (matching, grouping, and "Create token" writing it
+// straight back via addToken()).
+const remapTextDecoration = (
+  value: Text['textDecoration']
+): string | undefined =>
+  value === 'line-through' ? 'strike-through' : (value ?? undefined)
+
 export const readValueAtPath = (
   shape: Shape,
   propertyPath: string
@@ -45,6 +55,7 @@ export const readValueAtPath = (
   if (propertyPath === 'width') return shape.width
   if (propertyPath === 'height') return shape.height
   if (propertyPath === 'opacity') return shape.opacity
+  if (propertyPath === 'rotation') return shape.rotation
 
   if (propertyPath.startsWith('flexLayout.')) {
     if (!penpot.utils.types.isBoard(shape) || !shape.flex) return undefined
@@ -66,6 +77,9 @@ export const readValueAtPath = (
     if (propertyPath === 'letterSpacing')
       return parseNumericLike(shape.letterSpacing)
     if (propertyPath === 'fontFamily') return shape.fontFamily
+    if (propertyPath === 'textCase') return shape.textTransform ?? undefined
+    if (propertyPath === 'textDecoration')
+      return remapTextDecoration(shape.textDecoration)
   }
 
   return undefined
@@ -158,6 +172,7 @@ export const collectAuditableProperties = (
   const wantsDimension = categories.includes('dimension')
   const wantsTypography = categories.includes('typography')
   const wantsOpacity = categories.includes('opacity')
+  const wantsRotation = categories.includes('rotation')
 
   // A fill/stroke bound to a library color asset isn't a hardcoded value.
   if (wantsColor && shape.fills !== 'mixed')
@@ -212,6 +227,11 @@ export const collectAuditableProperties = (
 
   if (wantsOpacity)
     push(candidates, traversed, 'opacity', 'opacity', shape.opacity, ['opacity'])
+
+  if (wantsRotation)
+    push(candidates, traversed, 'rotation', 'rotation', shape.rotation, [
+      'rotation',
+    ])
 
   if (wantsSpacing && penpot.utils.types.isBoard(shape) && shape.flex)
     for (const propertyPath of Object.keys(FLEX_TOKEN_PROPERTY))
@@ -285,6 +305,22 @@ export const collectAuditableProperties = (
       'typography',
       shape.fontFamily,
       ['fontFamilies']
+    )
+    push(
+      candidates,
+      traversed,
+      'textCase',
+      'typography',
+      shape.textTransform,
+      ['textCase']
+    )
+    push(
+      candidates,
+      traversed,
+      'textDecoration',
+      'typography',
+      remapTextDecoration(shape.textDecoration),
+      ['textDecoration']
     )
   }
 

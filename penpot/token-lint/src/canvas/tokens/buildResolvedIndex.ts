@@ -12,6 +12,7 @@ const emptyByCategory = (): Record<TokenCategory, ResolvedTokenIndexEntry[]> => 
   typography: [],
   dimension: [],
   opacity: [],
+  rotation: [],
 })
 
 const dedupeKey = (
@@ -61,7 +62,11 @@ const pushEntriesForToken = (
     case 'fontSizes':
     case 'fontWeights':
     case 'letterSpacing':
-    case 'opacity': {
+    case 'textCase':
+    case 'textDecoration':
+    case 'opacity':
+    case 'number':
+    case 'rotation': {
       if (token.resolvedValue == null) return
       const category: TokenCategory =
         token.type === 'borderRadius'
@@ -72,11 +77,15 @@ const pushEntriesForToken = (
               ? 'spacing'
               : token.type === 'opacity'
                 ? 'opacity'
-                : token.type === 'fontSizes' ||
-                    token.type === 'fontWeights' ||
-                    token.type === 'letterSpacing'
-                  ? 'typography'
-                  : 'dimension' // dimension | sizing | borderWidth
+                : token.type === 'number' || token.type === 'rotation'
+                  ? 'rotation'
+                  : token.type === 'fontSizes' ||
+                      token.type === 'fontWeights' ||
+                      token.type === 'letterSpacing' ||
+                      token.type === 'textCase' ||
+                      token.type === 'textDecoration'
+                    ? 'typography'
+                    : 'dimension' // dimension | sizing | borderWidth
       put(category, token.resolvedValue)
       return
     }
@@ -102,6 +111,8 @@ const pushEntriesForToken = (
             ? resolved.fontFamilies.join(', ')
             : undefined,
         ],
+        ['textCase', resolved.textCase],
+        ['textDecoration', resolved.textDecoration],
       ]
       for (const [field, value] of fields) {
         if (value == null) continue

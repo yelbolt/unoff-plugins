@@ -55,6 +55,7 @@ const CATEGORY_ORDER: Array<TokenCategory> = [
   'typography',
   'dimension',
   'opacity',
+  'rotation',
 ]
 
 const COUNT_ONLY_SKIP_REASONS = new Set<ApplySkipReason>([
@@ -94,6 +95,7 @@ const computeLiveCoverage = (
     typography: 0,
     dimension: 0,
     opacity: 0,
+    rotation: 0,
   }
 
   const allGroups = [

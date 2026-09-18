@@ -73,6 +73,7 @@ const emptyCoverageByCategory = (): CoverageSummary['byCategory'] => ({
   typography: { auditable: 0, compliant: 0, coverageRate: 0 },
   dimension: { auditable: 0, compliant: 0, coverageRate: 0 },
   opacity: { auditable: 0, compliant: 0, coverageRate: 0 },
+  rotation: { auditable: 0, compliant: 0, coverageRate: 0 },
 })
 
 const rate = (compliant: number, auditable: number): number =>

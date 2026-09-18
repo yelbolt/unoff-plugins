@@ -164,9 +164,12 @@
           "opacity": "Opacity",
           "radius": "Radius",
           "rightPadding": "Right padding",
+          "rotation": "Rotation",
           "rowGap": "Row gap",
           "strokeColor": "Stroke {index}",
           "strokeWidth": "Stroke {index} width",
+          "textCase": "Text case",
+          "textDecoration": "Text decoration",
           "topPadding": "Top padding",
           "width": "Width"
         }
@@ -217,6 +220,7 @@
         "dimension": "Dimension",
         "opacity": "Opacity",
         "radius": "Radius",
+        "rotation": "Rotation",
         "spacing": "Spacing",
         "title": "Categories",
         "typography": "Typography"

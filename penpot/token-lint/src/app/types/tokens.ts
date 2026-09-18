@@ -14,6 +14,7 @@ export type TokenCategory =
   | 'typography'
   | 'dimension'
   | 'opacity'
+  | 'rotation'
 
 /** One entry in the resolved-value index built from active token sets before matching starts. */
 export interface ResolvedTokenIndexEntry {

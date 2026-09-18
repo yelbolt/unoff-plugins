@@ -129,6 +129,10 @@ const CATEGORY_ICON: Record<
     iconType: 'PICTO',
     iconName: 'contrast',
   },
+  rotation: {
+    iconType: 'PICTO',
+    iconName: 'angle',
+  },
 }
 
 const SIMPLE_PROPERTY_KEY: Record<string, string> = {
@@ -141,6 +145,9 @@ const SIMPLE_PROPERTY_KEY: Record<string, string> = {
   letterSpacing: 'letterSpacing',
   fontFamily: 'fontFamily',
   opacity: 'opacity',
+  rotation: 'rotation',
+  textCase: 'textCase',
+  textDecoration: 'textDecoration',
 }
 
 const getPropertyLabel = (
