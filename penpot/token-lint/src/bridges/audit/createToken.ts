@@ -17,9 +17,11 @@ const inferTokenType = (
   if (category === 'color') return 'color'
   if (category === 'radius') return 'borderRadius'
   if (category === 'spacing') return 'spacing'
+  if (category === 'opacity') return 'opacity'
   if (category === 'typography') {
     if (propertyPathHint === 'fontWeight') return 'fontWeights'
     if (propertyPathHint === 'letterSpacing') return 'letterSpacing'
+    if (propertyPathHint === 'fontFamily') return 'fontFamilies'
     // fontSize, and the lineHeight fallback (lineHeight itself has no
     // discrete TokenType — the UI does not offer "create token" for a
     // lineHeight-only group, see DeviationGroupRow.tsx).

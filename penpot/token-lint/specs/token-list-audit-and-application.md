@@ -15,7 +15,7 @@ So files drift. A color gets typed by hand, a spacing gets nudged, an instance g
 ## User flow
 
 1. The designer opens the plugin on a file they inherited.
-2. They pick a scope (selection, page, document) and the categories to audit: color, spacing, radius, typography, dimension.
+2. They pick a scope (selection, page, document) and the categories to audit: color, spacing, radius, typography (including font family), dimension, opacity.
 3. They run the audit. The plugin returns a coverage rate and a **priority list** of deviations, grouped by value and ordered by how cheap the fix is:
     - **Exact matches first** — a hard-coded value strictly equal to the resolved value of an already active token. Nothing to decide: the plugin names the token and offers to apply it.
     - **Near matches** next — a value close to an active token, with the residual difference shown.

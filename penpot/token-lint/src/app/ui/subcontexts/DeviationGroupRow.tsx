@@ -125,6 +125,10 @@ const CATEGORY_ICON: Record<
     iconType: 'LETTER',
     iconName: 'T',
   },
+  opacity: {
+    iconType: 'PICTO',
+    iconName: 'contrast',
+  },
 }
 
 const SIMPLE_PROPERTY_KEY: Record<string, string> = {
@@ -135,6 +139,8 @@ const SIMPLE_PROPERTY_KEY: Record<string, string> = {
   fontWeight: 'fontWeight',
   lineHeight: 'lineHeight',
   letterSpacing: 'letterSpacing',
+  fontFamily: 'fontFamily',
+  opacity: 'opacity',
 }
 
 const getPropertyLabel = (

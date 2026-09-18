@@ -48,6 +48,7 @@ const ALL_CATEGORIES: Array<TokenCategory> = [
   'radius',
   'typography',
   'dimension',
+  'opacity',
 ]
 
 export default class AuditSetup extends PureComponent<

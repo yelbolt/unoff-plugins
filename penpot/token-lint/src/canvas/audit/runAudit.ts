@@ -31,6 +31,7 @@ const zeroByCategory = (): Record<TokenCategory, number> => ({
   radius: 0,
   typography: 0,
   dimension: 0,
+  opacity: 0,
 })
 
 // Reused by bridges/audit/applyTokens.ts to skip already-compliant

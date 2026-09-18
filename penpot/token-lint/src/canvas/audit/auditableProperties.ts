@@ -44,6 +44,7 @@ export const readValueAtPath = (
   if (propertyPath === 'borderRadius') return shape.borderRadius
   if (propertyPath === 'width') return shape.width
   if (propertyPath === 'height') return shape.height
+  if (propertyPath === 'opacity') return shape.opacity
 
   if (propertyPath.startsWith('flexLayout.')) {
     if (!penpot.utils.types.isBoard(shape) || !shape.flex) return undefined
@@ -64,6 +65,7 @@ export const readValueAtPath = (
     if (propertyPath === 'lineHeight') return parseNumericLike(shape.lineHeight)
     if (propertyPath === 'letterSpacing')
       return parseNumericLike(shape.letterSpacing)
+    if (propertyPath === 'fontFamily') return shape.fontFamily
   }
 
   return undefined
@@ -155,6 +157,7 @@ export const collectAuditableProperties = (
   const wantsSpacing = categories.includes('spacing')
   const wantsDimension = categories.includes('dimension')
   const wantsTypography = categories.includes('typography')
+  const wantsOpacity = categories.includes('opacity')
 
   // A fill/stroke bound to a library color asset isn't a hardcoded value.
   if (wantsColor && shape.fills !== 'mixed')
@@ -206,6 +209,9 @@ export const collectAuditableProperties = (
       shape.borderRadius,
       RADIUS_TOKEN_PROPERTIES
     )
+
+  if (wantsOpacity)
+    push(candidates, traversed, 'opacity', 'opacity', shape.opacity, ['opacity'])
 
   if (wantsSpacing && penpot.utils.types.isBoard(shape) && shape.flex)
     for (const propertyPath of Object.keys(FLEX_TOKEN_PROPERTY))
@@ -271,6 +277,14 @@ export const collectAuditableProperties = (
       'typography',
       parseNumericLike(shape.letterSpacing),
       ['letterSpacing']
+    )
+    push(
+      candidates,
+      traversed,
+      'fontFamily',
+      'typography',
+      shape.fontFamily,
+      ['fontFamilies']
     )
   }
 

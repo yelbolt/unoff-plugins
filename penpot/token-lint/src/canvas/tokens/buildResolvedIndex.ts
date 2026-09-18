@@ -11,6 +11,7 @@ const emptyByCategory = (): Record<TokenCategory, ResolvedTokenIndexEntry[]> => 
   radius: [],
   typography: [],
   dimension: [],
+  opacity: [],
 })
 
 const dedupeKey = (
@@ -59,7 +60,8 @@ const pushEntriesForToken = (
     case 'borderWidth':
     case 'fontSizes':
     case 'fontWeights':
-    case 'letterSpacing': {
+    case 'letterSpacing':
+    case 'opacity': {
       if (token.resolvedValue == null) return
       const category: TokenCategory =
         token.type === 'borderRadius'
@@ -68,12 +70,22 @@ const pushEntriesForToken = (
             ? 'color'
             : token.type === 'spacing'
               ? 'spacing'
-              : token.type === 'fontSizes' ||
-                  token.type === 'fontWeights' ||
-                  token.type === 'letterSpacing'
-                ? 'typography'
-                : 'dimension' // dimension | sizing | borderWidth
+              : token.type === 'opacity'
+                ? 'opacity'
+                : token.type === 'fontSizes' ||
+                    token.type === 'fontWeights' ||
+                    token.type === 'letterSpacing'
+                  ? 'typography'
+                  : 'dimension' // dimension | sizing | borderWidth
       put(category, token.resolvedValue)
+      return
+    }
+    // Standalone fontFamilies token — resolvedValue is a string[] (a font
+    // stack), joined the same way as the composite 'typography' case below
+    // so both paths land in the index as a comparable single string.
+    case 'fontFamilies': {
+      if (!token.resolvedValue || token.resolvedValue.length === 0) return
+      put('typography', token.resolvedValue.join(', '), 'fontFamily')
       return
     }
     case 'typography': {
@@ -84,6 +96,12 @@ const pushEntriesForToken = (
         ['fontWeight', resolved.fontWeights],
         ['letterSpacing', resolved.letterSpacing],
         ['lineHeight', resolved.lineHeight],
+        [
+          'fontFamily',
+          resolved.fontFamilies && resolved.fontFamilies.length > 0
+            ? resolved.fontFamilies.join(', ')
+            : undefined,
+        ],
       ]
       for (const [field, value] of fields) {
         if (value == null) continue

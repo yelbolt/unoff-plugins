@@ -13,6 +13,7 @@ export type TokenCategory =
   | 'radius'
   | 'typography'
   | 'dimension'
+  | 'opacity'
 
 /** One entry in the resolved-value index built from active token sets before matching starts. */
 export interface ResolvedTokenIndexEntry {
