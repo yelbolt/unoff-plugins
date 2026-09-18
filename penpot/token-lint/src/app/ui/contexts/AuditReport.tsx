@@ -540,7 +540,7 @@ export default class AuditReport extends PureComponent<
                             tabs={categoryTabs}
                             active={selectedCategoryTab}
                             isFlex
-                            maxVisibleTabs={6}
+                            maxVisibleTabs={5}
                             action={this.handleCategoryTabChange}
                           />
                         ),

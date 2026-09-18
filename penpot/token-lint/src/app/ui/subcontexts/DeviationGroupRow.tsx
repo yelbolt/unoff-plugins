@@ -704,6 +704,18 @@ export default class DeviationGroupRow extends PureComponent<
       (occurrence) => !appliedOccurrenceKeys.has(this.occurrenceKey(occurrence))
     )
 
+    // Both ownership warnings share one chip instead of two identical icons.
+    const warnings = [
+      group.instanceOverrideCount > 0 &&
+        t('tokenLint.report.group.instanceOverrideCount', {
+          count: group.instanceOverrideCount,
+        }),
+      group.mainComponentCount > 0 &&
+        t('tokenLint.report.group.mainComponentCount', {
+          count: group.mainComponentCount,
+        }),
+    ].filter((warning): warning is string => typeof warning === 'string')
+
     return (
       <>
         <SimpleItem
@@ -736,22 +748,11 @@ export default class DeviationGroupRow extends PureComponent<
                   count: remainingOccurrences.length,
                 })}
               </Chip>
-              {group.instanceOverrideCount > 0 && (
+              {warnings.length > 0 && (
                 <IconChip
                   iconType="PICTO"
                   iconName="warning"
-                  text={t('tokenLint.report.group.instanceOverrideCount', {
-                    count: group.instanceOverrideCount,
-                  })}
-                />
-              )}
-              {group.mainComponentCount > 0 && (
-                <IconChip
-                  iconType="PICTO"
-                  iconName="warning"
-                  text={t('tokenLint.report.group.mainComponentCount', {
-                    count: group.mainComponentCount,
-                  })}
+                  text={warnings.join(' · ')}
                 />
               )}
             </div>
