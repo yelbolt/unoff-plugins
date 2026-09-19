@@ -109,29 +109,53 @@ folder with a `package.json`, and its build output lands in the shared
 ### Releasing a plugin
 
 1. Work on a branch, adding entries to that plugin's own `CHANGELOG.md`
-   under `[Unreleased]` as you go (see [Changelog](#changelog)).
-2. When it's ready to ship, bump its version — from its folder,
-   `npm version minor` (or `patch`/`major`) `--no-git-tag-version`, or edit
-   `package.json` directly — and commit it.
-3. Name the branch `release/...` (required — it's what `release.yml`'s
-   trigger checks for) and open a PR into `dev`.
-4. Merge it. `release.yml` fires, detects which plugin(s) changed in that
+   under `[Unreleased]` as you go (see [Changelog](#changelog)), and get it
+   merged into `dev`.
+2. From the repo root, run the release script with the plugin and the new
+   version:
+
+   ```sh
+   npm run release -- token-lint minor          # or patch / major
+   npm run release -- penpot/token-lint 0.5.0   # or an explicit version
+   ```
+
+   The plugin is a bare name (`token-lint`) or `platform/name` when the same
+   name exists on several platforms. `patch`/`minor`/`major` are computed
+   from the version currently on `origin/dev`. The script:
+   - checks that the working tree is clean, that the version is newer than
+     the one on `origin/dev`, that the tag doesn't exist yet, and that
+     `[Unreleased]` isn't empty;
+   - creates `release/<plugin>-<version>` from `origin/dev` (or reuses it if
+     it already exists), e.g. `release/token-lint-0.5.0`;
+   - sets the version in the plugin's `package.json` and in `package-lock.json`;
+   - moves `[Unreleased]` to `[<version>] - <date>` in the plugin's
+     `CHANGELOG.md`;
+   - commits it as `chore(release): <platform>/<plugin> v<version>`.
+
+   Options: `--dry-run` prints the plan and changes nothing, `--push` also
+   pushes the branch and opens the PR into `dev` (needs the `gh` CLI), and
+   `--force` allows an empty `[Unreleased]`. One run releases one plugin: to
+   release several, run it once per plugin and merge each PR.
+3. Merge the PR into `dev` (if you didn't use `--push`, push the branch and
+   open it yourself; the `release/` prefix is what `release.yml`'s trigger
+   checks for). `release.yml` fires, detects which plugin(s) changed in that
    PR, and for each one:
    - builds it in production mode
-   - extracts its `CHANGELOG.md` `[Unreleased]` section and creates a
+   - takes the `[<version>]` section of its `CHANGELOG.md` and creates a
      GitHub Release tagged `<platform>-<name>-v<version>`, using that
      section as the release notes
    - uploads the build as a zip release asset
    - deploys the build to GitHub Pages at `/<platform>/<name>/` — the
      static files that URL serves are now updated, without touching any
      other plugin already published there
-   - bumps that plugin's `CHANGELOG.md` (`[Unreleased]` becomes
-     `[<version>] - <date>`, with a fresh empty `[Unreleased]` above it)
-     and commits that back to `dev`
+
+The changelog is bumped in the release PR itself, so what gets reviewed is
+what gets released and CI never commits back to `dev`.
 
 `release.yml` can also be triggered manually (`workflow_dispatch`, same
 plugin/platform/bare-name targeting as the local commands) to release
-outside the branch/PR flow.
+outside the branch/PR flow. If that plugin's changelog was never bumped, the
+notes fall back to its `[Unreleased]` section.
 
 ### Secrets and variables
 
@@ -157,10 +181,11 @@ Within an environment, split by kind:
 ## Changelog
 
 Add entries to a plugin's `[Unreleased]` section in its own `CHANGELOG.md` as
-you work — `release.yml` pulls that section into the GitHub release notes and
-bumps the file automatically when the plugin ships. The root itself is just
-where commands are run from, not a released thing — it has no changelog of
-its own.
+you work. `npm run release` turns that section into `[<version>] - <date>`
+(leaving an empty `[Unreleased]` above it) in the release PR, and
+`release.yml` uses the version's section as the GitHub release notes. The
+root itself is just where commands are run from, not a released thing — it
+has no changelog of its own.
 
 ## Support
 

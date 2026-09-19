@@ -94,10 +94,13 @@ jobs:
             echo "tag=${{ matrix.plugin.slug }}-v$version"
           } >> "$GITHUB_OUTPUT"
 
+      # `npm run release` already moved [Unreleased] to [<version>] in the
+      # release PR; the notes are that version's section (the extractor falls
+      # back to [Unreleased] for a changelog that was never bumped).
       - name: Extract changelog
         id: changelog
         run: |
-          entry=$(node scripts/changelog.mjs extract "${{ matrix.plugin.path }}/CHANGELOG.md")
+          entry=$(node scripts/changelog.mjs extract "${{ matrix.plugin.path }}/CHANGELOG.md" "${{ steps.meta.outputs.version }}")
           if [ -z "$entry" ]; then
             entry="_No changelog entries recorded for this release._"
           fi
@@ -121,7 +124,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if gh release view "${{ steps.meta.outputs.tag }}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "::warning title=Release already exists::${{ steps.meta.outputs.tag }} already has a GitHub Release, so its version wasn't bumped since the last run (expected when re-releasing manually). Skipping release creation and changelog bump — the build still redeploys to GitHub Pages below."
+            echo "::warning title=Release already exists::${{ steps.meta.outputs.tag }} already has a GitHub Release, so its version wasn't bumped since the last run (expected when re-releasing manually). Skipping release creation — the build still redeploys to GitHub Pages below."
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -161,21 +164,6 @@ jobs:
           publish_dir: dist
           keep_files: true
           publish_branch: gh-pages
-
-      - name: Bump changelog
-        if: steps.check_release.outputs.exists != 'true'
-        run: node scripts/changelog.mjs bump "${{ matrix.plugin.path }}/CHANGELOG.md" "${{ steps.meta.outputs.version }}"
-
-      - name: Commit changelog bump
-        if: steps.check_release.outputs.exists != 'true'
-        continue-on-error: true
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: >-
-            chore(${{ matrix.plugin.path }}): bump changelog for
-            v${{ steps.meta.outputs.version }} [skip ci]
-          file_pattern: ${{ matrix.plugin.path }}/CHANGELOG.md
-          branch: ${{ github.event.pull_request.base.ref || github.ref_name }}
 
   deploy-pages:
     name: Deploy GitHub Pages
