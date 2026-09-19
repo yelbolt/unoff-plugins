@@ -5,6 +5,25 @@ All notable changes to this plugin are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [0.4.0] - 2026-09-18
+### Added
+- Opacity, rotation, text case, and text decoration are now auditable
+  categories: they can be picked in the audit setup, appear as their own
+  tab in the report, and unmatched values can be turned into a new token.
+
+### Changed
+- A deviation group's two ownership warnings (instance overrides and main
+  components) now share a single warning chip instead of showing two
+  identical icons side by side. Only the counts that apply are listed.
+- Updated `@unoff/ui` to 1.26.0.
+
+### Fixed
+- The "suggested language" banner could reappear after being dismissed:
+  the stored preference is a string, and `"false"` was read as true. It is
+  now converted to a real boolean before reaching the UI.
+
+## [0.3.3] - 2026-09-03
 ### Changed
 - Translation strings no longer use em dashes or en dashes; sentences are
   now split with a comma, a colon, parentheses, or a period instead.
