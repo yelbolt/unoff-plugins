@@ -6,6 +6,7 @@ Monorepo of plugins built with the [Unoff](https://unoff.dev) framework, organiz
 unoff-plugins/
 ├── penpot/
 │   ├── token-lint/
+│   ├── component-handoff/
 │   └── calendar-and-schedule-generator/
 ├── figma/    (ready, empty until the first plugin lands)
 ├── framer/   (ready, empty)
@@ -23,6 +24,7 @@ covers what's common across all of them.
 | Plugin | Platform | Status |
 | --- | --- | --- |
 | [Token Lint](penpot/token-lint) | Penpot | 🧪 Testing |
+| [Component Handoff](penpot/component-handoff) | Penpot | 🧪 Testing |
 | [Calendar and Schedule Generator](penpot/calendar-and-schedule-generator) | Penpot | 🚧 Work in progress |
 
 **This monorepo is specific to this project.** Unoff as a framework scaffolds
@@ -160,7 +162,8 @@ notes fall back to its `[Unreleased]` section.
 ### Secrets and variables
 
 Every plugin's own GitHub Environment (Settings → Environments →
-`penpot-token-lint`, `penpot-calendar-and-schedule-generator`, ...) holds
+`penpot-token-lint`, `penpot-component-handoff`,
+`penpot-calendar-and-schedule-generator`, ...) holds
 everything that plugin's build needs — there's nothing at the repository
 level. Each plugin's config is fully self-contained instead of partly
 depending on shared repo state, even where two plugins currently happen to
