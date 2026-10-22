@@ -2,8 +2,8 @@
   "name": "Component Handoff",
   "description": "Document a Penpot component or a whole family of variants for developers: numbered anatomy, redlines, layout, and the token or style behind every value, drawn as native cards on the canvas. Flags the documentation when the component changes.",
   "version": 2,
-  "code": "/plugin.js",
-  "icon": "/plugin_icon.webp",
+  "code": "./plugin.js",
+  "icon": "./plugin_icon.webp",
   "permissions": [
     "content:read",
     "content:write",
