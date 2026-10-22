@@ -1,27 +1,57 @@
-![GitHub package.json version](https://img.shields.io/github/package-json/v/yelbolt/component-handoff?color=informational) ![GitHub last commit](https://img.shields.io/github/last-commit/yelbolt/component-handoff?color=informational) ![GitHub](https://img.shields.io/github/license/yelbolt/component-handoff?color=informational)
+![GitHub package.json version](https://img.shields.io/github/package-json/v/yelbolt/unoff-plugins?filename=penpot%2Fcomponent-handoff%2Fpackage.json&color=informational) ![GitHub last commit](https://img.shields.io/github/last-commit/yelbolt/unoff-plugins?path=penpot%2Fcomponent-handoff&color=informational) ![GitHub](https://img.shields.io/github/license/yelbolt/unoff-plugins?color=informational)
 
 # Component Handoff
 
-<!-- Describe what your plugin does in 2-3 sentences -->
-Component Handoff is a Penpot plugin that helps you...
+Component Handoff documents a Penpot component, or a whole family of variants,
+for the developers who will build it: the annotations (redlines, numbered
+parts, an exploded view, layout symbols) and the specs that go with them
+(tables of values, tokens and styles), drawn straight onto the canvas instead
+of leaving engineers to open every layer and read the inspect panel.
 
-<!-- Optional: Add context about why you built this plugin -->
-<!-- The idea behind this plugin comes from... -->
+A handoff is usually a screenshot with a few hand-drawn redlines, re-edited
+every time a value moves. Component Handoff answers the two questions a
+screenshot doesn't: **what are the exact values of this component?** and **has
+it changed since it was documented?**
 
 ## Features
 
-<!-- List the main features of your plugin -->
-This plugin allows you to:
-- Feature 1 description
-- Feature 2 description
-- Feature 3 description
-- Feature 4 description
-- Feature 5 description
+- **Document** a component or a whole family of variants. Select a main
+  component, a copy, a board or a variant container and get a documentation
+  board beside the design, laid out as a grid of native, editable cards. It
+  lives on its own layer, outside the documented board, so it never ends up in
+  that board's export.
+- **Variants** — every variant of a family with its own property values, one
+  card each, optionally narrowed to the variants matching the property values
+  you tick. The filter applies to every view.
+- **Anatomy** — the component with its numbered parts, then the parts pulled
+  apart. One anatomy covers the whole family and lists where each part
+  appears. Number only the direct layers or every nested one.
+- **Measurements** — size, padding, gap, radius and layout, each on its own
+  annotated specimen with a table of values. Layout covers flex and grid
+  containers and how each part is sized — **fix**, **fill** or **fit** — shown
+  with distinct symbols.
+- **Colors & references** — fills, strokes, typography and effects of every
+  part, naming the **token** applied, otherwise the **style**, otherwise the
+  raw value (token names are read from the file's tokens, Penpot 2.14 and
+  later). A value that changes across variants is keyed by the property that
+  drives it (`Size: sm 32 · md 40 · lg 48`), never compared with a reference
+  variant.
+- **Stay up to date** — outdated documentations are flagged when the plugin
+  opens and after each save, and updated when you decide to, one by one or all
+  at once. Re-generating never creates a duplicate, and the *Generated* tab
+  lists and locates every documentation of the page.
+- **Annotation style** — color, text size, unit (px or rem), label placement
+  and a scale mode: *Design scale* draws at 100%, *Viewport* at the size that
+  reads the same on screen at the zoom you had when generating. Changes apply
+  as you make them and are saved with the document.
+
+Exporting a PDF and generating code are out of scope, and so are comments —
+Penpot already handles those natively.
 
 ## Documentation
 
-<!-- If you have documentation, add the link here -->
-<!-- The full documentation is available at [your-docs-url.com](https://your-docs-url.com) -->
+The full architecture documentation is free and open to everyone:
+[uno.ylb.lt/docs](https://uno.ylb.lt/docs).
 
 ## Contribution
 
@@ -34,11 +64,13 @@ Have you encountered a bug? Could a feature be improved?
 Go to the `Issues` section and browse the existing tickets or create a new one.
 
 ### Development
-- Clone this repository (or fork it)
-- Install dependencies with `npm install`
-- Run `npm run start:dev` to watch in development mode
-- Run `npm run start:ext` to run the external services such as the workers ansd the auth lobby
-- Go to Penpot, then `Plugins`, type this url: `http://localhost:4400/manifest.json` and validate
+This plugin lives in the [unoff-plugins](https://github.com/yelbolt/unoff-plugins)
+monorepo — see its root README for the full picture. The short version:
+- Clone the monorepo (or fork it) and run `npm install` at its root
+- From the monorepo root: `npm run start -- component-handoff` (delegates to this
+  plugin's own `start:dev` below). Go to Penpot, then `Plugins`, and enter
+  `http://localhost:4400/manifest.json`
+- Or, from this folder directly: `npm run start:dev` — same thing
 - Create a `Branch` and open a `Pull Request`
 - _Let's do this_
 
@@ -57,9 +89,9 @@ A spec declares the `layers` it touches (`canvas`, `bridge`, `ui`, `config`, `ex
 The full architecture documentation is free and open to everyone: [uno.ylb.lt/docs](https://uno.ylb.lt/docs). Guidance tailored to your own plugin — monitoring, analytics, licensing — is the part you unlock: [see what it takes](https://uno.ylb.lt/start).
 
 ### Beta test
-- Go to the `Actions` sections and access the `Build and Download UI Color Palette` tab
-- Click `Run workflow`, then select a branch and confirm
-- Wait a minute, and once finished, download the artifact (which is a ZIP file containing the plugin)
+- Go to the `Actions` section of the monorepo and open the `Build plugins` workflow
+- Click `Run workflow`, select a branch, enter `component-handoff` (or `penpot/component-handoff`) as the plugin, and confirm
+- Wait a minute, and once finished, download the `plugin-penpot-component-handoff` artifact (a ZIP file containing the plugin, unzipped flat — `manifest.json` at its root)
 - You can use a third-party tool to create a local server from the unzipped artifact, such as MAMP, WAMP, LAMP, etc
 - Go to Penpot, then `Plugins`, type this url: `http://localhost:{customPort}/manifest.json` and validate
 - _Enjoy!_
@@ -104,8 +136,7 @@ Scaffolded with [`@unoff/cli`](https://github.com/yelbolt/unoff-cli) — `npx @u
 - Technology/Library used thanks to [author](link)
 -->
 
-<!-- Optional: Add support/sponsor links -->
-<!-- ## Support
-- [Follow on LinkedIn](https://linkedin.com/...)
-- [Support the author](https://ko-fi.com/...)
--->
+## Support
+
+- [Follow on LinkedIn](https://uno.ylb.lt/network)
+- [Support the author](https://uno.ylb.lt/author)

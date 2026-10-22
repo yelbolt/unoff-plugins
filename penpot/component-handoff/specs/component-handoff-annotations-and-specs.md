@@ -1,6 +1,6 @@
 ---
 name: component-handoff-annotations-and-specs
-description: Generate a developer-oriented spec of a component or a component family on the Penpot canvas, as a 6-column grid of native cards — variants with their properties, one merged anatomy, measurements and layout (flex, grid, fill, fit), colors with the tokens and styles applied, values keyed by the variant property that drives them — listed, locatable and updatable from the plugin.
+description: Generate a developer-oriented documentation of a component or a component family on the Penpot canvas — annotations (redlines, numbered parts, exploded view, layout symbols) and specs (tables of values, tokens and styles) as a 6-column grid of native cards, with variants, one merged anatomy, measurements and layout (flex, grid, fill, fit), values keyed by the variant property that drives them — listed, locatable and updatable from the plugin.
 layers: [canvas, bridge, ui]
 platforms: [penpot]
 status: in-progress
@@ -18,6 +18,8 @@ So designers redraw redlines by hand with lines and text boxes, then re-edit the
 
 The interaction model follows the sketch **EightShapes Specs** established on Figma: select a component, tick which views to generate, generate the documentation as native content on the Penpot document itself.
 
+A documentation is made of two kinds of content. **Annotations** are what is drawn on a specimen of the component: dimension and spacing redlines, radius callouts, numbered markers with their leader lines, the exploded view of the parts, and the layout symbols (fix, fill, fit, direction, gap). **Specs** are the tables beside them: values, tokens, styles and variant properties. Annotations make a value visible where it applies; specs state it exactly.
+
 The documentation is written **for developers**: it favours a few dense, useful tables over many specimens. Simplicity wins over exhaustiveness.
 
 The panel has three tabs: **Documentation** (what to document, generate), **Generated** (the documentations on the page) and **Options** (annotation style).
@@ -29,7 +31,7 @@ The panel has three tabs: **Documentation** (what to document, generate), **Gene
    For a family they can also narrow **which variants are documented**: the options are built from the family's own properties — one group per property, one checkbox per value, all ticked by default — and a counter shows how many variants match (e.g. `4 / 12 variants`). A variant is documented when each of its property values is ticked. The filter applies to every view: variants, anatomy, measurements and colors.
 5. They generate. One documentation board is drawn beside the design.
 6. In the **Generated** tab they find every documentation of the page, **locate** it (select and bring into view), and see which ones are outdated. When a documented main component changes, the tab flags it and offers to update, one by one or all at once.
-7. In the **Options** tab they set the annotation style (color, text size, unit, label placement, scale mode). **Changes apply and persist as they are made** — there is no save button and no confirmation message; the scale-mode choice is explained by the dropdown's own hint, with no extra "current mode" line. Every choice offers all its options; a setting with a single option is not shown. It persists for the document.
+7. In the **Options** tab they set the annotation style (color, text size, unit, label placement, scale mode). **Changes apply and persist as they are made** — there is no save button and no confirmation message; the scale-mode choice is explained by the dropdown's own hint, with no extra "current mode" line. Every choice offers all its options; a setting with a single option is not shown. The style is stored on the document.
 8. Re-generating on an already-documented component updates the existing documentation rather than duplicating it.
 
 ## What the documentation shows
@@ -40,12 +42,12 @@ One documentation board per documented component or family, laid out on a **6-co
 | --- | --- |
 | Header, view titles | 6 |
 | Variant card | 1 (2 when its instance is too wide for one column) |
-| Measurement card (Size, Padding, Gap, Radius, Layout) | 3 — always two per row, never widened; the column width is chosen so a span of 3 holds the widest measurement table |
+| Measurement card (Size, Padding, Gap, Radius, Layout; empty categories omitted) | 3 — always two per row, never widened; the column width is chosen so a span of 3 holds the widest measurement table |
 | Anatomy, compact component (few parts) | specimen 2 + parts table and exploded view 4 |
 | Anatomy, rich component | 6 |
 | Colors | per variant group: specimen 2, then each part card 2 — a group always starts a new row, so a variant's specimen and its parts read left to right on one band; an empty cell closes a row that is not full |
 
-Measurements read as two rows of two: **Size, Padding / Radius, Layout** (Gap sits with its group when it exists). A new variant group in Colors or Anatomy always starts a new row; a row that is not full is simply closed, never backfilled.
+Measurements read in this order, two cards per row: **Size, Padding / Gap, Radius / Layout**. Without a Gap card, the order is **Size, Padding / Radius, Layout**. A new variant group in Colors or Anatomy always starts a new row; a row that is not full is simply closed, never backfilled.
 
 **One presentation model everywhere** — white cards, each holding a specimen and/or a compact table, sized to fit their content.
 
@@ -67,7 +69,7 @@ The documentation follows the unoff brand, consistently with other generated doc
 - **Spacing** — an 8-point rhythm: every padding, gap and margin is a multiple of 4 (4, 8, 12, 16, 20, 24, 32, 40, 48…). No ad-hoc values.
 - **Chips** — short values (token names, `raw` / `token` / `style` tags, property values) are shown as small rounded chips, as in the palette sheet.
 - **Header** — title on the left in Martian Mono; metadata (kind, library path, generation date, variant filter) aligned on the right in Martian Mono.
-- The annotation style chosen in Options (color, text size) still drives redlines, labels and markers; the brand style drives the documentation's own surfaces and text.
+- The annotation style chosen in Options (color, text size, unit, label placement, scale mode) drives the annotations — redlines, labels, markers, leaders and layout symbols; the brand style drives the documentation's own surfaces and text.
 
 ## Rules
 
@@ -77,19 +79,19 @@ The documentation follows the unoff brand, consistently with other generated doc
 - The documentation follows a 6-column grid. What the plugin controls is fixed — a card's width comes from its span and the column width; what it does not control fits — card heights, row heights and the documentation's height hug their content. Nothing is given a size computed from another shape's measured size.
 - Text in the documentation never wraps because of a lack of room; it is laid out on one line, and its container grows instead.
 - Leader lines and connectors are orthogonal — horizontal and vertical segments only, with an elbow where needed. No diagonal lines, and no line ever lies outside its section.
-- Anatomy walks the component and its children. The parts detail (main parts / all layers) is a visible option, not an assumption.
+- Anatomy walks the component and its children. The numbered layers choice (direct layers / every layer) is a visible option, not an assumption.
 - Within a variant group, part numbers are the same across anatomy, measurements and colors views.
 - References follow a fixed precedence: **token** name, else **style** name, else raw value. Raw values appear only when neither a token nor a style backs the property.
 - Color styles are read from the applied reference (`fillColorRefId`, `strokeColorRefId`) and resolved in the local and connected libraries. Typography styles have no readable reference: a typography style is shown only when the text values match a library typography exactly, and it is labelled as matched, never presented as applied.
 - When a variant filter is set, only the matching variants are documented, in every view; the header of the documentation states the filter (e.g. `Variant=default · Size=sm, md`). A filter that matches no variant is refused explicitly.
 - Variants are described by their own property values. No variant is singled out as a default. When a value varies across variants, it is keyed by the variant property that drives it — never expressed as a difference from one reference variant.
 - Documentation lives in one dedicated layer per board, outside the board, so it is excluded from the board's export.
-- Overlapping or nested parts: infer the meaningful spacing, or refuse explicitly. Never guess silently.
+- Overlapping or diagonally placed sibling parts have no meaningful gap: they are not measured, and the documentation says how many pairs were skipped. Never guess silently.
 - Rotated elements are measured against their bounding box, and the annotation says so.
 - When there is not enough room for a label, offset it with an orthogonal leader line rather than overlap the design.
 - Re-running on a documented component updates the existing documentation; it never creates a duplicate.
 - A documentation is never updated or deleted silently. When its main component changed, the plugin flags it as outdated and the designer decides to update. A documentation whose component is gone is removed only by an explicit action. Detection runs while the plugin is open: at launch and after each save of the file.
-- Annotations remain legible across the usable zoom range.
+- Legibility across zoom is the designer's choice between two **scale modes**, set in Options: **Design scale** draws everything at 100%, in design pixels — the documentation is the same size whatever the zoom was when it was generated; **Viewport** draws everything — type, strokes, markers, spacing — at the size that reads the same on screen at the zoom the designer had when generating. The dropdown's own hint explains each mode.
 
 ## Out of scope
 
@@ -106,7 +108,7 @@ The documentation follows the unoff brand, consistently with other generated doc
 - [ ]  No content of a card extends past the card, and no table row overlaps another.
 - [ ]  Displayed values match Penpot's properties panel exactly.
 - [ ]  The documentation does not appear in the documented board's export.
-- [ ]  Annotations stay legible at 25% and at 400% zoom.
+- [ ]  In Design scale, a documentation generated at 25% zoom and one generated at 400% zoom have the same size; in Viewport, both read at the same size on screen at the zoom they were generated at.
 - [ ]  Re-generating on an already-documented component creates no duplicates.
 - [ ]  Each ticked view appears as its own titled section; unticked views are absent.
 - [ ]  Specimens are centred in their cards in every view.
@@ -118,7 +120,7 @@ The documentation follows the unoff brand, consistently with other generated doc
 - [ ]  The Generate button is in the selection header.
 - [ ]  No label or value in the documentation wraps onto several lines.
 - [ ]  The documentation contains no diagonal line and no shape outside its sections.
-- [ ]  Measurements are grouped by category (size, padding, gap, radius), each with its own specimen.
+- [ ]  Measurements are grouped by category (size, padding, gap, radius, layout), each with its own specimen; categories with nothing to show are omitted.
 - [ ]  In merged grouping, a family gets one anatomy whose part table lists every part of the union with the variants it appears in.
 - [ ]  In merged grouping, a measurement that varies across variants is listed per value of the variant property that drives it.
 - [ ]  The plugin never shows two messages for the same condition; the information message sits above the selection summary.
@@ -133,7 +135,6 @@ The documentation follows the unoff brand, consistently with other generated doc
 
 ## Implementation notes
 
-- **Discard the current template.** What ships today is starter scaffolding, not a base to extend. Strip it out and let this spec drive the structure, the UI and the naming end to end.
 - Study EightShapes Specs on Figma before designing the panel: the option-ticking model and the layout of the generated sheet are the part worth copying.
 - Documentation needs identity: it must carry a stable link to the component it documents, so re-runs can update rather than duplicate. Plugin data on the documentation group is the carrier; layer naming is for humans.
 - Outdated detection: store a fingerprint of the documented component (geometry, layout, radius, fills, strokes, typography, effects, tokens, structure — for a family, every variant) at generation time, and compare it with a fresh one on `contentsave` and at launch.
@@ -142,9 +143,9 @@ The documentation follows the unoff brand, consistently with other generated doc
 - **Fill where the width is controlled, fit where it is not.** A card's width is known (from its span), so everything inside a card — tables, wrap rows, exploded views, chip rows — uses `fill` horizontally and never gets its own computed width. Heights are never controlled: table rows, cells and cards fit their content, so a multi-line cell grows its row instead of overlapping the next one. Tables are built row by row (one flex row per table row, fit height), with column widths taken from the card's known content width.
 - **UI uses the unoff layout primitives**: plugin UI spacing and alignment come from `layouts` in `@unoff/ui` (`snackbar` for rows, `stackbar` for columns, with their `--tight` / `--medium` / `--large`, `--wrap`, `--fill`, `--start` / `--centered` / `--end` variants) rather than ad-hoc inline flex and gap styles.
 - **Fonts**: apply Martian Mono and Lexend through the Penpot fonts API (`penpot.fonts.findByName(...)?.applyToText(text)`), falling back to the default font if a font is not available.
-- **Never read back a computed size to lay out the documentation.** Penpot resolves auto layout asynchronously: sizes read right after creation are stale, and fixing a size from them truncates text (`Propert/y`) and lets content overflow its card. Let native flex layout do all the work: every board is flex with `auto` (fit) sizing, columns use `alignItems: 'stretch'`, text is `auto-width` and is never resized. The only absolutely positioned content is inside a specimen stage, whose size is known up front from the source shape's own width and height. Text uses auto-width so it never wraps.
+- **Never read back a computed size to lay out the documentation.** Penpot resolves auto layout asynchronously: sizes read right after creation are stale, and fixing a size from them truncates text (`Propert/y`) and lets content overflow its card. Let native flex layout do all the work: every board is flex; a width is fixed only where the plugin controls it (cards, from their span), everything else is `fill` or `auto` (fit); text is `auto-width` and is never resized; rows set `alignItems: 'stretch'` so cards of a row share the tallest card's height (best effort — if the platform ignores it, cards stay top-aligned). The only absolutely positioned content is inside a specimen stage, whose size is known up front from the source shape's own width and height.
 - Lines are orthogonal, so draw them as thin rectangles rather than path shapes: a path whose geometry fails to apply leaves stray diagonals.
-- Legibility across zoom means either scale-aware sizing or a deliberate choice to keep annotations at design scale. Pick one and state it in the Options tab.
+- Scale: every size drawn goes through one scale factor — 1 in Design scale, 1 ÷ viewport zoom in Viewport. The factor is read once, when the generation starts.
 - Read token names from the same source Token Lint uses, so both plugins report identically.
 - Draw everything as plain native shapes and text. Nothing here should be a group the user cannot open.
 - Penpot variants: `VariantContainer.variants` exposes `properties`, `currentValues(property)` and `variantComponents()`; each `LibraryVariantComponent` has `variantProps`.
