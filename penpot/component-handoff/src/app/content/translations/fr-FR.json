@@ -1,0 +1,554 @@
+{
+  "canvas": {
+    "bbox": "bbox",
+    "layer": {
+      "prefix": "Specs",
+      "page": "Page"
+    },
+    "kind": {
+      "DOCUMENTATION": "Documentation"
+    },
+    "view": {
+      "ANATOMY": "Anatomie",
+      "VARIANTS": "Variantes",
+      "MEASUREMENTS": "Mesures",
+      "COLORS": "Couleurs"
+    },
+    "category": {
+      "SIZE": "Taille",
+      "PADDING": "Marges internes",
+      "GAP": "Espacement",
+      "RADIUS": "Rayon",
+      "LAYOUT": "Mise en page"
+    },
+    "layout": {
+      "none": "Aucune",
+      "flex": "Flex",
+      "grid": "Grille",
+      "row": "Ligne",
+      "row-reverse": "Ligne inversée",
+      "column": "Colonne",
+      "column-reverse": "Colonne inversée",
+      "wrap": "Retour à la ligne",
+      "nowrap": "Sans retour à la ligne",
+      "start": "Début",
+      "end": "Fin",
+      "center": "Centre",
+      "stretch": "Étirer",
+      "space-between": "Espace entre",
+      "space-around": "Espace autour",
+      "space-evenly": "Espace égal",
+      "fix": "Fixe",
+      "fill": "Remplir",
+      "fit": "Ajusté",
+      "yes": "Absolu"
+    },
+    "ref": {
+      "token": "token",
+      "style": "style",
+      "raw": "brut",
+      "matched": "correspondance"
+    },
+    "family": {
+      "DIMENSIONS": "Dimensions",
+      "SPACING": "Espacement & padding",
+      "FILLS_STROKES": "Fonds & contours",
+      "RADIUS": "Rayon",
+      "TYPOGRAPHY": "Typographie",
+      "EFFECTS": "Effets"
+    },
+    "prop": {
+      "width": "Largeur",
+      "height": "Hauteur",
+      "rotation": "Rotation",
+      "paddingTop": "Padding haut",
+      "paddingRight": "Padding droite",
+      "paddingBottom": "Padding bas",
+      "paddingLeft": "Padding gauche",
+      "rowGap": "Écart lignes",
+      "columnGap": "Écart colonnes",
+      "marginTop": "Marge haut",
+      "marginRight": "Marge droite",
+      "marginBottom": "Marge bas",
+      "marginLeft": "Marge gauche",
+      "fill": "Fond",
+      "stroke": "Contour",
+      "strokeWidth": "Épaisseur du contour",
+      "gradient": "Dégradé",
+      "image": "Image",
+      "radius": "Rayon",
+      "borderRadiusTopLeft": "Rayon haut gauche",
+      "borderRadiusTopRight": "Rayon haut droite",
+      "borderRadiusBottomRight": "Rayon bas droite",
+      "borderRadiusBottomLeft": "Rayon bas gauche",
+      "layoutType": "Mise en page",
+      "layoutDirection": "Direction",
+      "layoutWrap": "Retour à la ligne",
+      "alignItems": "Alignement des éléments",
+      "justifyItems": "Justification des éléments",
+      "justifyContent": "Justification du contenu",
+      "alignContent": "Alignement du contenu",
+      "columns": "Colonnes",
+      "rows": "Lignes",
+      "sizingH": "Dimensionnement horizontal",
+      "sizingV": "Dimensionnement vertical",
+      "minWidth": "Largeur min",
+      "maxWidth": "Largeur max",
+      "minHeight": "Hauteur min",
+      "maxHeight": "Hauteur max",
+      "absolute": "Position",
+      "typography": "Typographie",
+      "fontFamily": "Police",
+      "fontSize": "Taille",
+      "fontWeight": "Graisse",
+      "lineHeight": "Interligne",
+      "letterSpacing": "Espacement des lettres",
+      "textCase": "Casse",
+      "textDecoration": "Décoration",
+      "opacity": "Opacité",
+      "dropShadow": "Ombre portée",
+      "innerShadow": "Ombre interne",
+      "layerBlur": "Flou du calque",
+      "backgroundBlur": "Flou d'arrière-plan",
+      "gap": "Espacement",
+      "gapBetween": "Espacement {from} → {to}"
+    },
+    "doc": {
+      "kind": {
+        "FAMILY": "Famille de composants",
+        "VARIANT": "Variante",
+        "MAIN": "Composant principal",
+        "COPY": "Copie de composant",
+        "BOARD": "Board",
+        "OTHER": "Forme"
+      },
+      "skippedPairs": "{count} paires de frères superposées ou en diagonale non mesurées",
+      "matched": "(correspondance)",
+      "noPath": "aucun chemin de bibliothèque",
+      "copyFallback": "Le composant principal n'est pas sur cette page : documenté depuis la copie.",
+      "generatedOn": "Généré le {date}",
+      "variantFilter": "Variantes documentées : {filter}",
+      "variantsOfTotal": "{count} variantes sur {total}",
+      "exploded": "Vue éclatée",
+      "noParts": "Aucune partie à cette profondeur.",
+      "noColorRefs": "Aucun fond, contour, typographie ni effet.",
+      "allVariants": "Toutes les variantes",
+      "propertyColumn": "Propriété",
+      "partColumn": "Partie",
+      "valueColumn": "Valeur",
+      "numberColumn": "#",
+      "typeColumn": "Type",
+      "appearsColumn": "Présente dans",
+      "specimenOn": "Affiché sur {variant}"
+    }
+  },
+  "about": {
+    "attributions": {
+      "preact": {
+        "preact": "Preact",
+        "sentence": "• L'interface utilisateur est construite avec {preact}"
+      },
+      "supabase": {
+        "sentence": "• Les données distantes sont stockées avec {supabase}",
+        "supabase": "Supabase"
+      },
+      "title": "Attributions",
+      "unoff": {
+        "author": "Aurélien Grimaud",
+        "sentence": "• L'intégration des composants est alimentée par {unoff} par {author}",
+        "unoff": "Unoff"
+      },
+      "vite": {
+        "sentence": "• L'outil de build est alimenté par {vite}",
+        "vite": "Vite"
+      }
+    },
+    "information": {
+      "contribution": {
+        "sentence": "• Les contributions sont les bienvenues sur {repository}"
+      },
+      "creator": {
+        "sentence": "• Créé et maintenu par {author}"
+      },
+      "sourceCode": {
+        "sentence": "• Le code source est sous licence {license}"
+      },
+      "version": "Version {version}"
+    },
+    "title": "À propos de {pluginName}"
+  },
+  "announcements": {
+    "cta": {
+      "gotIt": "Compris",
+      "learnMore": "En savoir plus",
+      "next": "Suivant"
+    }
+  },
+  "empty": "-",
+  "error": {
+    "activatedLicense": "Cette clé de licence n'est pas valide et ne peut être activée. Veuillez la vérifier et réessayer. Si le problème persiste, veuillez contacter le support.",
+    "announcements": "Les annonces ne peuvent pas être chargées",
+    "authentication": "L'authentification a échoué",
+    "badResponse": "La réponse n'est pas valide",
+    "generic": "Quelque chose s'est mal passé",
+    "noInternetConnection": "La connexion avec le service distant est indisponible",
+    "onboarding": "L'intégration ne peut pas être chargée",
+    "timeout": "L'authentification a expiré",
+    "unavailableAi": "Le service IA est actuellement indisponible. Veuillez réessayer plus tard.",
+    "unlinkedLicense": "Votre clé de licence \"{licenseKey}\" n'est plus valide ou ne peut pas être dissociée à distance. Veuillez la dissocier localement pour la remplacer par une nouvelle. Si le problème persiste, veuillez contacter le support."
+  },
+  "global": {
+    "description": {
+      "label": "Description",
+      "placeholder": "À quoi ça sert ?"
+    }
+  },
+  "info": {
+    "announcements": "Il n'y a pas d'annonce pour l'instant",
+    "onboarding": "Il n'y a pas d'intégration pour l'instant",
+    "signOut": "À bientôt"
+  },
+  "handoff": {
+    "selection": {
+      "none": "Rien de sélectionné",
+      "multiple": "{count} éléments sélectionnés",
+      "family": "Famille · {name} · {count} variantes",
+      "variant": "Variante de {family} · {values}",
+      "component": "Composant · {name}",
+      "copy": "Copie de {name}",
+      "boardKind": "Board · {name}",
+      "other": "{name} ({type})",
+        "board": "Board : {board}",
+      "properties": {
+        "summary": "{name} · {count, plural, one {# valeur} other {# valeurs}}",
+        "show": "Afficher les valeurs",
+        "hide": "Masquer les valeurs"
+      },
+      "noBoard": "Aucun board",
+      "rotated": "Élément pivoté : mesuré sur sa boîte englobante.",
+      "annotated": "La documentation existante sera mise à jour.",
+      "documentation": "Documentation"
+    },
+    "document": {
+      "target": {
+        "title": "Que documenter",
+        "COMPONENT": "Composant",
+        "FAMILY": "Famille (toutes les variantes)",
+        "noFamily": "Aucune famille de variantes n'est accessible depuis cette sélection."
+      },
+      "layers": {
+        "title": "Calques numérotés",
+        "MAIN": "Calques directs",
+        "ALL": "Tous les calques",
+        "effect": {
+          "MAIN": "Numérote {count, plural, one {le # calque situé} other {les # calques situés}} directement dans « {root} » ({names}). L’anatomie, les mesures et les couleurs décomposent le composant en ces parties ; les calques plus profonds restent rattachés à leur parent.",
+          "ALL": "Numérote {count, plural, one {le # calque} other {les # calques}} à tous les niveaux de profondeur. La documentation la plus détaillée, avec un tableau des parties plus long et davantage de repères.",
+          "none": "Ce composant n’a pas de calques internes : seul le composant lui-même est documenté."
+        }
+      },
+      "variantFilter": {
+        "title": "Variantes à documenter",
+        "counter": "{matching} / {total} variantes",
+        "all": "Toutes",
+        "none": "Aucune"
+      },
+      "grouping": {
+        "title": "Regroupement",
+        "MERGED": {
+          "label": "Fusionné",
+          "description": "Une anatomie et un tableau par catégorie pour toute la famille ; les valeurs qui varient sont indexées par la propriété qui les détermine."
+        },
+        "SPLIT": {
+          "label": "Par structure",
+          "description": "Une anatomie et un jeu de tableaux par groupe de variantes partageant une structure."
+        }
+      },
+      "footer": {
+        "hint": "Généré en boards et textes natifs à côté du design."
+      },
+      "cta": {
+        "generate": "Générer"
+      },
+      "views": {
+        "title": "Vues",
+        "variants": {
+          "label": "Variantes",
+          "description": "Une fiche par variante avec ses valeurs de propriétés."
+        },
+        "anatomy": {
+          "label": "Anatomie (vue éclatée)",
+          "description": "Parties numérotées, vue éclatée et présence de chaque partie."
+        },
+        "measurements": {
+          "label": "Mesures",
+          "description": "Dimensions, marges, espacement et rayon, chacun sur son propre spécimen."
+        },
+        "colors": {
+          "label": "Couleurs, tokens et styles",
+          "description": "Le token appliqué, sinon le style, sinon la valeur brute."
+        }
+      }
+    },
+    "refusal": {
+      "noSelection": "Sélectionnez d'abord un élément.",
+      "wrongSelectionCount": "Sélectionnez exactement un élément.",
+      "notAFamily": "Aucune famille de variantes n'est accessible depuis cette sélection.",
+      "annotationSelected": "Une annotation est sélectionnée. Sélectionnez plutôt un élément du design.",
+      "unknown": "L'action a été refusée.",
+      "noView": "Cochez au moins une vue.",
+      "noVariant": "Aucune variante ne correspond aux valeurs cochées.",
+      "nothingToUpdate": "Aucune documentation à mettre à jour."
+    },
+    "result": {
+      "documentation": {
+        "created": "Documentation créée · {parts} éléments · {variants} variantes",
+        "updated": "Documentation mise à jour · {parts} éléments · {variants} variantes"
+      },
+      "rotated": "Élément pivoté : mesuré sur sa boîte englobante.",
+      "documentationsUpdated": "{updated} mise(s) à jour, {removed} supprimée(s)"
+    },
+    "style": {
+      "title": "Style des annotations",
+      "color": {
+        "label": "Couleur"
+      },
+      "textSize": {
+        "label": "Taille du texte (px)"
+      },
+      "unit": {
+        "label": "Unité",
+        "px": "Pixels (px)",
+        "rem": "Rem"
+      },
+      "remBase": {
+        "title": "Base rem",
+        "label": "Pixels par rem",
+        "hint": "Une valeur de 16 signifie 1rem = 16px."
+      },
+      "placement": {
+        "title": "Placement des étiquettes",
+        "AUTO": "Auto",
+        "OUTSIDE": "À l'extérieur",
+        "INSIDE": "À l'intérieur",
+        "hint": {
+          "AUTO": "À l'intérieur si ça tient, sinon à l'extérieur avec une ligne de repère. Meilleur choix par défaut.",
+          "OUTSIDE": "Toujours à côté de l'élément : ne couvre jamais le design, mais demande de la place autour.",
+          "INSIDE": "Toujours dans la zone mesurée : compact, mais peut recouvrir les petits éléments."
+        }
+      },
+      "scale": {
+        "title": "Mode d'échelle",
+        "DESIGN": "Échelle du design",
+        "VIEWPORT": "Suivre le zoom actuel",
+        "hint": {
+          "DESIGN": "Les tailles sont fixes en pixels de design : cohérentes sur le board, mais petites en zoom arrière et grandes en zoom avant.",
+          "VIEWPORT": "Les tailles sont ajustées au zoom courant au dessin : lisibles maintenant, mais décalées à un autre niveau de zoom."
+        }
+      }
+    },
+    "contexts": {
+      "documentation": "Documentation",
+      "generated": "Générées",
+      "generatedCount": "Générées · {count}",
+      "options": "Options"
+    },
+    "documentations": {
+      "title": "Documentations de cette page",
+      "empty": "Aucune documentation sur cette page pour l'instant.",
+      "kind": {
+        "COMPONENT": "Composant",
+        "FAMILY": "Famille"
+      },
+      "generated": "Générée le {date}",
+      "outdated": "Obsolète",
+      "missing": "Introuvable",
+      "locate": "Localiser",
+      "update": "Mettre à jour",
+      "remove": "Supprimer",
+      "updateAll": "Tout mettre à jour",
+      "banner": {
+        "one": "{count} documentation doit être mise à jour — son composant a changé ou a été supprimé",
+        "other": "{count} documentations doivent être mises à jour — leurs composants ont changé ou ont été supprimés"
+      }
+    }
+  },
+  "onboarding": {
+    "cta": {
+      "gotIt": "Compris",
+      "learnMore": "En savoir plus",
+      "next": "Suivant"
+    }
+  },
+  "pending": {
+    "announcements": "Annonces en attente…",
+    "onboarding": "Intégration en attente…",
+    "primaryAction": "………",
+    "secondaryAction": "………"
+  },
+  "plan": {
+    "credits": {
+      "amount": "{count, plural, one {1 crédit restant} other {# crédits restants} =0 {Aucun crédit restant}}",
+      "fees": {
+        "myFee": "Frais de mon action : {fee} cdts"
+      },
+      "renew": "Les crédits se renouvelleront le {date}. Passez à Pro pour des crédits illimités."
+    },
+    "dev": "Forfait Dev",
+    "free": "Forfait Basic",
+    "getPro": "Passer à Pro",
+    "pro": "Forfait Pro",
+    "trial": "Essai",
+    "trialEnded": "Votre essai est terminé",
+    "trialFeedback": "Comment c'était ?",
+    "trialTimeDays": "{count, plural, one {1 jour restant dans cet essai} other {# jours restants dans cet essai}}",
+    "trialTimeHours": "{count, plural, one {1 heure restante dans cet essai} other {# heures restantes dans cet essai}}",
+    "tryPro": "Essayer Pro"
+  },
+  "platform": {
+    "figma": "Figma",
+    "framer": "Framer",
+    "penpot": "Penpot",
+    "sketch": "Sketch"
+  },
+  "pricing": {
+    "activate": {
+      "cta": "Gérer la licence",
+      "text": "Entrez votre clé de licence après l'achat pour débloquer les fonctionnalités Pro",
+      "title": "Activer Pro"
+    },
+    "discount": {
+      "amount": "20% de réduction"
+    },
+    "planA": {
+      "cta": "Passer à Pro",
+      "subtitle": "5$ /mois",
+      "text": "Utilisant les services transactionnels de Lemon Squeezy pour traiter les paiements et gérer les abonnements",
+      "title": "Plan A"
+    },
+    "planB": {
+      "cta": "Passer à Pro",
+      "subtitle": "15$ /mois",
+      "text": "Utilisant les services transactionnels de Lemon Squeezy pour traiter les paiements et gérer les abonnements",
+      "title": "Plan B"
+    },
+    "title": "S'abonner à {pluginName} Pro"
+  },
+  "proPlan": {
+    "trial": {
+      "cta": "Activer l'essai de {hours} heures",
+      "message": "Débloquez des fonctionnalités avancées pendant {hours} heures avec le forfait Pro. Vous pourrez accéder aux fonctionnalités premium et aux capacités améliorées.",
+      "option": "Passer directement à Pro",
+      "title": "Souhaitez-vous passer au forfait Pro dans les prochaines {hours} heures ?"
+    },
+    "welcome": {
+      "cta": "C'est parti",
+      "message": "Cette mise à niveau débloquera une gamme d'outils et de fonctionnalités avancés. Nous espérons que vous apprécierez les avantages.",
+      "title": "Bienvenue dans {pluginName} Pro !",
+      "trial": "Cette mise à niveau débloquera une gamme d'outils et de fonctionnalités avancés. Nous espérons que vous apprécierez les avantages pendant les prochaines {hours} heures."
+    }
+  },
+  "report": {
+    "cta": "Soumettre votre problème",
+    "email": {
+      "label": "Email",
+      "placeholder": "Optionnel"
+    },
+    "fullName": {
+      "label": "Nom complet",
+      "placeholder": "Optionnel"
+    },
+    "message": {
+      "label": "Message (requis)",
+      "placeholder": "Décrivez le problème que vous avez rencontré en essayant de décrire les étapes pour le reproduire."
+    },
+    "title": "Signaler un bug"
+  },
+  "separator": "・",
+  "shortcuts": {
+    "author": "Soutenir l'auteur",
+    "chat": "Discuter avec nous",
+    "community": "Rejoindre notre communauté",
+    "email": "Contacter le support",
+    "feedback": "Soumettre des commentaires",
+    "follow": "Nous soutenir",
+    "news": "Quoi de neuf",
+    "onboarding": "Démarrage rapide",
+    "repository": "Contribuer",
+    "request": "Partagez vos idées",
+    "tooltips": {
+      "documentation": "Lire la documentation",
+      "helpMenu": "Menu Aide / Support",
+      "userMenu": "Menu utilisateur"
+    }
+  },
+  "success": {
+    "activatedLicense": "La clé de licence \"{licenseKey}\" a été activée",
+    "report": "Merci pour votre signalement",
+    "unlinkedLicense": "Votre clé de licence \"{licenseKey}\" a été dissociée"
+  },
+  "user": {
+    "cookies": {
+      "back": "Retour",
+      "close": "Fermer",
+      "consent": "Tout accepter",
+      "customize": "Personnaliser les cookies",
+      "deny": "Tout refuser",
+      "privacyPolicy": "Lire notre Politique de confidentialité",
+      "save": "Enregistrer les préférences",
+      "vendors": "En acceptant ceci, vous acceptez notre utilisation de cookies et d'autres technologies aux fins énumérées ci-dessus.",
+      "welcome": "{pluginName} utilise des cookies pour comprendre comment vous utilisez notre application et améliorer votre expérience."
+    },
+    "language": {
+      "englishUS": "English (US)",
+      "frenchFR": "Français (FR)",
+      "label": "Changer de langue",
+      "suggestion": {
+        "en": {
+          "cta": "Switch to English",
+          "message": "It looks like your browser language is English. Would you like to switch?"
+        }
+      },
+      "title": "Langue"
+    },
+    "license": {
+      "cta": {
+        "activate": "Activer votre licence",
+        "manage": "Gérer votre licence",
+        "unlink": "Dissocier votre licence",
+        "unlinkLocally": "Dissocier votre licence localement",
+        "validate": "Vérifier"
+      },
+      "key": {
+        "label": "Clé de licence",
+        "placeholder": "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXXX"
+      },
+      "messages": {
+        "activate": "Entrez votre clé de licence pour débloquer les fonctionnalités Pro",
+        "active": "Valide",
+        "unactive": "Non valide"
+      },
+      "name": {
+        "helper": "Ce nom sera utilisé pour identifier votre licence",
+        "label": "Nom de la licence",
+        "placeholder": "Licence de *Votre nom*"
+      }
+    },
+    "manageLicense": "Gérer la licence",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "updateConsent": "Gérer les cookies",
+    "updatePreferences": "Mettre à jour les préférences",
+    "welcomeMessage": "Bonjour {username}"
+  },
+  "vendors": {
+    "functional": {
+      "description": "Cookies nécessaires au fonctionnement de l'application",
+      "name": "Fonctionnel"
+    },
+    "mixpanel": {
+      "description": "Une plateforme d'analyse de premier plan pour le suivi et la compréhension des interactions des utilisateurs",
+      "name": "Mixpanel"
+    }
+  },
+  "warning": {}
+}

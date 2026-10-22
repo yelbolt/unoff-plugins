@@ -7,7 +7,7 @@ What this product does. The **how** lives in the unoff skill library at
 
 | Spec | Description | Layers | Platforms | Status |
 | ---- | ----------- | ------ | --------- | ------ |
-| [`token-list-audit-and-application`](./token-list-audit-and-application.md) | Audit the current design token within a file and audit the applied ones, then the raw colors to switch them to the tokens. | — | all | draft |
+| [`token-list-audit-and-application`](./token-list-audit-and-application.md) | Audit the current design token within a file and audit the applied ones, then the raw colors/spaces/sizes/radius/etc to switch them to the tokens. | canvas, bridge, ui | penpot | implemented
 
 ## How to use this index
 

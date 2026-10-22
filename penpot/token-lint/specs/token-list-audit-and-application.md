@@ -1,7 +1,9 @@
 ---
 name: token-list-audit-and-application
-description: Audit the current design token within a file and audit the applied ones, then the raw colors to switch them to the tokens.
-status: draft
+description: Audit the current design token within a file and audit the applied ones, then the raw colors/spaces/sizes/radius/etc to switch them to the tokens.
+layers: [canvas, bridge, ui]
+platforms: [penpot]
+status: implemented
 ---
 
 # Token Lint — Token audit and application
