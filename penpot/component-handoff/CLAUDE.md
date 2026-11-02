@@ -14,6 +14,6 @@ When a task maps to a spec below, load that spec **and** the skill files for
 the layers it declares in its frontmatter (`layers:`). The mapping from layer
 to skill files is in `specs/INDEX.md`.
 
-- `specs/component-handoff-annotations-and-specs.md` — Generate a developer-oriented documentation of a component or a component family on the Penpot canvas — annotations (redlines, numbered parts, exploded view, layout symbols) and specs (tables of values, tokens and styles) as a 6-column grid of native cards, with variants, one merged anatomy, measurements and layout (flex, grid, fill, fit), values keyed by the variant property that drives them — listed, locatable and updatable from the plugin.
+- `specs/component-handoff-annotations-and-specs.md` — Generate a developer-oriented documentation of a component or a component family on the Penpot canvas — annotations (redlines, numbered parts, exploded view, layout symbols) and specs (tables of values, tokens and styles) as a 6-column grid of native cards, with variants, one merged anatomy, measurements and layout (flex, grid, fill, fit), values keyed by the variant property that drives them — listed, locatable and updatable from the plugin. Separately, a machine-readable contract (props, rules, tokens, exceptions) stored as shared plugin data, for AI agents reading the file through the Penpot MCP server. _(layers: canvas, bridge, ui)_
 
 <!-- unoff:specs:end -->

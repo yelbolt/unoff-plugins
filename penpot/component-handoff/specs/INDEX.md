@@ -7,7 +7,7 @@ What this product does. The **how** lives in the unoff skill library at
 
 | Spec | Description | Layers | Platforms | Status |
 | ---- | ----------- | ------ | --------- | ------ |
-| [`component-handoff-annotations-and-specs`](./component-handoff-annotations-and-specs.md) | Generate a developer-oriented documentation of a component or a component family on the Penpot canvas — annotations (redlines, numbered parts, exploded view, layout symbols) and specs (tables of values, tokens and styles) as a 6-column grid of native cards, with variants, one merged anatomy, measurements and layout (flex, grid, fill, fit), values keyed by the variant property that drives them — listed, locatable and updatable from the plugin. | canvas, bridge, ui | penpot | in-progress |
+| [`component-handoff-annotations-and-specs`](./component-handoff-annotations-and-specs.md) | Generate a developer-oriented documentation of a component or a component family on the Penpot canvas — annotations (redlines, numbered parts, exploded view, layout symbols) and specs (tables of values, tokens and styles) as a 6-column grid of native cards, with variants, one merged anatomy, measurements and layout (flex, grid, fill, fit), values keyed by the variant property that drives them — listed, locatable and updatable from the plugin. Separately, a machine-readable contract (props, rules, tokens, exceptions) stored as shared plugin data, for AI agents reading the file through the Penpot MCP server. | canvas, bridge, ui | penpot | in-progress |
 
 ## How to use this index
 
