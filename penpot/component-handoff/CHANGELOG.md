@@ -5,6 +5,8 @@ All notable changes to this plugin are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [0.3.1] - 2026-11-03
 ### Added
 - A machine contract, separate from the visual documentation: a declarative
   JSON description of a component or family (props, rules, token references,
