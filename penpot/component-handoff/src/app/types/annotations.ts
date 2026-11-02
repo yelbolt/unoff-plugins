@@ -4,29 +4,78 @@
 
 // ── Domain ─────────────────────────────────────────────────────────────────
 
-/** The only thing the plugin draws: a documentation board. */
-export type AnnotationKind = 'DOCUMENTATION'
+/**
+ * The two outputs (spec: "Two outputs, two readers"). They are independent:
+ * DOCUMENTATION is drawn on the canvas for humans; CONTRACT is JSON written to
+ * the file's shared plugin data for AI agents (Penpot MCP). No option of one
+ * changes the other.
+ */
+export type AnnotationKind = 'DOCUMENTATION' | 'CONTRACT'
 
 /** What is documented: one component, or a whole variant family. */
 export type DocTarget = 'COMPONENT' | 'FAMILY'
 
 /**
  * The views of a documentation — each one is its own titled section
- * (spec: "What the documentation shows"). VARIANTS is ignored for COMPONENT.
+ * (spec: "What the documentation shows"). VARIANTS and PROPS are ignored for
+ * COMPONENT.
  */
 export type DocView =
   | 'ANATOMY' // assembled copy with numbered parts + the parts exploded one by one
   | 'VARIANTS' // property overview + every variant on its own row (instance, its own values) — no default, no comparison
+  | 'PROPS' // the component's API: per variant property, its values and what it drives
   | 'MEASUREMENTS' // separate copy with redlines: size, padding, gap, radius
   | 'COLORS' // separate copy + per-part fills/strokes/typography/effects with token / style / raw
 
 // Section order in the generated documentation (spec: Variants first).
 export const DOC_VIEWS: Array<DocView> = [
   'VARIANTS',
+  'PROPS',
   'ANATOMY',
   'MEASUREMENTS',
   'COLORS',
 ]
+
+// ── Machine contract (spec: "Machine contract") ────────────────────────────
+// Shared by the Canvas (writes) and the UI (agent instructions it copies).
+
+/** Shared plugin data namespace on `penpot.currentFile`, readable by any plugin. */
+export const CONTRACT_NAMESPACE = 'unoff.handoff'
+/** Schema id written in every contract; bump on a breaking change. */
+export const CONTRACT_SCHEMA = 'unoff.handoff/contract@1'
+/** Key of the index listing every contract of the file. */
+export const CONTRACT_INDEX_KEY = 'index'
+/** Key of one contract; `targetId` is the documented root (variant container for a family, main otherwise). */
+export const contractKey = (targetId: string): string => `contract:${targetId}`
+
+/** What a contract holds, in one line (`2 props · 14 rules · 92 % tokenized · 2 exceptions`). */
+export interface ContractSummary {
+  props: number // variant properties (0 for a component)
+  rules: number
+  tokenizedShare: number // 0..1 — share of token-capable rule values backed by a token
+  exceptions: number
+}
+
+/** Document-level contract settings, stored on the file (private plugin data). */
+export interface ContractSettings {
+  autoUpdate: boolean // rewrite outdated contracts without asking (default false)
+}
+
+export const DEFAULT_CONTRACT_SETTINGS: ContractSettings = {
+  autoUpdate: false,
+}
+
+/** One contract of the current page, with its freshness. */
+export interface ContractStatus {
+  key: string // `contract:<targetId>`
+  targetId: string
+  name: string
+  target: DocTarget
+  outdated: boolean // as written in the contract's `status`, refreshed at launch and after each save
+  missing: boolean // the documented target no longer exists
+  generatedAt: number // epoch ms
+  summary: ContractSummary
+}
 
 /**
  * MAIN → the component's direct layers are the numbered parts (was depth 1)
@@ -145,7 +194,8 @@ export type RefusalReason =
   | 'NO_VIEW' // no view ticked
   | 'NO_VARIANT' // the variant filter matches no variant
   | 'ANNOTATION_SELECTED' // the selection is itself a documentation shape
-  | 'NOTHING_TO_UPDATE' // UPDATE_DOCUMENTATIONS found no matching documentation
+  | 'NOTHING_TO_UPDATE' // UPDATE_DOCUMENTATIONS / UPDATE_CONTRACTS found nothing matching
+  | 'NO_CONTRACT' // GET_CONTRACT / REMOVE_CONTRACT: no contract under that key
 
 // ── UI → Canvas payloads (VERB_NOUN) ───────────────────────────────────────
 
@@ -163,6 +213,29 @@ export interface LocateDocumentationData {
 
 export interface UpdateDocumentationsData {
   docIds: Array<string> | 'OUTDATED' // explicit ids, or every outdated one on the page
+}
+
+/**
+ * The contract always covers the WHOLE component or family: no views, no
+ * variant filter, no depth, no style — only what is documented.
+ */
+export interface GenerateContractData {
+  target: DocTarget
+}
+
+/** Same shape as GenerateContractData: previews the contract of the current selection, writes nothing. */
+export type GetContractPreviewData = GenerateContractData
+
+export interface GetContractData {
+  key: string // `contract:<targetId>`
+}
+
+export interface UpdateContractsData {
+  keys: Array<string> | 'OUTDATED' // explicit keys, or every outdated, non-missing one on the page
+}
+
+export interface RemoveContractData {
+  key: string // explicit removal only — a missing target never removes a contract by itself
 }
 
 // ── Canvas → UI payloads (NOUN_PAST_TENSE) ─────────────────────────────────
@@ -185,11 +258,35 @@ export interface AnnotationRefusedData {
 export interface DocumentationsStatusData {
   items: Array<DocumentationStatus>
   outdatedCount: number
+  contracts: Array<ContractStatus> // contracts whose documented target is on the current page (or missing, last seen on it)
+  contractsOutdatedCount: number
 }
 
 export interface DocumentationsUpdatedData {
   updated: number
   removed: number // documentations whose target is gone, removed
+}
+
+export interface ContractWrittenData {
+  name: string
+  created: boolean // false = an existing contract was rewritten in place
+  summary: ContractSummary
+}
+
+/** Preview of the selection's contract; `preview` is null when it cannot be built, with the reason. */
+export interface ContractPreviewLoadedData {
+  preview: { summary: ContractSummary; json: string } | null
+  reason: RefusalReason | null
+}
+
+export interface ContractLoadedData {
+  key: string
+  json: string // the stored contract, pretty-printed, ready to copy
+}
+
+export interface ContractsUpdatedData {
+  updated: number
+  removed: number // only through REMOVE_CONTRACT
 }
 
 // ── Message type registry ──────────────────────────────────────────────────
@@ -203,6 +300,16 @@ export type AnnotationAction =
   | 'LOCATE_DOCUMENTATION' //  LocateDocumentationData → (no reply; selection changes, SELECTION_CHANGED follows)
   | 'UPDATE_DOCUMENTATIONS' //  UpdateDocumentationsData → DOCUMENTATIONS_UPDATED | ANNOTATION_REFUSED
 //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+  | 'GENERATE_CONTRACT' //      GenerateContractData → CONTRACT_WRITTEN | ANNOTATION_REFUSED (kind CONTRACT)
+//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+  | 'GET_CONTRACT_PREVIEW' //   GetContractPreviewData → CONTRACT_PREVIEW_LOADED (never refused: reason is in the payload)
+  | 'GET_CONTRACT' //           GetContractData → CONTRACT_LOADED | ANNOTATION_REFUSED (NO_CONTRACT)
+  | 'UPDATE_CONTRACTS' //       UpdateContractsData → CONTRACTS_UPDATED | ANNOTATION_REFUSED (NOTHING_TO_UPDATE)
+//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+  | 'REMOVE_CONTRACT' //        RemoveContractData → CONTRACTS_UPDATED | ANNOTATION_REFUSED (NO_CONTRACT)
+//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+  | 'GET_CONTRACT_SETTINGS' //            → CONTRACT_SETTINGS_LOADED
+  | 'SET_CONTRACT_SETTINGS' //  ContractSettings → CONTRACT_SETTINGS_SAVED
 
 export type AnnotationEvent =
   | 'SELECTION_CHANGED' //              SelectionDigest (also pushed on penpot 'selectionchange')
@@ -212,3 +319,9 @@ export type AnnotationEvent =
   | 'ANNOTATION_REFUSED' //             AnnotationRefusedData
   | 'DOCUMENTATIONS_STATUS_CHANGED' //  DocumentationsStatusData (also pushed on 'contentsave', 'pagechange', and after generate/update)
   | 'DOCUMENTATIONS_UPDATED' //         DocumentationsUpdatedData
+  | 'CONTRACT_WRITTEN' //               ContractWrittenData
+  | 'CONTRACT_PREVIEW_LOADED' //        ContractPreviewLoadedData
+  | 'CONTRACT_LOADED' //                ContractLoadedData
+  | 'CONTRACTS_UPDATED' //              ContractsUpdatedData
+  | 'CONTRACT_SETTINGS_LOADED' //       ContractSettings
+  | 'CONTRACT_SETTINGS_SAVED' //        ContractSettings

@@ -10,8 +10,11 @@ import {
 } from '@unoff/ui'
 import './stylesheets/app.css'
 import { sendPluginMessage } from '../utils/pluginMessage'
+import { copyWithNotice } from '../utils/clipboard'
 import {
   buildAppliedNotification,
+  buildContractsUpdatedNotification,
+  buildContractWrittenNotification,
   buildDocumentationsUpdatedNotification,
   buildRefusedNotification,
 } from '../utils/annotationNotifications'
@@ -35,7 +38,12 @@ import {
   updateUserConsentWithData,
 } from '../stores/consent'
 import {
-  $pendingAction,
+  $contractPreview,
+  $contractSettings,
+  $localNotice,
+  PendingChannel,
+  clearPending,
+  resolvePending,
   setAnnotationStyle,
   setDocumentationsStatus,
   setSelection,
@@ -82,6 +90,8 @@ class App extends Component<AppProps, AppState> {
   private subsscribeSuggestedLanguage: (() => void) | undefined
   private subscribeUserConsent: (() => void) | undefined
   private subscribeCreditCount: (() => void) | undefined
+  private unsubscribeLocalNotice: (() => void) | undefined
+  private lastNotificationAt = 0
   private isFirstCreditCountSubscription = true
 
   static features = (
@@ -197,6 +207,10 @@ class App extends Component<AppProps, AppState> {
     // Component Handoff: selection and persisted annotation style
     sendPluginMessage({ pluginMessage: { type: 'GET_SELECTION' } }, '*')
     sendPluginMessage({ pluginMessage: { type: 'GET_ANNOTATION_STYLE' } }, '*')
+    sendPluginMessage(
+      { pluginMessage: { type: 'GET_CONTRACT_SETTINGS' } },
+      '*'
+    )
     // Outdated documentations: requested once LOAD_DATA is sent, then pushed
     // spontaneously by the Canvas.
     sendPluginMessage(
@@ -213,6 +227,9 @@ class App extends Component<AppProps, AppState> {
     )
     this.subscribeUserConsent = $userConsent.subscribe((value) => {
       this.setState({ userConsent: [...value] })
+    })
+    this.unsubscribeLocalNotice = $localNotice.listen((notice) => {
+      if (notice !== null) this.showNotification(notice)
     })
     this.subscribeCreditCount = $creditsCount.subscribe((value) => {
       if (this.isFirstCreditCountSubscription) {
@@ -314,6 +331,7 @@ class App extends Component<AppProps, AppState> {
     if (this.subsscribeSuggestedLanguage) this.subsscribeSuggestedLanguage()
     if (this.subscribeUserConsent) this.subscribeUserConsent()
     if (this.subscribeCreditCount) this.subscribeCreditCount()
+    if (this.unsubscribeLocalNotice) this.unsubscribeLocalNotice()
 
     window.removeEventListener(
       'platformMessage',
@@ -323,6 +341,31 @@ class App extends Component<AppProps, AppState> {
   }
 
   // Handlers
+  // Results of two requests sent together (documentation + contract) arrive
+  // within moments of each other: they share one notification instead of the
+  // second one erasing the first.
+  showNotification = (notification: NotificationMessage) => {
+    const now = Date.now()
+    const previous = this.state.notification
+    const isMerged =
+      this.state.isNotificationDisplayed &&
+      now - this.lastNotificationAt < 1500 &&
+      previous.message !== ''
+    this.lastNotificationAt = now
+
+    this.setState({
+      isNotificationDisplayed: true,
+      notification: isMerged
+        ? {
+            type:
+              previous.type !== 'SUCCESS' ? previous.type : notification.type,
+            message: `${previous.message} ${notification.message}`,
+            timer: Math.max(previous.timer ?? 0, notification.timer ?? 0),
+          }
+        : notification,
+    })
+  }
+
   handleResize = () => {
     this.setState({
       documentWidth: document.documentElement.clientWidth,
@@ -475,7 +518,7 @@ class App extends Component<AppProps, AppState> {
       const postMessage = () => {
         // surfaceError() replies with POST_MESSAGE only: release any action
         // still waiting for a Canvas result so its button loader stops.
-        $pendingAction.set(null)
+        clearPending()
         this.setState({
           isNotificationDisplayed: true,
           notification: {
@@ -486,12 +529,13 @@ class App extends Component<AppProps, AppState> {
         })
       }
 
-      const notify = (notification: NotificationMessage) => {
-        $pendingAction.set(null)
-        this.setState({
-          isNotificationDisplayed: true,
-          notification,
-        })
+      // Shows a result and releases the channel it answers.
+      const notify = (
+        notification: NotificationMessage,
+        channel: PendingChannel
+      ) => {
+        resolvePending(channel)
+        this.showNotification(notification)
       }
 
       const handleSelectionChanged = () => setSelection(path.data)
@@ -501,18 +545,53 @@ class App extends Component<AppProps, AppState> {
       // Autosave acknowledgement: update the stores silently (no notification).
       const handleAnnotationStyleSaved = () => setAnnotationStyle(path.data)
 
-      const handleAnnotationApplied = () => {
-        notify(buildAppliedNotification(path.data, this.props.t))
-      }
+      const handleAnnotationApplied = () =>
+        notify(buildAppliedNotification(path.data, this.props.t), 'DOCUMENTATION')
 
       const handleAnnotationRefused = () =>
-        notify(buildRefusedNotification(path.data, this.props.t))
+        notify(
+          buildRefusedNotification(path.data, this.props.t),
+          path.data.kind === 'CONTRACT' ? 'CONTRACT' : 'DOCUMENTATION'
+        )
 
       const handleDocumentationsStatus = () =>
         setDocumentationsStatus(path.data)
 
       const handleDocumentationsUpdated = () =>
-        notify(buildDocumentationsUpdatedNotification(path.data, this.props.t))
+        notify(
+          buildDocumentationsUpdatedNotification(path.data, this.props.t),
+          'DOCUMENTATION'
+        )
+
+      const handleContractWritten = () =>
+        notify(
+          buildContractWrittenNotification(path.data, this.props.t),
+          'CONTRACT'
+        )
+
+      const handleContractsUpdated = () =>
+        notify(
+          buildContractsUpdatedNotification(path.data, this.props.t),
+          'CONTRACT'
+        )
+
+      // The copy follows the reply of GET_CONTRACT, which itself follows the
+      // click: it relies on the browser's transient user activation, with a
+      // textarea fallback (see utils/clipboard.ts).
+      const handleContractLoaded = () => {
+        resolvePending('CONTRACT')
+        void copyWithNotice(
+          path.data.json,
+          'handoff.copy.contractCopied',
+          this.props.t
+        )
+      }
+
+      const handleContractPreview = () => $contractPreview.set(path.data)
+
+      // Only the initial load fills the store: the toggle already updated it
+      // when changed, so the SAVED echo is ignored (no flicker, no message).
+      const handleContractSettings = () => $contractSettings.set(path.data)
 
       const handleAnnouncements = () => {
         this.setState({
@@ -644,6 +723,12 @@ class App extends Component<AppProps, AppState> {
         ANNOTATION_REFUSED: () => handleAnnotationRefused(),
         DOCUMENTATIONS_STATUS_CHANGED: () => handleDocumentationsStatus(),
         DOCUMENTATIONS_UPDATED: () => handleDocumentationsUpdated(),
+        CONTRACT_WRITTEN: () => handleContractWritten(),
+        CONTRACT_PREVIEW_LOADED: () => handleContractPreview(),
+        CONTRACT_LOADED: () => handleContractLoaded(),
+        CONTRACTS_UPDATED: () => handleContractsUpdated(),
+        CONTRACT_SETTINGS_LOADED: () => handleContractSettings(),
+        CONTRACT_SETTINGS_SAVED: () => null,
         DEFAULT: () => null,
       }
 

@@ -9,6 +9,7 @@ import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
 import Feature from '../components/Feature'
 import { setContexts } from '../../utils/setContexts'
+import { countOutdated } from '../../utils/annotationRules'
 import {
   BaseProps,
   Context,
@@ -94,7 +95,7 @@ export default class Handoff extends PureComponent<
     )
     this.state = {
       context: this.contexts[0] !== undefined ? this.contexts[0].id : '',
-      outdatedCount: $documentationsStatus.get().outdatedCount,
+      outdatedCount: countOutdated($documentationsStatus.get()),
     }
     this.theme = document.documentElement.getAttribute('data-theme')
   }
@@ -102,7 +103,7 @@ export default class Handoff extends PureComponent<
   // Lifecycle
   componentDidMount = () => {
     this.unsubscribeStatus = $documentationsStatus.subscribe((value) =>
-      this.setState({ outdatedCount: value.outdatedCount })
+      this.setState({ outdatedCount: countOutdated(value) })
     )
   }
 

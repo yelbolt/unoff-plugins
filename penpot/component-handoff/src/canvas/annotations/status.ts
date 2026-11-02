@@ -1,6 +1,7 @@
 import { safe } from './target'
 import { annotationsOf, currentPage, findLayers, readTargets } from './layer'
 import { fingerprintOf } from './fingerprint'
+import { collectContractStatuses } from './contract'
 import { KEYS } from './constants'
 import type { Group } from '@penpot/plugin-types'
 import type {
@@ -45,5 +46,11 @@ export const collectStatus = (): DocumentationsStatusData => {
       })
     }
   }
-  return { items, outdatedCount: items.filter((i) => i.outdated).length }
+  const contracts = collectContractStatuses()
+  return {
+    items,
+    outdatedCount: items.filter((i) => i.outdated).length,
+    contracts,
+    contractsOutdatedCount: contracts.filter((c) => c.outdated).length,
+  }
 }

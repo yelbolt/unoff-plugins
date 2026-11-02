@@ -127,30 +127,45 @@ export default class SelectionHeader extends PureComponent<
     const { selection, settings } = this.state
     const blocker = this.getBlocker()
 
+    const { documentation, contract } = settings.outputs
+
     if (this.isDocumentation()) return null
     if (blocker !== null) return getRefusalMessage(blocker, t)
-    if (hasNoVariant(selection, settings))
-      return getRefusalMessage('NO_VARIANT', t)
-    if (getEffectiveViews(selection, settings).length === 0)
-      return getRefusalMessage('NO_VIEW', t)
-    if (selection.annotatedCount > 0) return t('handoff.selection.annotated')
-    if (selection.items.some((entry) => entry.isRotated))
-      return t('handoff.selection.rotated')
+    if (!documentation && !contract) return t('handoff.refusal.noOutput')
+    // The options of the visual documentation only concern that output.
+    if (documentation) {
+      if (hasNoVariant(selection, settings))
+        return getRefusalMessage('NO_VARIANT', t)
+      if (getEffectiveViews(selection, settings).length === 0)
+        return getRefusalMessage('NO_VIEW', t)
+      if (selection.annotatedCount > 0) return t('handoff.selection.annotated')
+      if (selection.items.some((entry) => entry.isRotated))
+        return t('handoff.selection.rotated')
+    }
 
     return null
   }
+
+  isGenerating = (): boolean =>
+    this.state.pendingAction === 'GENERATE_DOCUMENTATION' ||
+    this.state.pendingAction === 'GENERATE_CONTRACT'
 
   handleGenerate = () => {
     const { selection, settings } = this.state
     const target = getTarget(selection, settings)
 
-    sendAnnotationAction('GENERATE_DOCUMENTATION', {
-      target,
-      views: getEffectiveViews(selection, settings),
-      depth: settings.depth,
-      grouping: target === 'FAMILY' ? settings.grouping : 'MERGED',
-      variantFilter: getVariantFilter(selection, settings),
-    })
+    if (settings.outputs.documentation)
+      sendAnnotationAction('GENERATE_DOCUMENTATION', {
+        target,
+        views: getEffectiveViews(selection, settings),
+        depth: settings.depth,
+        grouping: target === 'FAMILY' ? settings.grouping : 'MERGED',
+        variantFilter: getVariantFilter(selection, settings),
+      })
+
+    // The contract always covers the whole component or family.
+    if (settings.outputs.contract)
+      sendAnnotationAction('GENERATE_CONTRACT', { target })
   }
 
   // Renders
@@ -218,11 +233,19 @@ export default class SelectionHeader extends PureComponent<
       this.props.service,
       this.props.editor
     )
+    const { documentation, contract } = settings.outputs
     const isBlocked =
       this.getBlocker() !== null ||
-      getEffectiveViews(selection, settings).length === 0 ||
-      hasNoVariant(selection, settings) ||
+      (!documentation && !contract) ||
+      (documentation &&
+        (getEffectiveViews(selection, settings).length === 0 ||
+          hasNoVariant(selection, settings))) ||
       pendingAction !== null
+    const footerKey = documentation
+      ? contract
+        ? 'handoff.document.footer.hintBoth'
+        : 'handoff.document.footer.hint'
+      : 'handoff.document.footer.hintContract'
 
     return (
       <>
@@ -275,7 +298,7 @@ export default class SelectionHeader extends PureComponent<
                   type="primary"
                   label={t('handoff.document.cta.generate')}
                   isDisabled={isBlocked}
-                  isLoading={pendingAction === 'GENERATE_DOCUMENTATION'}
+                  isLoading={this.isGenerating()}
                   isNew={features.GENERATE_DOCUMENTATION.isNew()}
                   action={this.handleGenerate}
                 />
@@ -287,7 +310,7 @@ export default class SelectionHeader extends PureComponent<
                   {
                     node: (
                       <this.Secondary>
-                        {t('handoff.document.footer.hint')}
+                        {t(footerKey)}
                       </this.Secondary>
                     ),
                     spacingModifier: 'LARGE' as const,

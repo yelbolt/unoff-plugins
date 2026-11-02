@@ -13,15 +13,23 @@ import {
 } from '@unoff/ui'
 import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
+import { formatContractSummary } from '../../utils/contractSummary'
+import { copyWithNotice } from '../../utils/clipboard'
 import {
   canDocumentFamily,
   getDocumentedItem,
+  getSelectionBlocker,
   getTarget,
   getVariantCounts,
   isFamilyFiltered,
 } from '../../utils/annotationRules'
+import { getRefusalMessage } from '../../utils/annotationNotifications'
+import { sendAnnotationAction } from '../../utils/annotationActions'
+import { buildAgentInstructions } from '../../utils/agentInstructions'
 import { BaseProps, Editor, PlanStatus, Service } from '../../types/app'
 import {
+  ContractPreviewLoadedData,
+  ContractSettings,
   DOC_VIEWS,
   DocTarget,
   DocView,
@@ -30,7 +38,10 @@ import {
   SelectionDigest,
 } from '../../types/annotations'
 import {
+  $contractPreview,
+  $contractSettings,
   $docSettings,
+  $documentationsStatus,
   $selection,
   DocSettings,
   updateDocSettings,
@@ -45,11 +56,16 @@ interface DocumentProps
 interface DocumentState {
   selection: SelectionDigest
   settings: DocSettings
+  preview: ContractPreviewLoadedData | null
+  contractSettings: ContractSettings
 }
+
+const PREVIEW_DELAY = 300
 
 const VIEW_KEYS: Record<DocView, string> = {
   ANATOMY: 'anatomy',
   VARIANTS: 'variants',
+  PROPS: 'props',
   MEASUREMENTS: 'measurements',
   COLORS: 'colors',
 }
@@ -68,6 +84,11 @@ export default class Documentation extends PureComponent<
 > {
   private unsubscribeSelection: (() => void) | undefined
   private unsubscribeSettings: (() => void) | undefined
+  private unsubscribePreview: (() => void) | undefined
+  private unsubscribeContractSettings: (() => void) | undefined
+  private unsubscribeStatus: (() => void) | undefined
+  private previewTimer: ReturnType<typeof setTimeout> | undefined
+  private previewKey = ''
 
   static features = (
     planStatus: PlanStatus,
@@ -89,29 +110,111 @@ export default class Documentation extends PureComponent<
     this.state = {
       selection: $selection.get(),
       settings: $docSettings.get(),
+      preview: $contractPreview.get(),
+      contractSettings: $contractSettings.get(),
     }
   }
 
   // Lifecycle
   componentDidMount = () => {
-    this.unsubscribeSelection = $selection.subscribe((value) =>
+    this.unsubscribeSelection = $selection.subscribe((value) => {
       this.setState({ selection: value })
-    )
-    this.unsubscribeSettings = $docSettings.subscribe((value) =>
+      this.schedulePreview()
+    })
+    this.unsubscribeSettings = $docSettings.subscribe((value) => {
       this.setState({ settings: value })
+      // Only what the contract depends on re-requests it: no option of the
+      // visual documentation does.
+      const key = this.getPreviewKey(this.state.selection, value)
+      if (key !== this.previewKey) this.schedulePreview()
+    })
+    this.unsubscribePreview = $contractPreview.subscribe((value) =>
+      this.setState({ preview: value })
+    )
+    this.unsubscribeContractSettings = $contractSettings.subscribe((value) =>
+      this.setState({ contractSettings: value })
+    )
+    // A save of the file may have changed the component: ask again.
+    this.unsubscribeStatus = $documentationsStatus.listen(() =>
+      this.schedulePreview()
     )
   }
 
   componentWillUnmount = () => {
+    if (this.previewTimer !== undefined) clearTimeout(this.previewTimer)
     if (this.unsubscribeSelection) this.unsubscribeSelection()
     if (this.unsubscribeSettings) this.unsubscribeSettings()
+    if (this.unsubscribePreview) this.unsubscribePreview()
+    if (this.unsubscribeContractSettings) this.unsubscribeContractSettings()
+    if (this.unsubscribeStatus) this.unsubscribeStatus()
   }
 
   // Helpers
   getTarget = (): DocTarget =>
     getTarget(this.state.selection, this.state.settings)
 
+  getPreviewKey = (selection: SelectionDigest, settings: DocSettings) =>
+    settings.outputs.contract
+      ? `${selection.items[0]?.id ?? ''}|${getTarget(selection, settings)}`
+      : ''
+
+  // Debounced: a selection change fires a burst of messages.
+  schedulePreview = () => {
+    if (this.previewTimer !== undefined) clearTimeout(this.previewTimer)
+    this.previewTimer = setTimeout(() => {
+      this.previewTimer = undefined
+      const { selection, settings } = this.state
+      this.previewKey = this.getPreviewKey(selection, settings)
+
+      if (!settings.outputs.contract) return
+      if (getSelectionBlocker('CONTRACT', selection) !== null) {
+        // The selection header already says why; keep the section quiet.
+        $contractPreview.set(null)
+        return
+      }
+
+      sendAnnotationAction('GET_CONTRACT_PREVIEW', {
+        target: getTarget(selection, settings),
+      })
+    }, PREVIEW_DELAY)
+  }
+
   // Handlers
+  handleOutputToggle = (output: 'documentation' | 'contract') => () =>
+    updateDocSettings((previous) => ({
+      outputs: {
+        ...previous.outputs,
+        [output]: !previous.outputs[output],
+      },
+    }))
+
+  handleAutoUpdateToggle = () => {
+    // Applies and persists as changed: no save button, no confirmation.
+    const next: ContractSettings = {
+      ...this.state.contractSettings,
+      autoUpdate: !this.state.contractSettings.autoUpdate,
+    }
+    $contractSettings.set(next)
+    sendAnnotationAction('SET_CONTRACT_SETTINGS', next)
+  }
+
+  handleCopyContract = () => {
+    const { preview } = this.state
+    if (preview?.preview)
+      void copyWithNotice(
+        preview.preview.json,
+        'handoff.copy.contractCopied',
+        this.props.t
+      )
+  }
+
+  handleCopyInstructions = () =>
+    void copyWithNotice(
+      buildAgentInstructions(),
+      'handoff.copy.instructionsCopied',
+      this.props.t
+    )
+
   handleValueToggle = (property: string, value: string) => () =>
     updateDocSettings((previous) => {
       const hidden = previous.unticked[property] ?? []
@@ -377,7 +480,9 @@ export default class Documentation extends PureComponent<
             alignment="CENTER"
           />
         }
-        body={DOC_VIEWS.filter((view) => isFamily || view !== 'VARIANTS').map(
+        body={DOC_VIEWS.filter(
+          (view) => isFamily || (view !== 'VARIANTS' && view !== 'PROPS')
+        ).map(
           (view) => ({
             node: (
               <div
@@ -465,7 +570,116 @@ export default class Documentation extends PureComponent<
     )
   }
 
+  OutputSection = (props: {
+    output: 'documentation' | 'contract'
+    body: Array<{ node: preact.ComponentChildren; spacingModifier: 'LARGE' }>
+  }) => {
+    const { t } = this.props
+    const key = props.output === 'documentation' ? 'visual' : 'contract'
+    const isOn = this.state.settings.outputs[props.output]
+
+    return (
+      <Section
+        title={
+          <SimpleItem
+            leftPartSlot={
+              <Select
+                id={`output-${props.output}`}
+                type="SWITCH_BUTTON"
+                name="outputs"
+                value={props.output}
+                label={t(`handoff.document.outputs.${key}.title`)}
+                isChecked={isOn}
+                action={this.handleOutputToggle(props.output)}
+              />
+            }
+            isListItem={false}
+            alignment="CENTER"
+          />
+        }
+        body={[
+          {
+            node: (
+              <this.Hint
+                label={t(`handoff.document.outputs.${key}.description`)}
+              />
+            ),
+            spacingModifier: 'LARGE' as const,
+          },
+          ...(isOn ? props.body : []),
+        ]}
+        border={['BOTTOM']}
+      />
+    )
+  }
+
+  ContractBody = () => {
+    const { t } = this.props
+    const { selection, preview, contractSettings } = this.state
+    const hasBlocker = getSelectionBlocker('CONTRACT', selection) !== null
+    const content = preview?.preview ?? null
+    // A selection blocker is already stated in the header message.
+    const line = hasBlocker
+      ? null
+      : content !== null
+        ? formatContractSummary(content.summary, t)
+        : preview?.reason
+          ? getRefusalMessage(preview.reason, t, 'CONTRACT')
+          : null
+
+    return [
+      ...(line !== null
+        ? [
+            {
+              node: <this.Hint label={line} />,
+              spacingModifier: 'LARGE' as const,
+            },
+          ]
+        : []),
+      {
+        node: (
+          <Select
+            id="contract-auto-update"
+            type="SWITCH_BUTTON"
+            name="contract-auto-update"
+            value="autoUpdate"
+            label={t('handoff.document.contract.autoUpdate.label')}
+            isChecked={contractSettings.autoUpdate}
+            action={this.handleAutoUpdateToggle}
+          />
+        ),
+        spacingModifier: 'LARGE' as const,
+      },
+      {
+        node: (
+          <this.Hint label={t('handoff.document.contract.autoUpdate.hint')} />
+        ),
+        spacingModifier: 'LARGE' as const,
+      },
+      {
+        node: (
+          <div className={layouts['snackbar--medium']}>
+            <Button
+              type="secondary"
+              label={t('handoff.document.contract.copyContract')}
+              isDisabled={content === null || hasBlocker}
+              action={this.handleCopyContract}
+            />
+            <Button
+              type="secondary"
+              label={t('handoff.document.contract.copyInstructions')}
+              action={this.handleCopyInstructions}
+            />
+          </div>
+        ),
+        spacingModifier: 'LARGE' as const,
+      },
+    ]
+  }
+
   render() {
+    const { outputs } = this.state.settings
+
     return (
       <Layout
         id="document"
@@ -474,10 +688,21 @@ export default class Documentation extends PureComponent<
             node: (
               <div style={{ height: '100%', overflowY: 'auto' }}>
                 {this.TargetSection()}
-                {isFamilyFiltered(this.state.selection, this.state.settings) &&
-                  this.VariantFilterSection()}
-                {this.ViewsSection()}
-                {this.getTarget() === 'FAMILY' && this.GroupingSection()}
+                <this.OutputSection output="documentation" body={[]} />
+                {outputs.documentation && (
+                  <>
+                    {isFamilyFiltered(
+                      this.state.selection,
+                      this.state.settings
+                    ) && this.VariantFilterSection()}
+                    {this.ViewsSection()}
+                    {this.getTarget() === 'FAMILY' && this.GroupingSection()}
+                  </>
+                )}
+                <this.OutputSection
+                  output="contract"
+                  body={this.ContractBody()}
+                />
               </div>
             ),
             typeModifier: 'BLANK',

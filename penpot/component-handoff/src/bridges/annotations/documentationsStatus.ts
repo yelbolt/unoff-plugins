@@ -1,5 +1,6 @@
 import { collectStatus } from '../../canvas/annotations/status'
 import { updateDocumentations as run } from '../../canvas/annotations/run'
+import { refreshContracts } from '../../canvas/annotations/contract'
 import { surfaceError } from './surfaceError'
 import { getSelection } from './getSelection'
 import type { UpdateDocumentationsData } from '../../app/types/annotations'
@@ -10,6 +11,13 @@ import type { UpdateDocumentationsData } from '../../app/types/annotations'
 // not raise a notification on every save.
 export const pushDocumentationsStatus = (): void => {
   try {
+    // Contract freshness first (flags outdated ones, or rewrites them when the
+    // designer opted in), so the pushed status already reflects it.
+    try {
+      refreshContracts()
+    } catch (error) {
+      console.error('[component-handoff] contract refresh failed', error)
+    }
     penpot.ui.sendMessage({
       type: 'DOCUMENTATIONS_STATUS_CHANGED',
       data: collectStatus(),

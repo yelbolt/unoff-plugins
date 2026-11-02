@@ -1,6 +1,7 @@
 import { DOC_VIEWS } from '../../app/types/annotations'
 import { buildVariants } from './views/variants'
 import { colWFor, px, variantNeed } from './views/shared'
+import { buildProps } from './views/props'
 import { docName } from './views/name'
 import { buildMeasurements, measurementNeed } from './views/measurements'
 import { buildHeader } from './views/header'
@@ -22,6 +23,7 @@ import {
 } from './geometry'
 import { fingerprintOf } from './fingerprint'
 import { BRAND, LAYOUT, RADIUS } from './constants'
+import { analyze } from './analysis'
 import type { Board, Shape } from '@penpot/plugin-types'
 import type { GenerateDocumentationData } from '../../app/types/annotations'
 import type { ViewBuild } from './views/shared'
@@ -64,6 +66,7 @@ export const drawDocumentation = (
         ? { name: o.name, values: o.values.filter((v) => ticked.includes(v)) }
         : o
     })
+    const analysis = analyze(entries, order, docName(res, isFamily), refs)
     // Header line, only when the filter actually excludes something.
     const total = isFamily ? countMatching(res, null) : 0
     const restricted = fullOrder.flatMap((o, i) =>
@@ -123,6 +126,7 @@ export const drawDocumentation = (
       structures,
       merged,
       order,
+      analysis,
       filterNote,
       state: { rotated: false, markers: 0 },
       pens,
@@ -213,6 +217,7 @@ export const drawDocumentation = (
     for (const view of DOC_VIEWS) {
       if (!on(view)) continue
       if (view === 'VARIANTS' && isFamily) section(buildVariants(dc))
+      else if (view === 'PROPS' && isFamily) section(buildProps(dc))
       else if (view === 'ANATOMY') section(buildAnatomy(dc))
       else if (view === 'MEASUREMENTS') section(buildMeasurements(dc))
       else if (view === 'COLORS') section(buildColors(dc))

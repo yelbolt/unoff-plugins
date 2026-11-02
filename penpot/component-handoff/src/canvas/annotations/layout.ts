@@ -19,17 +19,25 @@ import type { Pen } from './draw'
 
 const lv = (v: string): string => tr(`layout.${v}`)
 
+// `code` is the language-neutral value the machine contract reads; `value` is
+// what the sheet displays.
 const row = (
   key: string,
   label: string,
   value: string,
-  token?: string
+  token?: string,
+  code?: string
 ): PropertyRow => ({
   key,
   label,
   value: token ?? value,
   ref: token ? 'token' : 'raw',
+  ...(code !== undefined && !token ? { code } : {}),
 })
+
+// A localised enum row: the neutral value is the enum itself.
+const enumRow = (key: string, label: string, v: string): PropertyRow =>
+  row(key, label, lv(v), undefined, v)
 
 // `1fr 1fr 120px` — flex tracks in fr, fixed in px, percent in %, auto.
 export const trackText = (t: Track, style: AnnotationStyle): string => {
@@ -45,7 +53,7 @@ const containerOf = (shape: Shape) =>
   shape.type === 'board' ? { flex: shape.flex ?? null, grid: shape.grid ?? null } : null
 
 // Sizing in the parent's layout when there is one, else the container's own.
-const sizingOf = (shape: Shape): { h?: string; v?: string } => {
+export const sizingOf = (shape: Shape): { h?: string; v?: string } => {
   const box = containerOf(shape)
   const layout = box ? (box.flex ?? box.grid) : null
   const child = shape.layoutChild
@@ -54,6 +62,74 @@ const sizingOf = (shape: Shape): { h?: string; v?: string } => {
     h: child?.horizontalSizing ?? layout?.horizontalSizing ?? own?.horizontalSizing,
     v: child?.verticalSizing ?? layout?.verticalSizing ?? own?.verticalSizing,
   }
+}
+
+// growType -> key of its label
+const GROW: Record<string, string> = {
+  fixed: 'fixed',
+  'auto-width': 'autoWidth',
+  'auto-height': 'autoHeight',
+}
+
+// Whether `zIndex` reorders the children of a layout: the siblings sorted by
+// zIndex (stable) differ from the layer order.
+const zIndexReorders = (parent: Shape): boolean => {
+  const kids =
+    'children' in parent && Array.isArray(parent.children)
+      ? (parent.children as Array<Shape>)
+      : []
+  const z = kids.map((k) => k.layoutChild?.zIndex ?? 0)
+  const sorted = kids
+    .map((k, i) => ({ i, z: z[i] }))
+    .sort((a, b) => a.z - b.z || a.i - b.i)
+  return sorted.some((e, i) => e.i !== i)
+}
+
+// What a developer cannot read off a static specimen: how a text grows, how a
+// part outside any layout resizes with its parent, whether a container clips,
+// and a layer order set by zIndex. Language-neutral values (`code`).
+const behaviourRows = (shape: Shape): Array<PropertyRow> => {
+  const rows: Array<PropertyRow> = []
+  if (shape.type === 'text') {
+    const grow = String((shape as unknown as { growType?: string }).growType)
+    const g = GROW[grow]
+    if (g)
+      rows.push(
+        row('layout.growType', tr('prop.growType'), tr(`layout.grow.${g}`), undefined, grow)
+      )
+  }
+  const parent = shape.parent
+  const parentBox = parent && parent.type === 'board' ? parent : null
+  const placed =
+    parentBox !== null &&
+    Boolean(parentBox.flex ?? parentBox.grid) &&
+    !shape.layoutChild?.absolute
+  if (parentBox && !placed) {
+    const ch = shape.constraintsHorizontal
+    const cv = shape.constraintsVertical
+    if (ch)
+      rows.push(
+        row('layout.constraintsH', tr('prop.constraintsH'), tr(`layout.constraint.${ch}`), undefined, ch)
+      )
+    if (cv)
+      rows.push(
+        row('layout.constraintsV', tr('prop.constraintsV'), tr(`layout.constraint.${cv}`), undefined, cv)
+      )
+  }
+  if (shape.type === 'board')
+    rows.push(
+      row(
+        'layout.clipContent',
+        tr('prop.clipContent'),
+        tr(shape.clipContent ? 'layout.clips' : 'layout.noClip'),
+        undefined,
+        shape.clipContent ? 'yes' : 'no'
+      )
+    )
+  const z = shape.layoutChild?.zIndex
+  if (z && parent && zIndexReorders(parent))
+    rows.push(row('layout.zIndex', tr('prop.zIndex'), String(z), undefined, String(z)))
+  return rows
 }
 
 export const layoutRows = (
@@ -69,20 +145,20 @@ export const layoutRows = (
 
   if (box) {
     rows.push(
-      row('layout.type', tr('prop.layoutType'), lv(flex ? 'flex' : grid ? 'grid' : 'none'))
+      enumRow('layout.type', tr('prop.layoutType'), flex ? 'flex' : grid ? 'grid' : 'none')
     )
     if (layout) {
-      rows.push(row('layout.dir', tr('prop.layoutDirection'), lv(String(layout.dir))))
+      rows.push(enumRow('layout.dir', tr('prop.layoutDirection'), String(layout.dir)))
       if (flex)
-        rows.push(row('layout.wrap', tr('prop.layoutWrap'), lv(flex.wrap ?? 'nowrap')))
+        rows.push(enumRow('layout.wrap', tr('prop.layoutWrap'), flex.wrap ?? 'nowrap'))
       if (layout.alignItems)
-        rows.push(row('layout.alignItems', tr('prop.alignItems'), lv(layout.alignItems)))
+        rows.push(enumRow('layout.alignItems', tr('prop.alignItems'), layout.alignItems))
       if (grid && grid.justifyItems)
-        rows.push(row('layout.justifyItems', tr('prop.justifyItems'), lv(grid.justifyItems)))
+        rows.push(enumRow('layout.justifyItems', tr('prop.justifyItems'), grid.justifyItems))
       if (layout.justifyContent)
-        rows.push(row('layout.justifyContent', tr('prop.justifyContent'), lv(layout.justifyContent)))
+        rows.push(enumRow('layout.justifyContent', tr('prop.justifyContent'), layout.justifyContent))
       if (layout.alignContent && (grid || flex?.wrap === 'wrap'))
-        rows.push(row('layout.alignContent', tr('prop.alignContent'), lv(layout.alignContent)))
+        rows.push(enumRow('layout.alignContent', tr('prop.alignContent'), layout.alignContent))
       rows.push(
         row('layout.rowGap', tr('prop.rowGap'), formatLength(layout.rowGap, style), tokenOf(ctx, shape, 'rowGap')),
         row('layout.columnGap', tr('prop.columnGap'), formatLength(layout.columnGap, style), tokenOf(ctx, shape, 'columnGap'))
@@ -99,9 +175,9 @@ export const layoutRows = (
   // Sizing in the parent's layout when there is one, else the container's own.
   const { h, v } = sizingOf(shape)
   const child = shape.layoutChild
-  const sizing = (s: string): string => lv(s === 'auto' ? 'fit' : s)
-  if (h) rows.push(row('layout.sizingH', tr('prop.sizingH'), sizing(h)))
-  if (v) rows.push(row('layout.sizingV', tr('prop.sizingV'), sizing(v)))
+  const neutral = (s: string): string => (s === 'auto' ? 'fit' : s)
+  if (h) rows.push(enumRow('layout.sizingH', tr('prop.sizingH'), neutral(h)))
+  if (v) rows.push(enumRow('layout.sizingV', tr('prop.sizingV'), neutral(v)))
   if (child) {
     const lim: Array<[string, string, number | null]> = [
       ['minWidth', 'prop.minWidth', child.minWidth],
@@ -113,8 +189,9 @@ export const layoutRows = (
       if (n !== null && n !== undefined)
         rows.push(row(`layout.${k}`, tr(label), formatLength(n, style)))
     if (child.absolute)
-      rows.push(row('layout.absolute', tr('prop.absolute'), lv('yes')))
+      rows.push(enumRow('layout.absolute', tr('prop.absolute'), 'yes'))
   }
+  rows.push(...behaviourRows(shape))
   return rows
 }
 

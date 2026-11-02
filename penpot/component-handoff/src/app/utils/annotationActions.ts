@@ -1,11 +1,17 @@
 import {
   AnnotationAction,
   AnnotationStyle,
+  ContractSettings,
+  GenerateContractData,
   GenerateDocumentationData,
+  GetContractData,
+  GetContractPreviewData,
   LocateDocumentationData,
+  RemoveContractData,
+  UpdateContractsData,
   UpdateDocumentationsData,
 } from '../types/annotations'
-import { $pendingAction } from '../stores/annotations'
+import { PendingChannel, markPending } from '../stores/annotations'
 import { sendPluginMessage } from './pluginMessage'
 
 type ActionPayloads = {
@@ -16,6 +22,13 @@ type ActionPayloads = {
   GET_DOCUMENTATIONS_STATUS: undefined
   LOCATE_DOCUMENTATION: LocateDocumentationData
   UPDATE_DOCUMENTATIONS: UpdateDocumentationsData
+  GENERATE_CONTRACT: GenerateContractData
+  GET_CONTRACT_PREVIEW: GetContractPreviewData
+  GET_CONTRACT: GetContractData
+  UPDATE_CONTRACTS: UpdateContractsData
+  REMOVE_CONTRACT: RemoveContractData
+  GET_CONTRACT_SETTINGS: undefined
+  SET_CONTRACT_SETTINGS: ContractSettings
 }
 
 const READ_ONLY_ACTIONS: Array<AnnotationAction> = [
@@ -25,17 +38,33 @@ const READ_ONLY_ACTIONS: Array<AnnotationAction> = [
   'LOCATE_DOCUMENTATION',
   // Autosave: persisted silently, never shown as a pending action.
   'SET_ANNOTATION_STYLE',
+  'GET_CONTRACT_PREVIEW',
+  'GET_CONTRACT_SETTINGS',
+  'SET_CONTRACT_SETTINGS',
 ]
 
+// Actions that wait for a result message, and the channel it comes on.
+const PENDING_CHANNELS: Partial<Record<AnnotationAction, PendingChannel>> = {
+  GENERATE_DOCUMENTATION: 'DOCUMENTATION',
+  UPDATE_DOCUMENTATIONS: 'DOCUMENTATION',
+  GENERATE_CONTRACT: 'CONTRACT',
+  UPDATE_CONTRACTS: 'CONTRACT',
+  GET_CONTRACT: 'CONTRACT',
+  REMOVE_CONTRACT: 'CONTRACT',
+}
+
 /**
- * Sends a UI → Canvas action and marks it pending until a result message
- * (applied, refused, documentations updated, style saved) clears it in App.tsx.
+ * Sends a UI → Canvas action and marks it pending until its result message
+ * releases the channel in App.tsx. Several actions may be pending at once
+ * (one per channel); the loader waits for all of them.
  */
 export const sendAnnotationAction = <A extends AnnotationAction>(
   type: A,
   data?: ActionPayloads[A]
 ) => {
-  if (!READ_ONLY_ACTIONS.includes(type)) $pendingAction.set(type)
+  const channel = PENDING_CHANNELS[type]
+  if (!READ_ONLY_ACTIONS.includes(type) && channel !== undefined)
+    markPending(type, channel)
 
   sendPluginMessage(
     { pluginMessage: data === undefined ? { type } : { type, data } },

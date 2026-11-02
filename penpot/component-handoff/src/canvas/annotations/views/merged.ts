@@ -78,3 +78,17 @@ export const headerCell = (dc: DocCtx, key: string): PanelNode =>
     size: dc.env.sc.font * 0.9,
     name: 'Header',
   })
+
+// A measurement value followed by its origin chip: `rule` (a layout property
+// or a token produces it) or `measured` (an observation, not a contract).
+export const withOrigin = (
+  dc: DocCtx,
+  node: PanelNode,
+  origin: 'rule' | 'measured'
+): PanelNode =>
+  dc.panel.box([node, dc.panel.chip(tr(`origin.${origin}`), { name: 'Origin' })], {
+    dir: 'row',
+    gap: px(dc, SPACING[8]),
+    alignItems: 'center',
+    name: 'Value',
+  })

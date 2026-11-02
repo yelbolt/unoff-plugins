@@ -15,7 +15,7 @@ import {
   fixedSize,
   titleBlock,
 } from './shared'
-import { headerCell } from './merged'
+import { headerCell, withOrigin } from './merged'
 import { buildMeasurementsMerged, measurementNeedMerged } from './measurements-merged'
 import type { DocCtx, ViewBuild } from './shared'
 import type { Category } from '../redlines'
@@ -36,7 +36,7 @@ const tableRowsOf = (
     for (const row of r[cat])
       lines.push([
         propCell(dc, `${part.n}   ${part.shape.name}  ·  ${row.label}`, 'Part'),
-        dc.panel.text(row.value, { name: 'Value' }),
+        withOrigin(dc, dc.panel.text(row.value, { name: 'Value' }), row.origin ?? 'rule'),
       ])
   if (lines.length === 0) return null
   return [

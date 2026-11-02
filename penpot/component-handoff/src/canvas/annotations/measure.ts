@@ -1,6 +1,6 @@
 import { spacingOf } from './spacing'
 import { collectProperties } from './properties'
-import { layoutRows } from './layout'
+import { layoutRows, sizingOf } from './layout'
 import type { Shape } from '@penpot/plugin-types'
 import type { AnnotationStyle } from '../../app/types/annotations'
 import type { RefCtx } from './refs'
@@ -61,5 +61,34 @@ export const measureRows = (
       else if (k === 'radius' || k.startsWith('borderRadius'))
         out.RADIUS.push(r)
     }
+  return withOrigins(shape, out, info?.source === 'layout')
+}
+
+// Where a measurement comes from: `rule` when a layout property or a token
+// produces it, `measured` when it is a distance observed between parts that no
+// layout places, a size the content or the parent decides (fill / fit), or
+// anything on an absolutely positioned part.
+const withOrigins = (
+  shape: Shape,
+  rows: MeasureRows,
+  layoutSpacing: boolean
+): MeasureRows => {
+  const absolute = Boolean(shape.layoutChild?.absolute)
+  const sizing = sizingOf(shape)
+  const originOf = (cat: Category, r: PropertyRow): 'rule' | 'measured' => {
+    if (cat === 'LAYOUT') return 'rule'
+    if (absolute) return 'measured'
+    if (r.ref === 'token') return 'rule'
+    if (cat === 'SIZE') {
+      const mode = r.key === 'width' ? sizing.h : sizing.v
+      return mode === 'fill' || mode === 'auto' ? 'measured' : 'rule'
+    }
+    if (cat === 'PADDING') return layoutSpacing ? 'rule' : 'measured'
+    if (cat === 'GAP') return r.key.startsWith('gap#') ? 'measured' : 'rule'
+    return 'rule'
+  }
+  const out = {} as MeasureRows
+  for (const cat of CATEGORIES)
+    out[cat] = rows[cat].map((r) => ({ ...r, origin: originOf(cat, r) }))
   return out
 }

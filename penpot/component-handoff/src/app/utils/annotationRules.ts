@@ -3,6 +3,7 @@ import {
   DocView,
   VariantFilter,
   DocTarget,
+  DocumentationsStatusData,
   RefusalReason,
   SelectionDigest,
   SelectionItem,
@@ -50,14 +51,16 @@ export const getTarget = (
   return target === 'FAMILY' && !canDocumentFamily(item) ? 'COMPONENT' : target
 }
 
-// VARIANTS only exists for a family.
+// VARIANTS and PROPS only exist for a family.
 export const getEffectiveViews = (
   selection: SelectionDigest,
   settings: DocSettings
 ): Array<DocView> => {
   const isFamily = getTarget(selection, settings) === 'FAMILY'
 
-  return settings.views.filter((view) => isFamily || view !== 'VARIANTS')
+  return settings.views.filter(
+    (view) => isFamily || (view !== 'VARIANTS' && view !== 'PROPS')
+  )
 }
 
 export const isFamilyFiltered = (
@@ -115,3 +118,7 @@ export const getVariantFilter = (
 
   return Object.keys(filter).length > 0 ? filter : null
 }
+
+/** Documentations and contracts that need an update, counted together. */
+export const countOutdated = (status: DocumentationsStatusData): number =>
+  status.outdatedCount + status.contractsOutdatedCount

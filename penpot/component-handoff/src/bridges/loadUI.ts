@@ -17,11 +17,25 @@ import {
   updateDocumentations,
 } from './annotations/documentationsStatus'
 import {
+  generateContract,
+  getContract,
+  getContractPreview,
+  getContractSettings,
+  removeContract,
+  setContractSettings,
+  updateContracts,
+} from './annotations/contracts'
+import {
   getAnnotationStyle,
   setAnnotationStyle,
 } from './annotations/annotationStyle'
 
 const loadUI = async () => {
+  // Children read in z-order for the whole session: generation sets it too,
+  // and fingerprints computed at launch (status, contract refresh) must read
+  // children in the same order as when they were stored.
+  penpot.flags.naturalChildOrdering = true
+
   // Setup UI
   penpot.ui.open('Component Handoff', globalConfig.urls.uiUrl, {
     width: globalConfig.limits.width,
@@ -192,6 +206,13 @@ const loadUI = async () => {
       GET_DOCUMENTATIONS_STATUS: () => getDocumentationsStatus(),
       LOCATE_DOCUMENTATION: () => locateDocumentation(path.data),
       UPDATE_DOCUMENTATIONS: () => updateDocumentations(path.data),
+      GENERATE_CONTRACT: () => generateContract(path.data),
+      GET_CONTRACT_PREVIEW: () => getContractPreview(path.data),
+      GET_CONTRACT: () => getContract(path.data),
+      UPDATE_CONTRACTS: () => updateContracts(path.data),
+      REMOVE_CONTRACT: () => removeContract(path.data),
+      GET_CONTRACT_SETTINGS: () => getContractSettings(),
+      SET_CONTRACT_SETTINGS: () => setContractSettings(path.data),
 
       // ── Auth ──────────────────────────────────────────────────────────
       SIGN_OUT: () =>

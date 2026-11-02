@@ -5,7 +5,8 @@ import { sendAnnotationAction } from '../../utils/annotationActions'
 import { $documentationsStatus, $pendingAction } from '../../stores/annotations'
 
 interface OutdatedBannerState {
-  outdatedCount: number
+  documentations: number
+  contracts: number
   pendingAction: string | null
 }
 
@@ -19,7 +20,8 @@ export default class OutdatedBanner extends PureComponent<
   constructor(props: WithTranslationProps) {
     super(props)
     this.state = {
-      outdatedCount: $documentationsStatus.get().outdatedCount,
+      documentations: $documentationsStatus.get().outdatedCount,
+      contracts: $documentationsStatus.get().contractsOutdatedCount,
       pendingAction: $pendingAction.get(),
     }
   }
@@ -27,7 +29,10 @@ export default class OutdatedBanner extends PureComponent<
   // Lifecycle
   componentDidMount = () => {
     this.unsubscribeStatus = $documentationsStatus.subscribe((value) =>
-      this.setState({ outdatedCount: value.outdatedCount })
+      this.setState({
+        documentations: value.outdatedCount,
+        contracts: value.contractsOutdatedCount,
+      })
     )
     this.unsubscribePending = $pendingAction.subscribe((value) =>
       this.setState({ pendingAction: value })
@@ -40,13 +45,19 @@ export default class OutdatedBanner extends PureComponent<
   }
 
   // Handlers
-  handleUpdateAll = () =>
-    sendAnnotationAction('UPDATE_DOCUMENTATIONS', { docIds: 'OUTDATED' })
+  // Each kind is updated by its own request, only when it has something outdated.
+  handleUpdateAll = () => {
+    if (this.state.documentations > 0)
+      sendAnnotationAction('UPDATE_DOCUMENTATIONS', { docIds: 'OUTDATED' })
+    if (this.state.contracts > 0)
+      sendAnnotationAction('UPDATE_CONTRACTS', { keys: 'OUTDATED' })
+  }
 
   // Render
   render() {
     const { t } = this.props
-    const { outdatedCount, pendingAction } = this.state
+    const { documentations, contracts, pendingAction } = this.state
+    const outdatedCount = documentations + contracts
 
     if (outdatedCount === 0) return null
 
@@ -64,7 +75,10 @@ export default class OutdatedBanner extends PureComponent<
             type="primary"
             label={t('handoff.documentations.updateAll')}
             isDisabled={pendingAction !== null}
-            isLoading={pendingAction === 'UPDATE_DOCUMENTATIONS'}
+            isLoading={
+              pendingAction === 'UPDATE_DOCUMENTATIONS' ||
+              pendingAction === 'UPDATE_CONTRACTS'
+            }
             action={this.handleUpdateAll}
           />
         }

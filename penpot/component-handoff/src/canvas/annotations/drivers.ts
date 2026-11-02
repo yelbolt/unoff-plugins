@@ -160,3 +160,103 @@ export const drivenText = (
 // `Variant=a, Size=b: 40`
 export const variantText = (label: string, text: string): string =>
   `${label}: ${text}`
+
+// ── Combined drivers (machine contract, Props view) ────────────────────────
+// When no single property explains a value, the smallest group of properties
+// that does: same combined values, same value. Groups are tried by size, then
+// in the family's property order. Falls back to every property.
+
+const combinations = <T>(items: Array<T>, size: number): Array<Array<T>> => {
+  if (size === 0) return [[]]
+  const out: Array<Array<T>> = []
+  items.forEach((item, i) => {
+    for (const rest of combinations(items.slice(i + 1), size - 1))
+      out.push([item, ...rest])
+  })
+  return out
+}
+
+export const findCombinedDriver = (
+  samples: Array<{ props: Record<string, string>; key: string }>,
+  order: Array<PropertyOrder>
+): Array<string> => {
+  const names = namesOf(samples, order).filter((n) =>
+    samples.every((s) => s.props[n] !== undefined)
+  )
+  for (let size = 2; size < names.length; size++)
+    for (const group of combinations(names, size)) {
+      const seen = new Map<string, string>()
+      const ok = samples.every((s) => {
+        const k = group.map((n) => s.props[n]).join('\u0001')
+        const prev = seen.get(k)
+        if (prev === undefined) {
+          seen.set(k, s.key)
+          return true
+        }
+        return prev === s.key
+      })
+      if (ok) return group
+    }
+  return names
+}
+
+// `"sm|hover"`: the combined values of a group of properties.
+export const combinedKey = (
+  props: Record<string, string>,
+  by: Array<string>
+): string => by.map((n) => props[n]).join('|')
+
+export type Keyed<T> =
+  | { kind: 'uniform'; data: T }
+  | {
+      kind: 'driven'
+      by: Array<string> // one property, or several when only their combination explains the value
+      items: Array<{ value: string; data: T }> // `value` is the property value, or "a|b" when combined
+    }
+
+// resolveValue, but a value no single property explains is keyed by the
+// combined values of the smallest group of properties that does.
+export const resolveKeyed = <T>(
+  samples: Array<Sample<T>>,
+  order: Array<PropertyOrder>
+): Keyed<T> => {
+  const res = resolveValue(samples, order)
+  if (res.kind === 'uniform') return res
+  if (res.kind === 'driven')
+    return { kind: 'driven', by: [res.property], items: res.items }
+  const by = findCombinedDriver(samples, order)
+  const items: Array<{ value: string; data: T }> = []
+  const seen = new Set<string>()
+  for (const s of samples) {
+    const value = combinedKey(s.props, by)
+    if (seen.has(value)) continue
+    seen.add(value)
+    items.push({ value, data: s.data })
+  }
+  return { kind: 'driven', by, items }
+}
+
+export type KeyedPresence =
+  | { kind: 'all' }
+  | { kind: 'driven'; by: Array<string>; values: Array<string> }
+
+export const resolvePresenceKeyed = (
+  all: Array<{ label: string; props: Record<string, string>; present: boolean }>,
+  order: Array<PropertyOrder>
+): KeyedPresence => {
+  const p = resolvePresence(all, order)
+  if (p.kind === 'all') return p
+  if (p.kind === 'driven')
+    return { kind: 'driven', by: [p.property], values: p.values }
+  const samples = all.map((s) => ({
+    props: s.props,
+    key: s.present ? '1' : '0',
+  }))
+  const by = findCombinedDriver(samples, order)
+  const values: Array<string> = []
+  for (const s of all) {
+    const v = combinedKey(s.props, by)
+    if (s.present && !values.includes(v)) values.push(v)
+  }
+  return { kind: 'driven', by, values }
+}

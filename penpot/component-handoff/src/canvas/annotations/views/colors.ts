@@ -53,7 +53,7 @@ const partRows = (dc: DocCtx, shape: Shape): Array<TableRow> => {
           propCell(dc, r.label),
           refValue(
             dc,
-            r.value,
+            r.chain ? r.chain.join(' → ') : r.value,
             tr(r.key === 'typographyStyle' ? 'ref.matched' : `ref.${r.ref}`)
           ),
         ])

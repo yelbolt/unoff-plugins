@@ -1,6 +1,7 @@
 import { parseNumericLike } from '../../utils/numeric'
-import { getAppliedTokenName } from './tokens'
+import { getAppliedTokenName, makeTokenIndex } from './tokens'
 import type { Shape, Text, TokenProperty } from '@penpot/plugin-types'
+import type { TokenIndex } from './tokens'
 
 interface TypoEntry {
   name: string
@@ -15,6 +16,7 @@ interface TypoEntry {
 export interface RefCtx {
   colors: Map<string, string> // color style id -> display name
   typos: Array<TypoEntry>
+  tokens: TokenIndex // active token sets of the file
 }
 
 const fullName = (e: { name: string; path: string }): string =>
@@ -22,7 +24,11 @@ const fullName = (e: { name: string; path: string }): string =>
 
 // Tokens and styles are always resolved.
 export const makeRefCtx = (): RefCtx => {
-  const ctx: RefCtx = { colors: new Map(), typos: [] }
+  const ctx: RefCtx = {
+    colors: new Map(),
+    typos: [],
+    tokens: makeTokenIndex(),
+  }
   const libs = [penpot.library.local, ...penpot.library.connected]
   for (const lib of libs) {
     for (const c of lib.colors) ctx.colors.set(c.id, fullName(c))

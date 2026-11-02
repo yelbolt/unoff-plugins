@@ -33,6 +33,9 @@ export interface PropertyRow {
   value: string // token name, else style name, else raw value
   ref: RefKind
   swatch?: string // hex of the color this row shows, when it is a plain color
+  code?: string // language-neutral value (layout enums, gradient / image, matched style name) for the machine contract
+  chain?: Array<string> // ref === 'token' and the token references another: `a → b → value`
+  origin?: 'rule' | 'measured' // measurements only: layout property / token vs distance observed between parts no layout places
 }
 
 export interface PropertyGroup {
@@ -55,11 +58,12 @@ const row = (
   raw: string,
   token?: string,
   styleName?: string,
-  swatch?: string
+  swatch?: string,
+  code?: string
 ): PropertyRow | null => {
   if (token) return { key, label, value: token, ref: 'token', swatch }
   if (styleName) return { key, label, value: styleName, ref: 'style', swatch }
-  return raw ? { key, label, value: raw, ref: 'raw', swatch } : null
+  return raw ? { key, label, value: raw, ref: 'raw', swatch, code } : null
 }
 
 const compact = (rows: Array<PropertyRow | null>): Array<PropertyRow> =>
@@ -230,7 +234,8 @@ const fillsStrokes = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
           // shape.tokens.fill is a single binding: it names the first fill.
           i === 0 ? tokenOf(ctx, s, 'fill') : undefined,
           colorStyleName(ctx, f.fillColorRefId),
-          f.fillColor
+          f.fillColor,
+          f.fillColor ? undefined : f.fillColorGradient ? 'gradient' : 'image'
         )
       )
     })
@@ -245,7 +250,8 @@ const fillsStrokes = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
             : ''),
         i === 0 ? tokenOf(ctx, s, 'strokeColor') : undefined,
         colorStyleName(ctx, st.strokeColorRefId),
-        st.strokeColor
+        st.strokeColor,
+        st.strokeColor ? undefined : 'gradient'
       ),
       row(
         `strokeWidth#${i}`,
@@ -299,6 +305,7 @@ const typography = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
           label: tr('prop.typography'),
           value: styleLabel(m),
           ref: 'style',
+          code: m,
         })
       styleShown = true
       return
@@ -397,6 +404,15 @@ const READERS: Record<PropFamily, (s: Shape, e: Env) => Array<PropertyRow>> = {
   EFFECTS: effects,
 }
 
+// A token that references another token carries its chain down to the value.
+const withChain =
+  (ctx: RefCtx) =>
+  (r: PropertyRow): PropertyRow => {
+    if (r.ref !== 'token') return r
+    const chain = ctx.tokens.chain(r.value)
+    return chain ? { ...r, chain } : r
+  }
+
 export const collectProperties = (
   shape: Shape,
   families: Array<PropFamily>,
@@ -404,5 +420,8 @@ export const collectProperties = (
   ctx: RefCtx
 ): Array<PropertyGroup> =>
   families
-    .map((family) => ({ family, rows: READERS[family](shape, { style, ctx }) }))
+    .map((family) => ({
+      family,
+      rows: READERS[family](shape, { style, ctx }).map(withChain(ctx)),
+    }))
     .filter((g) => g.rows.length > 0)

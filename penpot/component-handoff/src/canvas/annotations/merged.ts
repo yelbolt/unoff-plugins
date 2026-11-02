@@ -10,6 +10,7 @@ export interface MergedPart {
   name: string // layer name, from the first variant that has the part
   type: string
   path: string
+  cpath: string // contract spelling of the path (from the first variant that has the part)
   shapes: Map<Entry, Part> // the part's live shape in each variant that has it
 }
 
@@ -40,6 +41,7 @@ export const buildMerged = (
           name: p.shape.name,
           type: p.shape.type,
           path: p.path,
+          cpath: p.cpath,
           shapes: new Map(),
         }
         byKey.set(key, part)

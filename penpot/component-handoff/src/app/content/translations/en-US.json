@@ -12,7 +12,8 @@
       "ANATOMY": "Anatomy",
       "VARIANTS": "Variants",
       "MEASUREMENTS": "Measurements",
-      "COLORS": "Colors"
+      "COLORS": "Colors",
+      "PROPS": "Props"
     },
     "category": {
       "SIZE": "Size",
@@ -41,7 +42,24 @@
       "fix": "Fix",
       "fill": "Fill",
       "fit": "Fit",
-      "yes": "Absolute"
+      "yes": "Absolute",
+      "clips": "Clips",
+      "noClip": "Does not clip",
+      "grow": {
+        "fixed": "Fixed",
+        "autoWidth": "Auto width",
+        "autoHeight": "Auto height"
+      },
+      "constraint": {
+        "left": "Left",
+        "right": "Right",
+        "leftright": "Left and right",
+        "top": "Top",
+        "bottom": "Bottom",
+        "topbottom": "Top and bottom",
+        "center": "Center",
+        "scale": "Scale"
+      }
     },
     "ref": {
       "token": "token",
@@ -111,7 +129,12 @@
       "layerBlur": "Layer blur",
       "backgroundBlur": "Background blur",
       "gap": "Gap",
-      "gapBetween": "Gap {from} → {to}"
+      "gapBetween": "Gap {from} → {to}",
+      "growType": "Text growth",
+      "constraintsH": "Horizontal constraint",
+      "constraintsV": "Vertical constraint",
+      "clipContent": "Clip content",
+      "zIndex": "Z-index"
     },
     "doc": {
       "kind": {
@@ -139,7 +162,23 @@
       "numberColumn": "#",
       "typeColumn": "Type",
       "appearsColumn": "Appears in",
-      "specimenOn": "Shown on {variant}"
+      "specimenOn": "Shown on {variant}",
+      "valuesColumn": "Values",
+      "drivesColumn": "Drives",
+      "summary": "Tokenized {tokenized} % · Layout-driven {layout} % · {exceptions}",
+      "exceptions": {
+        "one": "{count} exception",
+        "other": "{count} exceptions"
+      }
+    },
+    "props": {
+      "combined": "Combined",
+      "drivesNothing": "Drives nothing",
+      "presence": "{part}: appears with this value"
+    },
+    "origin": {
+      "rule": "rule",
+      "measured": "measured"
     }
   },
   "about": {
@@ -218,7 +257,7 @@
       "copy": "Copy of {name}",
       "boardKind": "Board · {name}",
       "other": "{name} ({type})",
-        "board": "Board: {board}",
+      "board": "Board: {board}",
       "properties": {
         "summary": "{name} · {count, plural, one {# value} other {# values}}",
         "show": "Show values",
@@ -264,7 +303,9 @@
         }
       },
       "footer": {
-        "hint": "Generated as native boards and text beside the design."
+        "hint": "Generated as native boards and text beside the design.",
+        "hintBoth": "Documentation drawn beside the design; contract stored on the file.",
+        "hintContract": "Contract stored on the file for agents; nothing is drawn."
       },
       "cta": {
         "generate": "Generate"
@@ -286,7 +327,29 @@
         "colors": {
           "label": "Colors, tokens & styles",
           "description": "The token applied, else the style, else the raw value."
+        },
+        "props": {
+          "label": "Props",
+          "description": "Each variant property, its values and what it drives."
         }
+      },
+      "outputs": {
+        "visual": {
+          "title": "Visual documentation",
+          "description": "Draws the component on the canvas for people: views, tables and redlines."
+        },
+        "contract": {
+          "title": "Machine contract",
+          "description": "Writes a JSON contract on the file for AI agents; nothing is drawn."
+        }
+      },
+      "contract": {
+        "autoUpdate": {
+          "label": "Keep up to date automatically",
+          "hint": "Rewrites an outdated contract as soon as it is detected, without asking."
+        },
+        "copyContract": "Copy contract",
+        "copyInstructions": "Copy agent instructions"
       }
     },
     "refusal": {
@@ -297,7 +360,10 @@
       "unknown": "The action was refused.",
       "noView": "Tick at least one view.",
       "noVariant": "No variant matches the selected values.",
-      "nothingToUpdate": "There is no documentation to update."
+      "nothingToUpdate": "There is no documentation to update.",
+      "noContract": "This contract no longer exists.",
+      "nothingToUpdateContract": "There is no contract to update.",
+      "noOutput": "Switch on at least one output."
     },
     "result": {
       "documentation": {
@@ -305,7 +371,12 @@
         "updated": "Documentation updated · {parts} parts · {variants} variants"
       },
       "rotated": "Rotated element: measured on its bounding box.",
-      "documentationsUpdated": "{updated} updated, {removed} removed"
+      "documentationsUpdated": "{updated} updated, {removed} removed",
+      "contract": {
+        "created": "Contract created · {name}",
+        "updated": "Contract updated · {name}"
+      },
+      "contractsUpdated": "{updated, plural, one {# contract} other {# contracts}} updated, {removed} removed"
     },
     "style": {
       "title": "Annotation style",
@@ -353,8 +424,8 @@
       "options": "Options"
     },
     "documentations": {
-      "title": "Documentations on this page",
-      "empty": "No documentation on this page yet.",
+      "title": "Documentations and contracts on this page",
+      "empty": "No documentation or contract on this page yet.",
       "kind": {
         "COMPONENT": "Component",
         "FAMILY": "Family"
@@ -367,9 +438,28 @@
       "remove": "Remove",
       "updateAll": "Update all",
       "banner": {
-        "one": "{count} documentation needs an update — its component changed or was removed",
-        "other": "{count} documentations need an update — their components changed or were removed"
+        "one": "{count} output needs an update — its component changed or was removed",
+        "other": "{count} outputs need an update — their components changed or were removed"
+      },
+      "tag": {
+        "DOCUMENTATION": "Documentation",
+        "CONTRACT": "Contract"
+      },
+      "copy": "Copy contract",
+      "removeContract": "Remove contract"
+    },
+    "contract": {
+      "summary": {
+        "props": "{count, plural, one {# prop} other {# props}}",
+        "rules": "{count, plural, one {# rule} other {# rules}}",
+        "tokenized": "{percent} % tokenized",
+        "exceptions": "{count, plural, one {# exception} other {# exceptions}}"
       }
+    },
+    "copy": {
+      "contractCopied": "Contract copied.",
+      "instructionsCopied": "Agent instructions copied.",
+      "failed": "Copy failed. Your browser blocked access to the clipboard."
     }
   },
   "onboarding": {

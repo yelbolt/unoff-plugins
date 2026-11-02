@@ -1,7 +1,10 @@
 import { NotificationMessage } from '../types/messages'
 import {
   AnnotationAppliedData,
+  AnnotationKind,
   AnnotationRefusedData,
+  ContractsUpdatedData,
+  ContractWrittenData,
   DocumentationsUpdatedData,
   RefusalReason,
 } from '../types/annotations'
@@ -20,10 +23,24 @@ const REFUSAL_KEYS: Record<RefusalReason, string> = {
   NO_VARIANT: 'handoff.refusal.noVariant',
   ANNOTATION_SELECTED: 'handoff.refusal.annotationSelected',
   NOTHING_TO_UPDATE: 'handoff.refusal.nothingToUpdate',
+  NO_CONTRACT: 'handoff.refusal.noContract',
 }
 
-export const getRefusalMessage = (reason: RefusalReason, t: Translate) =>
-  t(REFUSAL_KEYS[reason] ?? 'handoff.refusal.unknown')
+// A refusal can read differently depending on the output it concerns.
+const CONTRACT_REFUSAL_KEYS: Partial<Record<RefusalReason, string>> = {
+  NOTHING_TO_UPDATE: 'handoff.refusal.nothingToUpdateContract',
+}
+
+export const getRefusalMessage = (
+  reason: RefusalReason,
+  t: Translate,
+  kind: AnnotationKind = 'DOCUMENTATION'
+) =>
+  t(
+    (kind === 'CONTRACT' ? CONTRACT_REFUSAL_KEYS[reason] : undefined) ??
+      REFUSAL_KEYS[reason] ??
+      'handoff.refusal.unknown'
+  )
 
 export const buildAppliedNotification = (
   data: AnnotationAppliedData,
@@ -50,7 +67,7 @@ export const buildRefusedNotification = (
   t: Translate
 ): NotificationMessage => ({
   type: 'WARNING',
-  message: getRefusalMessage(data.reason, t),
+  message: getRefusalMessage(data.reason, t, data.kind),
   timer: 8000,
 })
 
@@ -60,6 +77,32 @@ export const buildDocumentationsUpdatedNotification = (
 ): NotificationMessage => ({
   type: 'SUCCESS',
   message: t('handoff.result.documentationsUpdated', {
+    updated: data.updated,
+    removed: data.removed,
+  }),
+  timer: 6000,
+})
+
+export const buildContractWrittenNotification = (
+  data: ContractWrittenData,
+  t: Translate
+): NotificationMessage => ({
+  type: 'SUCCESS',
+  message: t(
+    data.created
+      ? 'handoff.result.contract.created'
+      : 'handoff.result.contract.updated',
+    { name: data.name }
+  ),
+  timer: 6000,
+})
+
+export const buildContractsUpdatedNotification = (
+  data: ContractsUpdatedData,
+  t: Translate
+): NotificationMessage => ({
+  type: 'SUCCESS',
+  message: t('handoff.result.contractsUpdated', {
     updated: data.updated,
     removed: data.removed,
   }),

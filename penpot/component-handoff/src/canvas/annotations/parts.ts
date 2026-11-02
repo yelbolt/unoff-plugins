@@ -7,6 +7,7 @@ export interface Part {
   shape: Shape
   level: number
   path: string // layer-name path relative to the root ('' for the root)
+  cpath: string // same path in the machine contract's spelling: `Icon[2]` when siblings share a name
   idx: Array<number> // child indexes (visible children) from the root
 }
 
@@ -15,8 +16,14 @@ export interface Part {
 export const walkParts = (root: Shape, depth: PartsDetail): Array<Part> => {
   const out: Array<Part> = []
   const max = depth === 'ALL' ? Infinity : 1
-  const visit = (s: Shape, level: number, path: string, idx: Array<number>) => {
-    out.push({ n: out.length, shape: s, level, path, idx })
+  const visit = (
+    s: Shape,
+    level: number,
+    path: string,
+    cpath: string,
+    idx: Array<number>
+  ) => {
+    out.push({ n: out.length, shape: s, level, path, cpath, idx })
     if (level >= max) return
     const kids = visibleChildren(s)
     const seen = new Map<string, number>()
@@ -25,11 +32,19 @@ export const walkParts = (root: Shape, depth: PartsDetail): Array<Part> => {
     kids.forEach((k, i) => {
       const c = (count.get(k.name) ?? 0) + 1
       count.set(k.name, c)
-      const seg = (seen.get(k.name) ?? 1) > 1 ? `${k.name}#${c}` : k.name
-      visit(k, level + 1, path ? `${path}/${seg}` : seg, [...idx, i])
+      const dup = (seen.get(k.name) ?? 1) > 1
+      const seg = dup ? `${k.name}#${c}` : k.name
+      const cseg = dup ? `${k.name}[${c}]` : k.name
+      visit(
+        k,
+        level + 1,
+        path ? `${path}/${seg}` : seg,
+        cpath ? `${cpath}/${cseg}` : cseg,
+        [...idx, i]
+      )
     })
   }
-  visit(root, 0, '', [])
+  visit(root, 0, '', '', [])
   return out
 }
 
@@ -40,6 +55,7 @@ export interface PartPlan {
   n: number
   level: number
   path: string
+  cpath: string
   idx: Array<number>
   name: string
   type: string
@@ -50,6 +66,7 @@ export const planParts = (root: Shape, depth: PartsDetail): Array<PartPlan> =>
     n: p.n,
     level: p.level,
     path: p.path,
+    cpath: p.cpath,
     idx: p.idx,
     name: p.shape.name,
     type: p.shape.type,
@@ -61,7 +78,14 @@ export const bindParts = (plan: Array<PartPlan>, root: Shape): Array<Part> => {
     let cur: Shape | undefined = root
     for (const i of p.idx) cur = cur ? visibleChildren(cur)[i] : undefined
     if (cur)
-      out.push({ n: p.n, shape: cur, level: p.level, path: p.path, idx: p.idx })
+      out.push({
+        n: p.n,
+        shape: cur,
+        level: p.level,
+        path: p.path,
+        cpath: p.cpath,
+        idx: p.idx,
+      })
   }
   return out
 }

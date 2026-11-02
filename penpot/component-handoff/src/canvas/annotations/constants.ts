@@ -10,6 +10,7 @@ export const KEYS = {
   name: 'ch:name', // component or family name, for the status list
   layer: 'ch:layer', // on a layer group: the board id, or PAGE_KEY
   style: 'ch:style', // on the file: JSON AnnotationStyle
+  contractSettings: 'ch:contractSettings', // on the file: JSON ContractSettings
 } as const
 
 export const PAGE_KEY = 'page'

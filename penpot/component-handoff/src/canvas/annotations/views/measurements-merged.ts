@@ -15,7 +15,7 @@ import {
   propCell,
   fixedSize,
 } from './shared'
-import { headerCell, specimenTitle, valueCell } from './merged'
+import { headerCell, specimenTitle, valueCell, withOrigin } from './merged'
 import type { Category } from '../redlines'
 import type { MergedModel, MergedPart } from '../merged'
 import type { MeasureRows } from '../measure'
@@ -74,7 +74,15 @@ const tablesOf = (dc: DocCtx, model: MergedModel): Array<MergedTable> => {
           propCell(dc, String(part.n), 'Number'),
           panel.text(part.name, { name: 'Part' }),
           propCell(dc, labels.get(key) as string),
-          valueCell(dc, res),
+          withOrigin(
+            dc,
+            valueCell(dc, res),
+            [...perEntry.values()].some(
+              (r) => r[cat].find((x) => x.key === key)?.origin === 'measured'
+            )
+              ? 'measured'
+              : 'rule'
+          ),
         ])
         if (part.n > 0 && part.shapes.has(first)) marked.add(part.n)
       }

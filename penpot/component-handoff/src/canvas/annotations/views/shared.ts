@@ -15,6 +15,7 @@ import type { Entry, StructureGroup } from '../groups'
 import type { Rect } from '../geometry'
 import type { PropertyOrder } from '../drivers'
 import type { DrawEnv } from '../commit'
+import type { Analysis } from '../analysis'
 import type { PartsDetail } from '../../../app/types/annotations'
 
 // A view: a title and its cards. Everything a card holds, specimen overlays
@@ -35,6 +36,7 @@ export interface DocCtx {
   structures: Array<StructureGroup> // SPLIT: computed once, shared by all views
   merged: MergedModel | null // MERGED (and any component): the union model
   order: Array<PropertyOrder> // variant properties, in the family's own order; only ticked values when filtered
+  analysis: Analysis // the one analysis the contract is also serialized from
   filterNote: string | null // set when the variant filter excludes something
   colW: number // width of one grid column, from known numbers
   state: { rotated: boolean; markers: number }

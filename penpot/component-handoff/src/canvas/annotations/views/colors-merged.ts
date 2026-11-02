@@ -27,11 +27,16 @@ import type { Sample } from '../drivers'
 import type { DocCtx, ViewBuild } from './shared'
 import type { PanelNode, TableRow } from '../panel'
 
-type Ref = { value: string; ref: PropertyRow['ref']; swatch?: string } | null
+type Ref = {
+  value: string
+  ref: PropertyRow['ref']
+  swatch?: string
+  chain?: Array<string>
+} | null
 
 const refLine = (dc: DocCtx, r: Ref, prefix = ''): PanelNode => {
   const { panel } = dc
-    const text = r ? `${prefix}${r.value}` : `${prefix}—`
+    const text = r ? `${prefix}${r.chain ? r.chain.join(' → ') : r.value}` : `${prefix}—`
     const kids = [panel.swatch(r?.swatch), panel.text(text, { name: 'Value' })]
     if (r)
       kids.push(
@@ -93,7 +98,7 @@ const partRows = (dc: DocCtx, part: MergedPart): Array<TableRow> => {
             .find((g) => g.family === f.family)
             ?.rows.find((x) => x.key === k.key)
           const data: Ref = row
-            ? { value: row.value, ref: row.ref, swatch: row.swatch }
+            ? { value: row.value, ref: row.ref, swatch: row.swatch, chain: row.chain }
             : null
           samples.push({
             label: e.label,
@@ -112,7 +117,7 @@ const partRows = (dc: DocCtx, part: MergedPart): Array<TableRow> => {
             r
               ? refValue(
                   dc,
-                  r.value,
+                  r.chain ? r.chain.join(' → ') : r.value,
                   tr(k.key === 'typographyStyle' ? 'ref.matched' : `ref.${r.ref}`)
                 )
               : panel.text('—', { name: 'Value' }),

@@ -23,6 +23,18 @@ export const buildHeader = (dc: DocCtx): PanelNode => {
     meta(`${kind}  ·  ${res.comp?.path || tr('doc.noPath')}`, 'Subtitle'),
     meta(tr('doc.generatedOn', { date }), 'Date'),
   ]
+  const a = dc.analysis.summary
+  const count = a.exceptions
+  lines.push(
+    meta(
+      tr('doc.summary', {
+        tokenized: Math.round(a.tokenizedShare * 100),
+        layout: Math.round(dc.analysis.layoutShare * 100),
+        exceptions: tr(count === 1 ? 'doc.exceptions.one' : 'doc.exceptions.other', { count }),
+      }),
+      'Summary'
+    )
+  )
   if (dc.filterNote) lines.push(meta(dc.filterNote, 'Variant filter'))
   if (res.copyFallback) lines.push(meta(tr('doc.copyFallback'), 'Fallback'))
 
