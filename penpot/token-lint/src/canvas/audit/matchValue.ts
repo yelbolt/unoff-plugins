@@ -95,7 +95,10 @@ export const matchValue = (
   const entries = index.byCategory[category]
 
   // Coerce, don't filter by strict `typeof` (see coerceToRawType).
-  const comparable: { entry: ResolvedTokenIndexEntry; value: string | number }[] = []
+  const comparable: {
+    entry: ResolvedTokenIndexEntry
+    value: string | number
+  }[] = []
   for (const entry of entries) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (entry.resolvedValue == null) continue
@@ -140,5 +143,8 @@ export const matchValue = (
   })
 
   const best = scored[0]
-  return { tier: 'NEAR', candidateTokens: toMatched([best.entry], best.residual) }
+  return {
+    tier: 'NEAR',
+    candidateTokens: toMatched([best.entry], best.residual),
+  }
 }

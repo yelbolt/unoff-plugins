@@ -13,7 +13,8 @@ interface ResolvedShape {
 const findShapeById = (id: string): ResolvedShape | null => {
   const currentPage = penpot.currentPage
   const onCurrentPage = currentPage?.getShapeById(id)
-  if (onCurrentPage && currentPage) return { shape: onCurrentPage, page: currentPage }
+  if (onCurrentPage && currentPage)
+    return { shape: onCurrentPage, page: currentPage }
   for (const page of penpot.currentFile?.pages ?? []) {
     const found = page.getShapeById(id)
     if (found) return { shape: found, page }

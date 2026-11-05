@@ -5,7 +5,11 @@ import type { Drive } from '../analysis'
 import type { DocCtx, ViewBuild } from './shared'
 import type { TableRow } from '../panel'
 
-const linesOf = (dc: DocCtx, drives: Array<Drive>, suffix = ''): Array<string> => {
+const linesOf = (
+  dc: DocCtx,
+  drives: Array<Drive>,
+  suffix = ''
+): Array<string> => {
   const byPart = new Map<string, { props: Array<string>; presence: boolean }>()
   for (const d of drives) {
     const e = byPart.get(d.part) ?? { props: [], presence: false }
@@ -57,9 +61,7 @@ export const buildProps = (dc: DocCtx): ViewBuild | null => {
         dc,
         [
           ...new Set(
-            combined.flatMap((d) =>
-              linesOf(dc, [d], ` (${d.by.join(' × ')})`)
-            )
+            combined.flatMap((d) => linesOf(dc, [d], ` (${d.by.join(' × ')})`))
           ),
         ],
         { name: 'Drives' }

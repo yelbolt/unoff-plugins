@@ -300,7 +300,8 @@ export default class DeviationGroupRow extends PureComponent<
       this.previousApplyInProgressId = id
 
       if (previous && previous !== id)
-        if (previous === group.id) this.notifyApplyOutcome($lastApplyResult.get())
+        if (previous === group.id)
+          this.notifyApplyOutcome($lastApplyResult.get())
         else if (
           isOccurrenceKey(previous) &&
           groupIdFromOccurrenceKey(previous) === group.id

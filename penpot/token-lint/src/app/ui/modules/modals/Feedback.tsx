@@ -41,9 +41,7 @@ export default class Feedback extends PureComponent<FeedbackProps> {
   // Render
   render() {
     return (
-      <Feature
-        isActive={this.features.INVOLVES_FEEDBACK.isActive()}
-      >
+      <Feature isActive={this.features.INVOLVES_FEEDBACK.isActive()}>
         <Dialog
           title={this.props.t('shortcuts.feedback')}
           pin="RIGHT"

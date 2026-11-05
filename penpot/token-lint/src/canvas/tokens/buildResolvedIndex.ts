@@ -5,7 +5,10 @@ import type {
   TokenCategory,
 } from '../../app/types/tokens'
 
-const emptyByCategory = (): Record<TokenCategory, ResolvedTokenIndexEntry[]> => ({
+const emptyByCategory = (): Record<
+  TokenCategory,
+  ResolvedTokenIndexEntry[]
+> => ({
   color: [],
   spacing: [],
   radius: [],
@@ -135,7 +138,10 @@ export const buildResolvedIndex = (): ResolvedTokenIndex => {
     totalSets: allSets.length,
     tokensInActiveSets: activeSets.reduce((n, set) => n + set.tokens.length, 0),
     entriesByCategory: Object.fromEntries(
-      (Object.keys(byCategory) as TokenCategory[]).map((c) => [c, byCategory[c].length])
+      (Object.keys(byCategory) as TokenCategory[]).map((c) => [
+        c,
+        byCategory[c].length,
+      ])
     ),
   })
 

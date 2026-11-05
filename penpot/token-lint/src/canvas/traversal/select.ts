@@ -102,7 +102,8 @@ const traverseScope = (scope: AuditScope): TraversedShape[] => {
   }
 
   if (scope.kind === 'PAGE') {
-    if (penpot.currentPage) walkChildrenOnly(penpot.currentPage.root, result, seen)
+    if (penpot.currentPage)
+      walkChildrenOnly(penpot.currentPage.root, result, seen)
     return result
   }
 

@@ -16,14 +16,20 @@ import {
   titleBlock,
 } from './shared'
 import { headerCell, withOrigin } from './merged'
-import { buildMeasurementsMerged, measurementNeedMerged } from './measurements-merged'
+import {
+  buildMeasurementsMerged,
+  measurementNeedMerged,
+} from './measurements-merged'
 import type { DocCtx, ViewBuild } from './shared'
 import type { Category } from '../redlines'
 import type { PanelNode, TableRow } from '../panel'
 import type { MeasureRows } from '../measure'
 import type { Entry } from '../groups'
 
-type Measured = Array<{ part: ReturnType<typeof bind>[number]; rows: MeasureRows }>
+type Measured = Array<{
+  part: ReturnType<typeof bind>[number]
+  rows: MeasureRows
+}>
 
 const tableRowsOf = (
   dc: DocCtx,
@@ -35,7 +41,11 @@ const tableRowsOf = (
     for (const row of r[cat])
       lines.push([
         propCell(dc, `${part.n}   ${part.shape.name}  ·  ${row.label}`, 'Part'),
-        withOrigin(dc, dc.panel.text(row.value, { name: 'Value' }), row.origin ?? 'rule'),
+        withOrigin(
+          dc,
+          dc.panel.text(row.value, { name: 'Value' }),
+          row.origin ?? 'rule'
+        ),
       ])
   if (lines.length === 0) return null
   return [
@@ -107,9 +117,7 @@ export const buildMeasurements = (dc: DocCtx): ViewBuild => {
         dc.state.rotated = rot || dc.state.rotated
         if (cat === 'LAYOUT') {
           const shown = bind(structure.plan, copy).filter((p) =>
-            rows.some(
-              (x) => x.part.n === p.n && x.rows.LAYOUT.length > 0
-            )
+            rows.some((x) => x.part.n === p.n && x.rows.LAYOUT.length > 0)
           )
           dc.state.markers = Math.max(
             dc.state.markers,
@@ -135,7 +143,7 @@ export const buildMeasurements = (dc: DocCtx): ViewBuild => {
               table,
             ],
             tr(`category.${cat}`),
-                      size
+            size
           )
         )
       }

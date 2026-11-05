@@ -113,7 +113,11 @@ const computeSpacing = (shape: Shape): SpacingInfo | null => {
       a,
       b,
       axis,
-      value: layout ? (axis === 'h' ? layout.columnGap : layout.rowGap) : measured,
+      value: layout
+        ? axis === 'h'
+          ? layout.columnGap
+          : layout.rowGap
+        : measured,
       from,
       to: Math.max(to, from),
       ra,

@@ -1,6 +1,14 @@
 import { tr } from '../i18n'
 import { LAYOUT } from '../constants'
-import { card, centered, heading, propCell, px, sizeOf, variantNeed } from './shared'
+import {
+  card,
+  centered,
+  heading,
+  propCell,
+  px,
+  sizeOf,
+  variantNeed,
+} from './shared'
 import { headerCell } from './merged'
 import type { DocCtx, ViewBuild } from './shared'
 import type { PanelNode, TableRow } from '../panel'
@@ -30,8 +38,15 @@ export const buildVariants = (dc: DocCtx): ViewBuild | null => {
       ]),
     ]
     const preferred = variantNeed(sc, inst.width, e.props) > dc.colW ? 2 : 1
-    const size = sizeOf(dc, preferred, Math.max(specimen.w, panel.tableNeed(rows)))
-    const table = panel.table(rows, { width: size.inner, name: 'Variant values' })
+    const size = sizeOf(
+      dc,
+      preferred,
+      Math.max(specimen.w, panel.tableNeed(rows))
+    )
+    const table = panel.table(rows, {
+      width: size.inner,
+      name: 'Variant values',
+    })
     return card(dc, [centered(dc, specimen), table], e.label, size)
   })
 

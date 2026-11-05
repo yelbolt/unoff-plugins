@@ -43,7 +43,9 @@ export const trackText = (t: Track, style: AnnotationStyle): string => {
 const round = (n: number): string => String(Math.round(n * 100) / 100)
 
 const containerOf = (shape: Shape) =>
-  shape.type === 'board' ? { flex: shape.flex ?? null, grid: shape.grid ?? null } : null
+  shape.type === 'board'
+    ? { flex: shape.flex ?? null, grid: shape.grid ?? null }
+    : null
 
 export const sizingOf = (shape: Shape): { h?: string; v?: string } => {
   const box = containerOf(shape)
@@ -51,7 +53,10 @@ export const sizingOf = (shape: Shape): { h?: string; v?: string } => {
   const child = shape.layoutChild
   const own = box && shape.type === 'board' ? shape : null
   return {
-    h: child?.horizontalSizing ?? layout?.horizontalSizing ?? own?.horizontalSizing,
+    h:
+      child?.horizontalSizing ??
+      layout?.horizontalSizing ??
+      own?.horizontalSizing,
     v: child?.verticalSizing ?? layout?.verticalSizing ?? own?.verticalSizing,
   }
 }
@@ -84,7 +89,13 @@ const behaviourRows = (shape: Shape): Array<PropertyRow> => {
     const g = GROW[grow]
     if (g)
       rows.push(
-        row('layout.growType', tr('prop.growType'), tr(`layout.grow.${g}`), undefined, grow)
+        row(
+          'layout.growType',
+          tr('prop.growType'),
+          tr(`layout.grow.${g}`),
+          undefined,
+          grow
+        )
       )
   }
   const parent = shape.parent
@@ -98,11 +109,23 @@ const behaviourRows = (shape: Shape): Array<PropertyRow> => {
     const cv = shape.constraintsVertical
     if (ch)
       rows.push(
-        row('layout.constraintsH', tr('prop.constraintsH'), tr(`layout.constraint.${ch}`), undefined, ch)
+        row(
+          'layout.constraintsH',
+          tr('prop.constraintsH'),
+          tr(`layout.constraint.${ch}`),
+          undefined,
+          ch
+        )
       )
     if (cv)
       rows.push(
-        row('layout.constraintsV', tr('prop.constraintsV'), tr(`layout.constraint.${cv}`), undefined, cv)
+        row(
+          'layout.constraintsV',
+          tr('prop.constraintsV'),
+          tr(`layout.constraint.${cv}`),
+          undefined,
+          cv
+        )
       )
   }
   if (shape.type === 'board')
@@ -117,7 +140,9 @@ const behaviourRows = (shape: Shape): Array<PropertyRow> => {
     )
   const z = shape.layoutChild?.zIndex
   if (z && parent && zIndexReorders(parent))
-    rows.push(row('layout.zIndex', tr('prop.zIndex'), String(z), undefined, String(z)))
+    rows.push(
+      row('layout.zIndex', tr('prop.zIndex'), String(z), undefined, String(z))
+    )
   return rows
 }
 
@@ -134,28 +159,74 @@ export const layoutRows = (
 
   if (box) {
     rows.push(
-      enumRow('layout.type', tr('prop.layoutType'), flex ? 'flex' : grid ? 'grid' : 'none')
+      enumRow(
+        'layout.type',
+        tr('prop.layoutType'),
+        flex ? 'flex' : grid ? 'grid' : 'none'
+      )
     )
     if (layout) {
-      rows.push(enumRow('layout.dir', tr('prop.layoutDirection'), String(layout.dir)))
-      if (flex)
-        rows.push(enumRow('layout.wrap', tr('prop.layoutWrap'), flex.wrap ?? 'nowrap'))
-      if (layout.alignItems)
-        rows.push(enumRow('layout.alignItems', tr('prop.alignItems'), layout.alignItems))
-      if (grid && grid.justifyItems)
-        rows.push(enumRow('layout.justifyItems', tr('prop.justifyItems'), grid.justifyItems))
-      if (layout.justifyContent)
-        rows.push(enumRow('layout.justifyContent', tr('prop.justifyContent'), layout.justifyContent))
-      if (layout.alignContent && (grid || flex?.wrap === 'wrap'))
-        rows.push(enumRow('layout.alignContent', tr('prop.alignContent'), layout.alignContent))
       rows.push(
-        row('layout.rowGap', tr('prop.rowGap'), formatLength(layout.rowGap, style), tokenOf(ctx, shape, 'rowGap')),
-        row('layout.columnGap', tr('prop.columnGap'), formatLength(layout.columnGap, style), tokenOf(ctx, shape, 'columnGap'))
+        enumRow('layout.dir', tr('prop.layoutDirection'), String(layout.dir))
       )
-      if (grid) 
+      if (flex)
         rows.push(
-          row('layout.columns', tr('prop.columns'), grid.columns.map((t) => trackText(t, style)).join(' ') || '—'),
-          row('layout.rows', tr('prop.rows'), grid.rows.map((t) => trackText(t, style)).join(' ') || '—')
+          enumRow('layout.wrap', tr('prop.layoutWrap'), flex.wrap ?? 'nowrap')
+        )
+      if (layout.alignItems)
+        rows.push(
+          enumRow('layout.alignItems', tr('prop.alignItems'), layout.alignItems)
+        )
+      if (grid && grid.justifyItems)
+        rows.push(
+          enumRow(
+            'layout.justifyItems',
+            tr('prop.justifyItems'),
+            grid.justifyItems
+          )
+        )
+      if (layout.justifyContent)
+        rows.push(
+          enumRow(
+            'layout.justifyContent',
+            tr('prop.justifyContent'),
+            layout.justifyContent
+          )
+        )
+      if (layout.alignContent && (grid || flex?.wrap === 'wrap'))
+        rows.push(
+          enumRow(
+            'layout.alignContent',
+            tr('prop.alignContent'),
+            layout.alignContent
+          )
+        )
+      rows.push(
+        row(
+          'layout.rowGap',
+          tr('prop.rowGap'),
+          formatLength(layout.rowGap, style),
+          tokenOf(ctx, shape, 'rowGap')
+        ),
+        row(
+          'layout.columnGap',
+          tr('prop.columnGap'),
+          formatLength(layout.columnGap, style),
+          tokenOf(ctx, shape, 'columnGap')
+        )
+      )
+      if (grid)
+        rows.push(
+          row(
+            'layout.columns',
+            tr('prop.columns'),
+            grid.columns.map((t) => trackText(t, style)).join(' ') || '—'
+          ),
+          row(
+            'layout.rows',
+            tr('prop.rows'),
+            grid.rows.map((t) => trackText(t, style)).join(' ') || '—'
+          )
         )
     }
   }
@@ -182,7 +253,15 @@ export const layoutRows = (
   return rows
 }
 
-const contentRect = (shape: Shape, l: { topPadding: number; rightPadding: number; bottomPadding: number; leftPadding: number }): Rect => {
+const contentRect = (
+  shape: Shape,
+  l: {
+    topPadding: number
+    rightPadding: number
+    bottomPadding: number
+    leftPadding: number
+  }
+): Rect => {
   const r = shapeRect(shape)
   return {
     x: r.x + l.leftPadding,
@@ -211,25 +290,41 @@ const head = (pen: Pen, u: number, tip: Point, axis: Axis, s: number): void => {
 
 const arrow = (pen: Pen, u: number, from: Point, to: Point): void => {
   pen.line(from, to, { width: u, name: 'Flow' })
-  const axis: Axis = Math.abs(to.x - from.x) >= Math.abs(to.y - from.y) ? 'h' : 'v'
-  head(pen, u, to, axis, Math.sign(axis === 'h' ? to.x - from.x : to.y - from.y))
+  const axis: Axis =
+    Math.abs(to.x - from.x) >= Math.abs(to.y - from.y) ? 'h' : 'v'
+  head(
+    pen,
+    u,
+    to,
+    axis,
+    Math.sign(axis === 'h' ? to.x - from.x : to.y - from.y)
+  )
 }
 
 // fix  |—|   a tick at each end
 // fill ◄—►   heads point outward, to the edges
 // fit  ►—◄   heads point inward, hugging the content
-const glyph = (pen: Pen, u: number, mode: Mode, axis: Axis, a0: number, a1: number, c: number): Rect => {
-  const at = (a: number): Point => (axis === 'h' ? { x: a, y: c } : { x: c, y: a })
+const glyph = (
+  pen: Pen,
+  u: number,
+  mode: Mode,
+  axis: Axis,
+  a0: number,
+  a1: number,
+  c: number
+): Rect => {
+  const at = (a: number): Point =>
+    axis === 'h' ? { x: a, y: c } : { x: c, y: a }
   const half = u * 3.5
   pen.line(at(a0), at(a1), { width: u, name: 'Sizing' })
-  if (mode === 'fix') 
+  if (mode === 'fix')
     for (const a of [a0, a1])
       pen.line(
         axis === 'h' ? { x: a, y: c - half } : { x: c - half, y: a },
         axis === 'h' ? { x: a, y: c + half } : { x: c + half, y: a },
         { width: u, name: 'Sizing tick' }
       )
-   else if (a1 - a0 >= u * 8) {
+  else if (a1 - a0 >= u * 8) {
     const inward = mode === 'fit'
     head(pen, u, at(inward ? a0 + 3 * u : a0), axis, inward ? 1 : -1)
     head(pen, u, at(inward ? a1 - 3 * u : a1), axis, inward ? -1 : 1)
@@ -264,15 +359,20 @@ const putPill = (
   rc.pen.label(text, r)
 }
 
-const resolveTracks = (tracks: Array<Track>, avail: number, gap: number): Array<number> => {
+const resolveTracks = (
+  tracks: Array<Track>,
+  avail: number,
+  gap: number
+): Array<number> => {
   const free = Math.max(avail - gap * Math.max(tracks.length - 1, 0), 0)
   let used = 0
   let fr = 0
   const out = tracks.map((t) => {
     const v = t.value ?? 0
-    if (t.type === 'fixed') return (used += v), v
-    if (t.type === 'percent') return (used += (v / 100) * avail), (v / 100) * avail
-    if (t.type === 'flex') return (fr += v), -v
+    if (t.type === 'fixed') return ((used += v), v)
+    if (t.type === 'percent')
+      return ((used += (v / 100) * avail), (v / 100) * avail)
+    if (t.type === 'flex') return ((fr += v), -v)
     return 0
   })
   const rest = Math.max(free - used, 0)
@@ -308,7 +408,11 @@ export const drawLayoutOverlay = (rc: RedlineCtx, parts: Array<Part>): void => {
             y: rectBottom(gr) + sc.gap,
             ...s,
           })),
-          { x: gr.x + gr.w / 2 - s.w / 2, y: rectBottom(gr) + sc.gap * 2 + s.h, ...s },
+          {
+            x: gr.x + gr.w / 2 - s.w / 2,
+            y: rectBottom(gr) + sc.gap * 2 + s.h,
+            ...s,
+          },
         ])
       )
     }
@@ -378,13 +482,37 @@ export const drawLayoutOverlay = (rc: RedlineCtx, parts: Array<Part>): void => {
         if (to - from <= 0.005 || hi - lo <= 0) continue
         const t = u * 5
         if (horizontal) {
-          pen.line({ x: from, y: lo }, { x: to, y: lo }, { width: u, name: 'Gap bracket' })
-          pen.line({ x: from, y: lo }, { x: from, y: lo + t }, { width: u, name: 'Gap bracket' })
-          pen.line({ x: to, y: lo }, { x: to, y: lo + t }, { width: u, name: 'Gap bracket' })
+          pen.line(
+            { x: from, y: lo },
+            { x: to, y: lo },
+            { width: u, name: 'Gap bracket' }
+          )
+          pen.line(
+            { x: from, y: lo },
+            { x: from, y: lo + t },
+            { width: u, name: 'Gap bracket' }
+          )
+          pen.line(
+            { x: to, y: lo },
+            { x: to, y: lo + t },
+            { width: u, name: 'Gap bracket' }
+          )
         } else {
-          pen.line({ x: lo, y: from }, { x: lo, y: to }, { width: u, name: 'Gap bracket' })
-          pen.line({ x: lo, y: from }, { x: lo + t, y: from }, { width: u, name: 'Gap bracket' })
-          pen.line({ x: lo, y: to }, { x: lo + t, y: to }, { width: u, name: 'Gap bracket' })
+          pen.line(
+            { x: lo, y: from },
+            { x: lo, y: to },
+            { width: u, name: 'Gap bracket' }
+          )
+          pen.line(
+            { x: lo, y: from },
+            { x: lo + t, y: from },
+            { width: u, name: 'Gap bracket' }
+          )
+          pen.line(
+            { x: lo, y: to },
+            { x: lo + t, y: to },
+            { width: u, name: 'Gap bracket' }
+          )
         }
         const text = formatLength(to - from, style)
         const s = labelSize(text, sc)

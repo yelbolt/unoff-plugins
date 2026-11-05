@@ -112,9 +112,7 @@ export default class Report extends PureComponent<ReportProps, ReportState> {
   } // Render
   render() {
     return (
-      <Feature
-        isActive={this.features.INVOLVE_ISSUES.isActive()}
-      >
+      <Feature isActive={this.features.INVOLVE_ISSUES.isActive()}>
         <Dialog
           title={this.props.t('report.title')}
           pin="RIGHT"

@@ -9,7 +9,13 @@ import type { PropertyRow } from './properties'
 
 export type { Category }
 
-export const CATEGORIES: Array<Category> = ['SIZE', 'PADDING', 'GAP', 'RADIUS', 'LAYOUT']
+export const CATEGORIES: Array<Category> = [
+  'SIZE',
+  'PADDING',
+  'GAP',
+  'RADIUS',
+  'LAYOUT',
+]
 
 export type MeasureRows = Record<Category, Array<PropertyRow>>
 

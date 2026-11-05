@@ -64,7 +64,11 @@ export const subheading = (dc: DocCtx, text: string): PanelNode =>
     name: 'Heading',
   })
 
-export const propCell = (dc: DocCtx, text: string, name = 'Property'): PanelNode =>
+export const propCell = (
+  dc: DocCtx,
+  text: string,
+  name = 'Property'
+): PanelNode =>
   dc.panel.text(text, {
     font: 'title',
     muted: true,
@@ -196,11 +200,12 @@ export const wrapRows = (
     })
   )
 
-export const groupLines = (dc: DocCtx, entries: Array<Entry>): Array<string> => {
+export const groupLines = (
+  dc: DocCtx,
+  entries: Array<Entry>
+): Array<string> => {
   if (!dc.isFamily)
-    return [
-      dc.res.shown ? variantLabel(dc.res.shown) : docName(dc.res, false),
-    ]
+    return [dc.res.shown ? variantLabel(dc.res.shown) : docName(dc.res, false)]
   if (entries.length >= dc.entries.length) return [tr('doc.allVariants')]
   return entries.map((e) => e.label)
 }
@@ -235,11 +240,7 @@ export interface Stage {
 }
 
 /** Absolutely positioned content lives only in a layout-free board, appended with fixed sizing so flex moves it along. */
-export const makeStage = (
-  dc: DocCtx,
-  copy: Shape,
-  tall = false
-): Stage => {
+export const makeStage = (dc: DocCtx, copy: Shape, tall = false): Stage => {
   const mx = px(dc, LAYOUT.stageMarginX)
   const my = px(dc, tall ? LAYOUT.stageMarginYTall : LAYOUT.stageMarginY)
   const board = penpot.createBoard()

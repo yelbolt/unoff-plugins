@@ -43,7 +43,10 @@ interface ShortcutsState {
   isUserMenuLoading: boolean
 }
 
-export default class Shortcuts extends PureComponent<ShortcutsProps, ShortcutsState> {
+export default class Shortcuts extends PureComponent<
+  ShortcutsProps,
+  ShortcutsState
+> {
   private theme: string | null
 
   static features = (

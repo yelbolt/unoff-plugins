@@ -42,9 +42,7 @@ export default class WelcomeToPro extends PureComponent<WelcomeToProProps> {
   // Render
   render() {
     return (
-      <Feature
-        isActive={this.features.PRO_PLAN.isActive()}
-      >
+      <Feature isActive={this.features.PRO_PLAN.isActive()}>
         <Dialog
           title={this.props.t('proPlan.welcome.title', {
             pluginName: this.props.config.information.pluginName,

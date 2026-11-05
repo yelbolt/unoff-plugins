@@ -50,14 +50,12 @@ export const tokenOf = (
   _ctx: RefCtx,
   shape: Shape,
   prop: TokenProperty
-): string | undefined =>
-  getAppliedTokenName(shape, prop)
+): string | undefined => getAppliedTokenName(shape, prop)
 
 export const colorStyleName = (
   ctx: RefCtx,
   refId: string | undefined
-): string | undefined =>
-  refId ? ctx.colors.get(refId) : undefined
+): string | undefined => (refId ? ctx.colors.get(refId) : undefined)
 
 const NUMERIC = /^-?[\d.,]+(px)?$/
 

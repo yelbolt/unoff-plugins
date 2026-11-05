@@ -42,9 +42,7 @@ export default class TryPro extends PureComponent<TryProProps> {
   // Render
   render() {
     return (
-      <Feature
-        isActive={this.features.PRO_PLAN.isActive()}
-      >
+      <Feature isActive={this.features.PRO_PLAN.isActive()}>
         <Dialog
           title={this.props.t('proPlan.trial.title', {
             hours: this.props.config.plan.trialTime.toString(),

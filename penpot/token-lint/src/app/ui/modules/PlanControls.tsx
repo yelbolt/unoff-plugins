@@ -188,9 +188,7 @@ export default class PlanControls extends PureComponent<
   )
 
   trialFeedback = () => (
-    <Feature
-      isActive={this.features.INVOLVE_FEEDBACK.isActive()}
-    >
+    <Feature isActive={this.features.INVOLVE_FEEDBACK.isActive()}>
       <div
         className={doClassnames([
           texts.type,

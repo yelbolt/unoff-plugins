@@ -59,8 +59,7 @@ export const findDriver = (
         break
       }
     }
-    if (ok && (!best || seen.size < best.size))
-      best = { name, size: seen.size }
+    if (ok && (!best || seen.size < best.size)) best = { name, size: seen.size }
   }
   return best?.name ?? null
 }
@@ -92,7 +91,8 @@ export const resolveValue = <T>(
   if (property) {
     const byValue = new Map<string, T>()
     for (const s of samples)
-      if (!byValue.has(s.props[property])) byValue.set(s.props[property], s.data)
+      if (!byValue.has(s.props[property]))
+        byValue.set(s.props[property], s.data)
     return {
       kind: 'driven',
       property,
@@ -109,7 +109,11 @@ export const resolveValue = <T>(
 }
 
 export const resolvePresence = (
-  all: Array<{ label: string; props: Record<string, string>; present: boolean }>,
+  all: Array<{
+    label: string
+    props: Record<string, string>
+    present: boolean
+  }>,
   order: Array<PropertyOrder>
 ): Presence => {
   if (all.every((s) => s.present)) return { kind: 'all' }
@@ -142,7 +146,8 @@ export const presenceLines = (p: Presence, allLabel: string): Array<string> =>
 export const drivenText = (
   property: string,
   items: Array<{ value: string; text: string }>
-): string => `${property}: ${items.map((i) => `${i.value} ${i.text}`).join(' · ')}`
+): string =>
+  `${property}: ${items.map((i) => `${i.value} ${i.text}`).join(' · ')}`
 
 export const variantText = (label: string, text: string): string =>
   `${label}: ${text}`
@@ -217,11 +222,14 @@ export const resolveKeyed = <T>(
 }
 
 export type KeyedPresence =
-  | { kind: 'all' }
-  | { kind: 'driven'; by: Array<string>; values: Array<string> }
+  { kind: 'all' } | { kind: 'driven'; by: Array<string>; values: Array<string> }
 
 export const resolvePresenceKeyed = (
-  all: Array<{ label: string; props: Record<string, string>; present: boolean }>,
+  all: Array<{
+    label: string
+    props: Record<string, string>
+    present: boolean
+  }>,
   order: Array<PropertyOrder>
 ): KeyedPresence => {
   const p = resolvePresence(all, order)

@@ -46,8 +46,7 @@ export const collectStatus = (): DocumentationsStatusData => {
       const target = targetId ? safe(() => page.getShapeById(targetId)) : null
       const stored = g.getPluginData(KEYS.fingerprint)
       const missing = !target
-      const outdated =
-        missing || !stored || fingerprintOf(target) !== stored
+      const outdated = missing || !stored || fingerprintOf(target) !== stored
       items.push({
         docId: g.id,
         targetId,
@@ -56,7 +55,8 @@ export const collectStatus = (): DocumentationsStatusData => {
         boardName: board ? board.name : null,
         outdated,
         missing,
-        generatedAt: parseInt(g.getPluginData(KEYS.generatedAt) || '0', 10) || 0,
+        generatedAt:
+          parseInt(g.getPluginData(KEYS.generatedAt) || '0', 10) || 0,
       })
     }
   }

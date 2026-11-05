@@ -27,7 +27,10 @@ export const buildHeader = (dc: DocCtx): PanelNode => {
       tr('doc.summary', {
         tokenized: Math.round(a.tokenizedShare * 100),
         layout: Math.round(dc.analysis.layoutShare * 100),
-        exceptions: tr(count === 1 ? 'doc.exceptions.one' : 'doc.exceptions.other', { count }),
+        exceptions: tr(
+          count === 1 ? 'doc.exceptions.one' : 'doc.exceptions.other',
+          { count }
+        ),
       }),
       'Summary'
     )

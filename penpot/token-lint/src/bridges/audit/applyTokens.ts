@@ -238,14 +238,22 @@ const applyOccurrence = async (
 
   const outcome = await runWithinUndoBlock(async () => {
     if (!token)
-      return { applied: false, skip: skipItem(resolved.candidate, 'TYPE_INCOMPATIBLE') }
+      return {
+        applied: false,
+        skip: skipItem(resolved.candidate, 'TYPE_INCOMPATIBLE'),
+      }
 
     const precheck = precheckAndIssue(resolved, token)
     if (precheck.skip) return { applied: false, skip: precheck.skip }
 
-    const { applied } = await verifyIssuedWrites([precheck.issued as WriteIssued])
+    const { applied } = await verifyIssuedWrites([
+      precheck.issued as WriteIssued,
+    ])
     if (applied.length > 0) return { applied: true, skip: undefined }
-    return { applied: false, skip: skipItem(resolved.candidate, 'WRITE_FAILED') }
+    return {
+      applied: false,
+      skip: skipItem(resolved.candidate, 'WRITE_FAILED'),
+    }
   })
 
   return {
@@ -293,7 +301,9 @@ const applyGroup = async (
     }
 
     const { applied, failed } = await verifyIssuedWrites(issued)
-    failed.forEach((item) => skipped.push(skipItem(item.candidate, 'WRITE_FAILED')))
+    failed.forEach((item) =>
+      skipped.push(skipItem(item.candidate, 'WRITE_FAILED'))
+    )
 
     return {
       appliedShapeIds: applied.map((item) => item.candidate.shapeId),
@@ -352,7 +362,9 @@ const applyAllExactMatches = async (
     }
 
     const { applied, failed } = await verifyIssuedWrites(issued)
-    failed.forEach((item) => skipped.push(skipItem(item.candidate, 'WRITE_FAILED')))
+    failed.forEach((item) =>
+      skipped.push(skipItem(item.candidate, 'WRITE_FAILED'))
+    )
 
     return {
       appliedShapeIds: applied.map((item) => item.candidate.shapeId),

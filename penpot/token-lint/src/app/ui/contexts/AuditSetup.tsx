@@ -14,7 +14,11 @@ import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
 import { sendPluginMessage } from '../../utils/pluginMessage'
 import { TokenCategory } from '../../types/tokens'
-import { AuditOptions, AuditScopeKind, RunAuditRequest } from '../../types/audit'
+import {
+  AuditOptions,
+  AuditScopeKind,
+  RunAuditRequest,
+} from '../../types/audit'
 import { BaseProps, Editor, PlanStatus, Service } from '../../types/app'
 import {
   $auditRequest,
@@ -109,7 +113,9 @@ export default class AuditSetup extends PureComponent<
       this.setState((previous) => ({
         selectionCount: value,
         scope:
-          previous.scope === 'SELECTION' && value === 0 ? 'PAGE' : previous.scope,
+          previous.scope === 'SELECTION' && value === 0
+            ? 'PAGE'
+            : previous.scope,
       }))
     })
   }
@@ -139,7 +145,9 @@ export default class AuditSetup extends PureComponent<
     this.setState((previous) => ({ excludeLocked: !previous.excludeLocked }))
 
   handleToggleExcludeOffBoard = () =>
-    this.setState((previous) => ({ excludeOffBoard: !previous.excludeOffBoard }))
+    this.setState((previous) => ({
+      excludeOffBoard: !previous.excludeOffBoard,
+    }))
 
   handleRunAudit = () => {
     const options: AuditOptions = {

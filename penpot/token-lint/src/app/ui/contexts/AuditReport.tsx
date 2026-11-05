@@ -119,7 +119,10 @@ const computeLiveCoverage = (
 
   for (const category of CATEGORY_ORDER) {
     const auditable = report.coverage.byCategory[category].auditable
-    const compliant = Math.max(0, auditable - liveNonCompliantByCategory[category])
+    const compliant = Math.max(
+      0,
+      auditable - liveNonCompliantByCategory[category]
+    )
     byCategory[category] = {
       auditable,
       compliant,

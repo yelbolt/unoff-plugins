@@ -22,7 +22,9 @@ export const safe = <T>(fn: () => T): T | null => {
 }
 
 export const isContainer = (s: Shape | null): s is VariantContainer =>
-  Boolean(s) && s?.type === 'board' && safe(() => s.isVariantContainer()) === true
+  Boolean(s) &&
+  s?.type === 'board' &&
+  safe(() => s.isVariantContainer()) === true
 
 export const variantComponentsOf = (
   variants: Variants

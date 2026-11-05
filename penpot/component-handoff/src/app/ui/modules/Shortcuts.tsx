@@ -331,11 +331,7 @@ export default class Shortcuts extends PureComponent<
         <Bar
           rightPartSlot={
             <>
-              <div
-                className={doClassnames([
-                  layouts['snackbar--medium'],
-                ])}
-              >
+              <div className={doClassnames([layouts['snackbar--medium']])}>
                 <Feature isActive={this.features.HELP_DOCUMENTATION.isActive()}>
                   <Button
                     type="icon"

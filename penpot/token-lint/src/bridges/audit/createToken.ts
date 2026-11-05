@@ -3,7 +3,10 @@ import { matchValue } from '../../canvas/audit/matchValue'
 import { applyTokens } from './applyTokens'
 import type { Token, TokenType } from '@penpot/plugin-types'
 import type { TokenCategory } from '../../app/types/tokens'
-import type { CreateTokenRequest, CreateTokenResult } from '../../app/types/audit'
+import type {
+  CreateTokenRequest,
+  CreateTokenResult,
+} from '../../app/types/audit'
 
 const inferTokenType = (
   category: TokenCategory,
@@ -87,7 +90,11 @@ export const createToken = async (
   return {
     groupId: request.groupId,
     success: true,
-    token: { tokenId: token.id, tokenName: token.name, setName: targetSet.name },
+    token: {
+      tokenId: token.id,
+      tokenName: token.name,
+      setName: targetSet.name,
+    },
     tier: match.tier,
     candidateTokens: match.candidateTokens,
     applyResult,

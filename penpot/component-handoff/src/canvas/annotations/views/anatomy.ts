@@ -52,7 +52,14 @@ const anatomyCards = (
     const left = sizeOf(dc, 2, stage.node.w)
     const right = sizeOf(dc, 4)
     return [
-      card(dc, [title, centered(dc, stage.node)], 'Anatomy specimen', left, false, breakBefore),
+      card(
+        dc,
+        [title, centered(dc, stage.node)],
+        'Anatomy specimen',
+        left,
+        false,
+        breakBefore
+      ),
       card(dc, body(right.inner), 'Anatomy parts', right, true),
     ]
   }
@@ -114,13 +121,18 @@ export const buildAnatomy = (dc: DocCtx): ViewBuild => {
     safe(() => scratch.remove())
 
     cards.push(
-      ...anatomyCards(dc, titleBlock(dc, group.entries), stage, small.length, () =>
-        small.length > 0
-          ? [
-              subheading(dc, tr('doc.exploded')),
-              wrapRows(dc, small, 'Exploded parts'),
-            ]
-          : [panel.text(tr('doc.noParts'), { muted: true })],
+      ...anatomyCards(
+        dc,
+        titleBlock(dc, group.entries),
+        stage,
+        small.length,
+        () =>
+          small.length > 0
+            ? [
+                subheading(dc, tr('doc.exploded')),
+                wrapRows(dc, small, 'Exploded parts'),
+              ]
+            : [panel.text(tr('doc.noParts'), { muted: true })],
         true
       )
     )
@@ -182,17 +194,17 @@ const buildAnatomyMerged = (dc: DocCtx, model: MergedModel): ViewBuild => {
     ]
     if (dc.isFamily) head.push(headerCell(dc, 'doc.appearsColumn'))
     const rows: Array<TableRow> = [
-          head,
-          ...union.map((p) => {
-            const row: TableRow = [
-              propCell(dc, String(p.n), 'Number'),
-              panel.text(p.name, { name: 'Part' }),
-              propCell(dc, p.type, 'Type'),
-            ]
-            if (dc.isFamily) row.push(appearsCell(dc, p))
-            return row
-          }),
+      head,
+      ...union.map((p) => {
+        const row: TableRow = [
+          propCell(dc, String(p.n), 'Number'),
+          panel.text(p.name, { name: 'Part' }),
+          propCell(dc, p.type, 'Type'),
         ]
+        if (dc.isFamily) row.push(appearsCell(dc, p))
+        return row
+      }),
+    ]
     out.push(panel.table(rows, { width: w, name: 'Parts' }))
     if (small.length > 0)
       out.push(
@@ -202,7 +214,14 @@ const buildAnatomyMerged = (dc: DocCtx, model: MergedModel): ViewBuild => {
     return out
   }
 
-  const cards = anatomyCards(dc, specimenTitle(dc), stage, union.length, body, true)
+  const cards = anatomyCards(
+    dc,
+    specimenTitle(dc),
+    stage,
+    union.length,
+    body,
+    true
+  )
   return {
     title: heading(dc, tr('view.ANATOMY')),
     cards,

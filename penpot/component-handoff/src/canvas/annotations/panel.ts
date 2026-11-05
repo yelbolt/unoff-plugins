@@ -1,5 +1,12 @@
 import { estimateText } from './draw'
-import { BRAND, FONT_BODY, FONT_TITLE, LAYOUT, RADIUS, SPACING } from './constants'
+import {
+  BRAND,
+  FONT_BODY,
+  FONT_TITLE,
+  LAYOUT,
+  RADIUS,
+  SPACING,
+} from './constants'
 import type { Board, Font, Shape, Text } from '@penpot/plugin-types'
 import type { AnnotationStyle } from '../../app/types/annotations'
 import type { Scale } from './scale'
@@ -280,7 +287,10 @@ export class Panel {
     const needs: Array<number> = []
     for (let j = 0; j < cols; j++)
       needs.push(
-        Math.max(1, Math.ceil(Math.max(0, ...rows.map((r) => r[j]?.w ?? 0)) * 1.1))
+        Math.max(
+          1,
+          Math.ceil(Math.max(0, ...rows.map((r) => r[j]?.w ?? 0)) * 1.1)
+        )
       )
     return needs
   }
@@ -304,7 +314,9 @@ export class Panel {
     const total = needs.reduce((a, b) => a + b, 0)
     const widths =
       total <= avail
-        ? needs.map((n, j) => (j === needs.length - 1 ? n + (avail - total) : n))
+        ? needs.map((n, j) =>
+            j === needs.length - 1 ? n + (avail - total) : n
+          )
         : needs.map((n) => Math.max(1, Math.floor((n * avail) / total)))
 
     const body = rows.map((cells) => {

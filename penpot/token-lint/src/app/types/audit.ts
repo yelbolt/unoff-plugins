@@ -37,9 +37,7 @@ export type DeviationTier = 'EXACT' | 'NEAR' | 'ORPHAN'
  * on that instance, not merely inherited.
  */
 export type OccurrenceOwnership =
-  | 'MAIN_COMPONENT'
-  | 'STANDALONE'
-  | 'INSTANCE_OVERRIDE'
+  'MAIN_COMPONENT' | 'STANDALONE' | 'INSTANCE_OVERRIDE'
 
 export interface AuditOccurrence {
   shapeId: string
@@ -171,9 +169,7 @@ export interface CreateTokenRequest {
 }
 
 export type CreateTokenFailureReason =
-  | 'NO_ACTIVE_SET'
-  | 'NAME_ALREADY_EXISTS'
-  | 'CREATE_FAILED'
+  'NO_ACTIVE_SET' | 'NAME_ALREADY_EXISTS' | 'CREATE_FAILED'
 
 export interface CreateTokenResult {
   groupId: string

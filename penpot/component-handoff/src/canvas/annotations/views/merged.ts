@@ -79,9 +79,12 @@ export const withOrigin = (
   node: PanelNode,
   origin: 'rule' | 'measured'
 ): PanelNode =>
-  dc.panel.box([node, dc.panel.chip(tr(`origin.${origin}`), { name: 'Origin' })], {
-    dir: 'row',
-    gap: px(dc, SPACING[8]),
-    alignItems: 'center',
-    name: 'Value',
-  })
+  dc.panel.box(
+    [node, dc.panel.chip(tr(`origin.${origin}`), { name: 'Origin' })],
+    {
+      dir: 'row',
+      gap: px(dc, SPACING[8]),
+      alignItems: 'center',
+      name: 'Value',
+    }
+  )

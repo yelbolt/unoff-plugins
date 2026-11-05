@@ -52,7 +52,12 @@ export const readOptions = (raw: string): GenerateDocumentationData => {
         target === 'FAMILY' ? normalizeFilter(o.variantFilter) : null,
     }
   } catch {
-    return { target: 'COMPONENT', views: sanitizeViews(DOC_VIEWS, 'COMPONENT'), depth: 'MAIN' as PartsDetail, grouping: 'MERGED' as Grouping, variantFilter: null }
+    return {
+      target: 'COMPONENT',
+      views: sanitizeViews(DOC_VIEWS, 'COMPONENT'),
+      depth: 'MAIN' as PartsDetail,
+      grouping: 'MERGED' as Grouping,
+      variantFilter: null,
+    }
   }
 }
-

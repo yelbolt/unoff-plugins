@@ -222,7 +222,9 @@ export const collectAuditableProperties = (
     )
 
   if (wantsOpacity)
-    push(candidates, traversed, 'opacity', 'opacity', shape.opacity, ['opacity'])
+    push(candidates, traversed, 'opacity', 'opacity', shape.opacity, [
+      'opacity',
+    ])
 
   if (wantsRotation)
     push(candidates, traversed, 'rotation', 'rotation', shape.rotation, [
@@ -257,7 +259,9 @@ export const collectAuditableProperties = (
     if (!boardHugsH && !fillsParentH)
       push(candidates, traversed, 'width', 'dimension', shape.width, ['width'])
     if (!boardHugsV && !fillsParentV)
-      push(candidates, traversed, 'height', 'dimension', shape.height, ['height'])
+      push(candidates, traversed, 'height', 'dimension', shape.height, [
+        'height',
+      ])
   }
 
   if (wantsTypography && penpot.utils.types.isText(shape)) {
@@ -269,14 +273,9 @@ export const collectAuditableProperties = (
       parseNumericLike(shape.fontSize),
       ['fontSize']
     )
-    push(
-      candidates,
-      traversed,
+    push(candidates, traversed, 'fontWeight', 'typography', shape.fontWeight, [
       'fontWeight',
-      'typography',
-      shape.fontWeight,
-      ['fontWeight']
-    )
+    ])
     // lineHeight has no discrete TokenProperty — only composite 'typography'.
     push(
       candidates,
@@ -294,22 +293,12 @@ export const collectAuditableProperties = (
       parseNumericLike(shape.letterSpacing),
       ['letterSpacing']
     )
-    push(
-      candidates,
-      traversed,
-      'fontFamily',
-      'typography',
-      shape.fontFamily,
-      ['fontFamilies']
-    )
-    push(
-      candidates,
-      traversed,
+    push(candidates, traversed, 'fontFamily', 'typography', shape.fontFamily, [
+      'fontFamilies',
+    ])
+    push(candidates, traversed, 'textCase', 'typography', shape.textTransform, [
       'textCase',
-      'typography',
-      shape.textTransform,
-      ['textCase']
-    )
+    ])
     push(
       candidates,
       traversed,

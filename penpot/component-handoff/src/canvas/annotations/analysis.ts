@@ -9,7 +9,10 @@ import { readPhase, remember } from './memo'
 import { CATEGORIES, measureRows } from './measure'
 import { COLOR_FAMILIES, collectEntries } from './groups'
 import { resolveKeyed, resolvePresenceKeyed } from './drivers'
-import type { ContractSummary, VariantFilter } from '../../app/types/annotations'
+import type {
+  ContractSummary,
+  VariantFilter,
+} from '../../app/types/annotations'
 import type { TokenInfo } from './tokens'
 import type { Resolved } from './target'
 import type { RefCtx } from './refs'
@@ -21,14 +24,12 @@ import type { PropertyOrder, Sample } from './drivers'
 /** Single source for the contract and the documentation's header / Props view. */
 
 export type Value =
-  | string
-  | number
-  | boolean
-  | null
-  | Array<unknown>
-  | { [k: string]: unknown }
+  string | number | boolean | null | Array<unknown> | { [k: string]: unknown }
 
-export type Keyed = { by: string | Array<string>; values: Record<string, Value> }
+export type Keyed = {
+  by: string | Array<string>
+  values: Record<string, Value>
+}
 
 export interface PartOut {
   path: string
@@ -38,8 +39,7 @@ export interface PartOut {
 }
 
 export type RuleOut = { part: string; prop: string } & (
-  | { value: Value }
-  | Keyed
+  { value: Value } | Keyed
 )
 
 export type ExceptionOut = {
@@ -158,12 +158,19 @@ interface Cell {
   hex: string // lower-case colour for matching, else ''
 }
 
-const NULL_CELL: Cell = { value: null, token: false, style: false, measured: false, hex: '' }
+const NULL_CELL: Cell = {
+  value: null,
+  token: false,
+  style: false,
+  measured: false,
+  hex: '',
+}
 
 const neutral = (r: PropertyRow): Value => {
   if (r.ref === 'token') return `{${r.value}}`
   if (r.ref === 'style') return r.code ?? r.value
-  if (r.code !== undefined) return r.key === 'layout.zIndex' ? Number(r.code) : r.code
+  if (r.code !== undefined)
+    return r.key === 'layout.zIndex' ? Number(r.code) : r.code
   if (r.key === 'opacity') {
     const n = parseFloat(r.value)
     return isNaN(n) ? r.value : n / 100
@@ -192,7 +199,9 @@ const rowsOf = (
   const m = measureRows(shape, PX, refs)
   return [
     ...CATEGORIES.flatMap((c) => m[c]),
-    ...collectProperties(shape, [...COLOR_FAMILIES], PX, refs).flatMap((g) => g.rows),
+    ...collectProperties(shape, [...COLOR_FAMILIES], PX, refs).flatMap(
+      (g) => g.rows
+    ),
   ].filter((r) => !SKIPPED.has(r.key))
 }
 
@@ -218,13 +227,18 @@ export const analysisFor = (
     () =>
       readPhase(() => {
         const entries = collectEntries(res, isFamily, filter)
-        const useOrder = orderMode === 'ANY_VARIANTS' ? res.variants : isFamily && res.variants
-        const full = useOrder && res.variants ? variantPropertiesOf(res.variants) : []
+        const useOrder =
+          orderMode === 'ANY_VARIANTS' ? res.variants : isFamily && res.variants
+        const full =
+          useOrder && res.variants ? variantPropertiesOf(res.variants) : []
         // Property orders keep only the ticked values.
         const order = full.map((o) => {
           const ticked = filter?.[o.name]
           return ticked
-            ? { name: o.name, values: o.values.filter((v) => ticked.includes(v)) }
+            ? {
+                name: o.name,
+                values: o.values.filter((v) => ticked.includes(v)),
+              }
             : o
         })
         return analyze(entries, order, docName(res, isFamily), makeRefCtx())
@@ -254,7 +268,8 @@ const analyzeEntries = (
     const m = new Map<Entry, Map<string, PropertyRow>>()
     for (const [e, p] of part.shapes) {
       const byKey = new Map<string, PropertyRow>()
-      for (const r of rowsOf(p.shape, refs)) if (!byKey.has(r.key)) byKey.set(r.key, r)
+      for (const r of rowsOf(p.shape, refs))
+        if (!byKey.has(r.key)) byKey.set(r.key, r)
       m.set(e, byKey)
     }
     rows.set(part, m)
@@ -262,14 +277,17 @@ const analyzeEntries = (
 
   const partsOut: Array<PartOut> = model.parts.map((part) => {
     const pres = resolvePresenceKeyed(
-      entries.map((e) => ({ label: e.label, props: e.props, present: part.shapes.has(e) })),
+      entries.map((e) => ({
+        label: e.label,
+        props: e.props,
+        present: part.shapes.has(e),
+      })),
       order
     )
     return {
       path: pathOf(part),
       type: part.type,
-      in:
-        pres.kind === 'all' ? 'all' : { [pres.by.join('|')]: pres.values },
+      in: pres.kind === 'all' ? 'all' : { [pres.by.join('|')]: pres.values },
       mergedKey: part.key,
     }
   })
@@ -282,14 +300,22 @@ const analyzeEntries = (
 
   model.parts.forEach((part, pi) => {
     const path = pathOf(part)
-    if (part.n > 0 && pres(partsOut[pi].in)) 
-      drives.push({ by: pres(partsOut[pi].in) as Array<string>, part: part.name, prop: '', presence: true })
-    
+    if (part.n > 0 && pres(partsOut[pi].in))
+      drives.push({
+        by: pres(partsOut[pi].in) as Array<string>,
+        part: part.name,
+        prop: '',
+        presence: true,
+      })
+
     const perEntry = rows.get(part) as Map<Entry, Map<string, PropertyRow>>
-    const absolute = [...part.shapes.values()].some((p) => p.shape.layoutChild?.absolute)
+    const absolute = [...part.shapes.values()].some(
+      (p) => p.shape.layoutChild?.absolute
+    )
 
     const keySet = new Set<string>()
-    for (const byKey of perEntry.values()) for (const k of byKey.keys()) keySet.add(k)
+    for (const byKey of perEntry.values())
+      for (const k of byKey.keys()) keySet.add(k)
     const keys = [...keySet]
 
     interface Item {
@@ -303,13 +329,30 @@ const analyzeEntries = (
       const samples: Array<Sample<Cell>> = []
       for (const [e, list] of perEntry) {
         const r = list.get(key)
-        const cell = r ? cellOf(r) : LENGTH.test(key) ? { ...NULL_CELL, value: 0 } : NULL_CELL
-        samples.push({ label: e.label, props: e.props, key: JSON.stringify([cell.token, cell.value]), data: cell })
+        const cell = r
+          ? cellOf(r)
+          : LENGTH.test(key)
+            ? { ...NULL_CELL, value: 0 }
+            : NULL_CELL
+        samples.push({
+          label: e.label,
+          props: e.props,
+          key: JSON.stringify([cell.token, cell.value]),
+          data: cell,
+        })
       }
       const resolved = resolveKeyed(samples, order)
-      const cells = resolved.kind === 'uniform' ? [resolved.data] : resolved.items.map((i) => i.data)
+      const cells =
+        resolved.kind === 'uniform'
+          ? [resolved.data]
+          : resolved.items.map((i) => i.data)
       // A uniform absent value is not a rule.
-      if (resolved.kind === 'uniform' && zero(resolved.data.value) && !resolved.data.token) continue
+      if (
+        resolved.kind === 'uniform' &&
+        zero(resolved.data.value) &&
+        !resolved.data.token
+      )
+        continue
       if (key === 'layout.absolute') continue
       items.push({ key, prop: propOf(key), resolved, cells })
     }
@@ -318,12 +361,20 @@ const analyzeEntries = (
       it.resolved.kind === 'uniform'
         ? { value: it.resolved.data.value }
         : {
-            by: it.resolved.by.length === 1 ? it.resolved.by[0] : it.resolved.by,
-            values: Object.fromEntries(it.resolved.items.map((i) => [i.value, i.data.value])),
+            by:
+              it.resolved.by.length === 1 ? it.resolved.by[0] : it.resolved.by,
+            values: Object.fromEntries(
+              it.resolved.items.map((i) => [i.value, i.data.value])
+            ),
           }
     const noteDrive = (it: Item) => {
       if (it.resolved.kind === 'driven' && part.n >= 0)
-        drives.push({ by: it.resolved.by, part: part.name, prop: it.prop, presence: false })
+        drives.push({
+          by: it.resolved.by,
+          part: part.name,
+          prop: it.prop,
+          presence: false,
+        })
     }
 
     // Absolutely positioned: one exception, never a rule.
@@ -350,7 +401,10 @@ const analyzeEntries = (
         if (sub === undefined) continue
         if (it.resolved.kind === 'uniform') folded[sub] = it.resolved.data.value
       }
-      const onlyNone = prop === 'layout' && Object.keys(folded).length === 1 && folded.type === 'none'
+      const onlyNone =
+        prop === 'layout' &&
+        Object.keys(folded).length === 1 &&
+        folded.type === 'none'
       if (Object.keys(folded).length > 0 && !onlyNone)
         rules.push({ part: path, prop, value: folded })
     }
@@ -388,13 +442,18 @@ const analyzeEntries = (
         const live = it.cells.filter((c) => !zero(c.value) || c.token)
         capable++
         if (live.length > 0 && live.every((c) => c.token)) tokenized++
-        const raw = it.cells.some((c) => !c.token && !c.style && c.value !== null)
+        const raw = it.cells.some(
+          (c) => !c.token && !c.style && c.value !== null
+        )
         if (raw && backing.some((t) => types.has(t))) {
           const notes: Array<string> = []
           const cellsWithLabel =
             it.resolved.kind === 'uniform'
               ? [{ label: '', cell: it.resolved.data }]
-              : it.resolved.items.map((i) => ({ label: `${i.value}: `, cell: i.data }))
+              : it.resolved.items.map((i) => ({
+                  label: `${i.value}: `,
+                  cell: i.data,
+                }))
           for (const { label, cell } of cellsWithLabel) {
             if (cell.token || cell.style || cell.value === null) continue
             const hit = matchingToken(refs, backing, cell)
@@ -451,7 +510,9 @@ const candidates = (refs: RefCtx, backing: Array<string>): Array<TokenInfo> => {
   if (!list)
     byBacking.set(
       id,
-      (list = [...refs.tokens.byName.values()].filter((i) => backing.includes(i.type)))
+      (list = [...refs.tokens.byName.values()].filter((i) =>
+        backing.includes(i.type)
+      ))
     )
   return list
 }
@@ -468,14 +529,13 @@ const matchingToken = (
     } else if (typeof r === 'string' && cell.hex) {
       if (r.toLowerCase() === cell.hex && cell.value === cell.hex.toUpperCase())
         return info.name
-    } else if (typeof r === 'string' && typeof cell.value === 'string') 
+    } else if (typeof r === 'string' && typeof cell.value === 'string')
       if (r === cell.value) return info.name
   }
   return null
 }
 
-const asValue = (v: unknown): Value =>
-  v === undefined ? null : (v as Value)
+const asValue = (v: unknown): Value => (v === undefined ? null : (v as Value))
 
 const collectTokens = (
   refs: RefCtx,
@@ -523,6 +583,7 @@ export const expandTokens = (
     }
     for (const ref of referencesIn(info.value)) queue.push(ref)
   }
-  return Object.fromEntries(Object.entries(out).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+  return Object.fromEntries(
+    Object.entries(out).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  )
 }
-

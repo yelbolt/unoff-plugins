@@ -111,9 +111,7 @@ export default class LangPreferences extends PureComponent<
     const tolgee = useTolgee(['language'])
 
     return (
-      <Feature
-        isActive={this.features.USER_LANGUAGE.isActive()}
-      >
+      <Feature isActive={this.features.USER_LANGUAGE.isActive()}>
         <Section
           title={
             <SimpleItem
@@ -140,7 +138,8 @@ export default class LangPreferences extends PureComponent<
                         value: 'en-US',
                         type: 'OPTION' as const,
                         isActive: this.features.USER_LANGUAGE_EN_US.isActive(),
-                        isBlocked: this.features.USER_LANGUAGE_EN_US.isBlocked(),
+                        isBlocked:
+                          this.features.USER_LANGUAGE_EN_US.isBlocked(),
                         isNew: this.features.USER_LANGUAGE_EN_US.isNew(),
                         action: () =>
                           this.changeUserLanguageHandler('en-US', tolgee),
@@ -150,7 +149,8 @@ export default class LangPreferences extends PureComponent<
                         value: 'fr-FR',
                         type: 'OPTION' as const,
                         isActive: this.features.USER_LANGUAGE_FR_FR.isActive(),
-                        isBlocked: this.features.USER_LANGUAGE_FR_FR.isBlocked(),
+                        isBlocked:
+                          this.features.USER_LANGUAGE_FR_FR.isBlocked(),
                         isNew: this.features.USER_LANGUAGE_FR_FR.isNew(),
                         action: () =>
                           this.changeUserLanguageHandler('fr-FR', tolgee),

@@ -60,7 +60,9 @@ const tablesOf = (dc: DocCtx, model: MergedModel): Array<MergedTable> => {
       for (const key of keys) {
         const samples: Array<Sample<string>> = []
         for (const [e, r] of perEntry) {
-          const v = r[cat].find((x) => x.key === key)?.value ?? (cat === 'LAYOUT' ? '—' : '0')
+          const v =
+            r[cat].find((x) => x.key === key)?.value ??
+            (cat === 'LAYOUT' ? '—' : '0')
           samples.push({ label: e.label, props: e.props, key: v, data: v })
         }
         const res = resolveValue(samples, dc.order)

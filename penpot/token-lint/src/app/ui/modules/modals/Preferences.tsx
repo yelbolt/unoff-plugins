@@ -67,9 +67,7 @@ export default class Preferences extends PureComponent<PreferencesProps> {
     }
 
     return (
-      <Feature
-        isActive={this.features.USER_PREFERENCES.isActive()}
-      >
+      <Feature isActive={this.features.USER_PREFERENCES.isActive()}>
         <Dialog
           title={this.props.t('user.updatePreferences')}
           pin="RIGHT"

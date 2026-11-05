@@ -119,8 +119,10 @@ export default class AuditService extends PureComponent<
     const { progress } = this.state
 
     let title = this.props.t('tokenLint.service.title.setup')
-    if (view === 'RUNNING') title = this.props.t('tokenLint.service.title.running')
-    if (view === 'REPORT') title = this.props.t('tokenLint.service.title.report')
+    if (view === 'RUNNING')
+      title = this.props.t('tokenLint.service.title.running')
+    if (view === 'REPORT')
+      title = this.props.t('tokenLint.service.title.report')
 
     let fragment
     switch (view) {
@@ -143,14 +145,19 @@ export default class AuditService extends PureComponent<
               gap: 'var(--size-pos-xsmall)',
             }}
           >
-            <Icon type="PICTO" iconName="spinner" />
+            <Icon
+              type="PICTO"
+              iconName="spinner"
+            />
             <span className={texts.type}>
               {this.props.t('tokenLint.running.progress', {
                 scanned: progress?.scannedShapes ?? 0,
                 total: progress?.totalShapesEstimate ?? 0,
               })}
             </span>
-            <span className={doClassnames([texts.type, texts['type--secondary']])}>
+            <span
+              className={doClassnames([texts.type, texts['type--secondary']])}
+            >
               {this.props.t('tokenLint.running.deviations', {
                 count: progress?.deviationsFoundSoFar ?? 0,
               })}

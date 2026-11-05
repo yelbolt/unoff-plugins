@@ -50,7 +50,10 @@ export const runAudit = (
 ): Promise<RunAuditResult> =>
   new Promise((resolve) => {
     const startedAt = Date.now()
-    const { included, excludedCount } = resolveScope(request.scope, request.options)
+    const { included, excludedCount } = resolveScope(
+      request.scope,
+      request.options
+    )
     const index = buildResolvedIndex()
 
     const occurrences: OccurrenceInput[] = []
@@ -70,7 +73,10 @@ export const runAudit = (
       const end = Math.min(cursor + callbacks.chunkSize, included.length)
       for (; cursor < end; cursor++) {
         const traversed = included[cursor]
-        const candidates = collectAuditableProperties(traversed, request.categories)
+        const candidates = collectAuditableProperties(
+          traversed,
+          request.categories
+        )
 
         for (const candidate of candidates) {
           auditableByCategory[candidate.category]++

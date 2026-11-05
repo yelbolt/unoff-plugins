@@ -62,9 +62,7 @@ export default class Chat extends PureComponent<ChatProps> {
   // Render
   render() {
     return (
-      <Feature
-        isActive={this.features.HELP_CHAT.isActive()}
-      >
+      <Feature isActive={this.features.HELP_CHAT.isActive()}>
         <Dialog
           title={this.props.t('shortcuts.chat')}
           pin="RIGHT"

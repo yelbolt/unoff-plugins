@@ -25,37 +25,32 @@ import type { PanelNode, TableRow } from '../panel'
 const partRows = (dc: DocCtx, shape: Shape): Array<TableRow> => {
   const { panel, env, refs } = dc
   const sc = env.sc
-    const groups = collectProperties(
-      shape,
-      [...COLOR_FAMILIES],
-      env.style,
-      refs
-    )
-    const rows: Array<TableRow> = []
-    groups.forEach((g, gi) => {
-      if (gi > 0) rows.push([])
+  const groups = collectProperties(shape, [...COLOR_FAMILIES], env.style, refs)
+  const rows: Array<TableRow> = []
+  groups.forEach((g, gi) => {
+    if (gi > 0) rows.push([])
+    rows.push([
+      null,
+      panel.text(tr(`family.${g.family}`), {
+        bold: true,
+        muted: true,
+        font: 'title',
+        size: sc.font * 0.9,
+        name: 'Family',
+      }),
+      null,
+    ])
+    for (const r of g.rows)
       rows.push([
-        null,
-        panel.text(tr(`family.${g.family}`), {
-          bold: true,
-          muted: true,
-          font: 'title',
-          size: sc.font * 0.9,
-          name: 'Family',
-        }),
-        null,
+        panel.swatch(r.swatch),
+        propCell(dc, r.label),
+        refValue(
+          dc,
+          r.chain ? r.chain.join(' → ') : r.value,
+          tr(r.key === 'typographyStyle' ? 'ref.matched' : `ref.${r.ref}`)
+        ),
       ])
-      for (const r of g.rows)
-        rows.push([
-          panel.swatch(r.swatch),
-          propCell(dc, r.label),
-          refValue(
-            dc,
-            r.chain ? r.chain.join(' → ') : r.value,
-            tr(r.key === 'typographyStyle' ? 'ref.matched' : `ref.${r.ref}`)
-          ),
-        ])
-    })
+  })
   return rows
 }
 
@@ -110,7 +105,9 @@ export const buildColors = (dc: DocCtx): ViewBuild => {
           rows.length > 0
             ? panel.table(rows, { width: size.inner, name: 'References' })
             : panel.text(tr('doc.noColorRefs'), { muted: true })
-        cards.push(card(dc, [title, body], `${part.n} ${part.shape.name}`, size))
+        cards.push(
+          card(dc, [title, body], `${part.n} ${part.shape.name}`, size)
+        )
       }
 
       all.push(...cards)

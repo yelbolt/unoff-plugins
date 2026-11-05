@@ -66,11 +66,7 @@ export class Pen {
   }
 
   // A diagonal request is split into a horizontal then a vertical segment.
-  line(
-    a: Point,
-    b: Point,
-    opts: { width?: number; name?: string } = {}
-  ): void {
+  line(a: Point, b: Point, opts: { width?: number; name?: string } = {}): void {
     const t = opts.width ?? this.sc.stroke
     const dx = Math.abs(a.x - b.x)
     const dy = Math.abs(a.y - b.y)
@@ -187,7 +183,10 @@ export class Pen {
     })
   }
 
-  polyline(points: Array<Point>, opts: { width?: number; name?: string } = {}): void {
+  polyline(
+    points: Array<Point>,
+    opts: { width?: number; name?: string } = {}
+  ): void {
     for (let i = 1; i < points.length; i++)
       this.line(points[i - 1], points[i], opts)
   }

@@ -43,9 +43,7 @@ export default class NotificationBanner extends PureComponent<NotificationBanner
   // Render
   render() {
     return (
-      <Feature
-        isActive={this.features.NOTIFICATIONS.isActive()}
-      >
+      <Feature isActive={this.features.NOTIFICATIONS.isActive()}>
         <Notification
           type={this.props.notification.type || 'INFO'}
           message={this.props.notification.message}

@@ -121,7 +121,7 @@ const spacing = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
       )
     if (layout) {
       const l = s.type === 'board' ? (s.flex ?? s.grid) : null
-      if (l) 
+      if (l)
         rows.push(
           row(
             'rowGap',
@@ -172,9 +172,7 @@ const spacing = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
   return compact(rows)
 }
 
-export const radiiOf = (
-  s: Shape
-): Array<[TokenProperty, number]> | null => {
+export const radiiOf = (s: Shape): Array<[TokenProperty, number]> | null => {
   const corners: Array<[TokenProperty, unknown]> = [
     ['borderRadiusTopLeft', s.borderRadiusTopLeft],
     ['borderRadiusTopRight', s.borderRadiusTopRight],
@@ -328,7 +326,12 @@ const typography = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
     str(t.fontWeight),
     tokenOf(ctx, s, 'fontWeight')
   )
-  push('lineHeight', tr('prop.lineHeight'), isNaN(lh) ? '' : trimNumber(lh), undefined)
+  push(
+    'lineHeight',
+    tr('prop.lineHeight'),
+    isNaN(lh) ? '' : trimNumber(lh),
+    undefined
+  )
   push(
     'letterSpacing',
     tr('prop.letterSpacing'),
@@ -356,9 +359,7 @@ const effects = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
   const rows: Array<PropertyRow | null> = []
   const opacityToken = tokenOf(ctx, s, 'opacity')
   if (s.opacity < 1 || opacityToken)
-    rows.push(
-      row('opacity', tr('prop.opacity'), pct(s.opacity), opacityToken)
-    )
+    rows.push(row('opacity', tr('prop.opacity'), pct(s.opacity), opacityToken))
   s.shadows.forEach((sh, i) => {
     if (sh.hidden) return
     rows.push(

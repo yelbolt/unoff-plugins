@@ -278,9 +278,7 @@ export default class Pricing extends PureComponent<PricingProps, PricingState> {
     }
 
     return (
-      <Feature
-        isActive={this.features.PRO_PLAN.isActive()}
-      >
+      <Feature isActive={this.features.PRO_PLAN.isActive()}>
         <Dialog
           title={this.props.t('pricing.title', {
             pluginName: this.props.config.information.pluginName,

@@ -10,7 +10,12 @@ import {
 import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
 import { TokenCategory } from '../../types/tokens'
-import { AuditOptions, AuditScope, DeviationGroup, DeviationTier } from '../../types/audit'
+import {
+  AuditOptions,
+  AuditScope,
+  DeviationGroup,
+  DeviationTier,
+} from '../../types/audit'
 import { BaseProps } from '../../types/app'
 import DeviationGroupRow from './DeviationGroupRow'
 
@@ -41,9 +46,7 @@ const GROUP_SEPARATOR_STYLE: Record<string, string> = {
   borderBottom: 'var(--section-border)',
 }
 
-export default class DeviationTierSection extends PureComponent<
-  DeviationTierSectionProps
-> {
+export default class DeviationTierSection extends PureComponent<DeviationTierSectionProps> {
   // Render
   render() {
     const { tier, groups, scope, categories, options, t } = this.props

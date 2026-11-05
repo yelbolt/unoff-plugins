@@ -6,7 +6,8 @@ export const getAppliedTokenName = (
   property: TokenProperty
 ): string | undefined =>
   // shape.tokens converts the whole map on every access: read it once per run.
-  memoRead(`tokens:${shape.id}`, () => shape.tokens ?? null)?.[property] || undefined
+  memoRead(`tokens:${shape.id}`, () => shape.tokens ?? null)?.[property] ||
+  undefined
 
 /** Only ACTIVE sets count; the later set wins when a name exists in several. */
 
@@ -27,7 +28,7 @@ export const referenceOf = (value: unknown): string | null => {
 }
 
 export const referencesIn = (value: unknown): Array<string> => {
-  const text = typeof value === 'string' ? value : JSON.stringify(value) ?? ''
+  const text = typeof value === 'string' ? value : (JSON.stringify(value) ?? '')
   const out: Array<string> = []
   const re = /\{([^{}"]+)\}/g
   let m: RegExpExecArray | null
@@ -36,7 +37,11 @@ export const referencesIn = (value: unknown): Array<string> => {
 }
 
 const display = (v: unknown): string =>
-  typeof v === 'string' ? v : typeof v === 'number' ? String(v) : (JSON.stringify(v) ?? '')
+  typeof v === 'string'
+    ? v
+    : typeof v === 'number'
+      ? String(v)
+      : (JSON.stringify(v) ?? '')
 
 export class TokenIndex {
   byName = new Map<string, TokenInfo>()

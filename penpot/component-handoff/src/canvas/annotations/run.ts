@@ -1,7 +1,13 @@
 import { resolveTarget } from './target'
 import { loadStyle } from './style'
 import { collectStatus } from './status'
-import { normalizeDepth, normalizeFilter, normalizeGrouping, readOptions, sanitizeViews } from './options'
+import {
+  normalizeDepth,
+  normalizeFilter,
+  normalizeGrouping,
+  readOptions,
+  sanitizeViews,
+} from './options'
 import { invalidate } from './memo'
 import {
   currentPage,

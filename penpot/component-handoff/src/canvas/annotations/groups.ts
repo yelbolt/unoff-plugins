@@ -38,9 +38,7 @@ export const matchesFilter = (
   filter: VariantFilter | null
 ): boolean =>
   !filter ||
-  Object.entries(filter).every(([name, values]) =>
-    values.includes(props[name])
-  )
+  Object.entries(filter).every(([name, values]) => values.includes(props[name]))
 
 export const countMatching = (
   res: Resolved,
@@ -61,18 +59,18 @@ export const collectEntries = (
     return orderedVariantsOf(res.variants, res.container)
       .filter((c) => matchesFilter(c.variantProps ?? {}, filter))
       .flatMap((c) => {
-      const main = safe(() => c.mainInstance())
-      return main
-        ? [
-            {
-              comp: c as LibraryComponent,
-              main,
-              label: variantLabel(c),
-              props: { ...(c.variantProps ?? {}) },
-            },
-          ]
-        : []
-    })
+        const main = safe(() => c.mainInstance())
+        return main
+          ? [
+              {
+                comp: c as LibraryComponent,
+                main,
+                label: variantLabel(c),
+                props: { ...(c.variantProps ?? {}) },
+              },
+            ]
+          : []
+      })
   return [{ comp: res.comp, main: res.source, label: '', props: {} }]
 }
 
@@ -118,9 +116,7 @@ export const computeGroups = (
       bindParts(plan, e.main)
         .map((p) =>
           collectProperties(p.shape, [...COLOR_FAMILIES], style, refs)
-            .flatMap((g) =>
-              g.rows.map((x) => `${x.key}=${x.value}/${x.ref}`)
-            )
+            .flatMap((g) => g.rows.map((x) => `${x.key}=${x.value}/${x.ref}`))
             .join(',')
         )
         .join('|')

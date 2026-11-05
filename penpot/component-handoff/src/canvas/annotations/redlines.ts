@@ -48,7 +48,10 @@ const putLabel = (
   outwards: Array<Point>,
   axis: 'h' | 'v',
   span: number,
-  extra: { dist0?: (o: Point, size: { w: number; h: number }) => number; leader?: boolean } = {}
+  extra: {
+    dist0?: (o: Point, size: { w: number; h: number }) => number
+    leader?: boolean
+  } = {}
 ): void => {
   const { placer, sc, style, pen } = rc
   const size = labelSize(text, sc)
@@ -81,7 +84,8 @@ const rootDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   const wText = formatLength(r.w, style) + suffix
   const hText = formatLength(r.h, style) + suffix
 
-  const lineY = (s: number) => (s > 0 ? rectBottom(r) + sc.offset : r.y - sc.offset)
+  const lineY = (s: number) =>
+    s > 0 ? rectBottom(r) + sc.offset : r.y - sc.offset
   const wSize = labelSize(wText, sc)
   const wBest = rc.placer.findBestSide([OUT.up, OUT.down], (o) => ({
     size: wSize,
@@ -94,16 +98,24 @@ const rootDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   const sy = wBest.outward.y
   const y = lineY(sy)
   const edgeY = sy > 0 ? rectBottom(r) + sc.gap : r.y - sc.gap
-  pen.line({ x: r.x, y: edgeY }, { x: r.x, y: y + sy * sc.tick }, { name: 'Extension' })
-  pen.line({ x: rectRight(r), y: edgeY }, { x: rectRight(r), y: y + sy * sc.tick }, { name: 'Extension' })
+  pen.line(
+    { x: r.x, y: edgeY },
+    { x: r.x, y: y + sy * sc.tick },
+    { name: 'Extension' }
+  )
+  pen.line(
+    { x: rectRight(r), y: edgeY },
+    { x: rectRight(r), y: y + sy * sc.tick },
+    { name: 'Extension' }
+  )
   pen.measureH(r.x, rectRight(r), y)
   const wRect = inside(rc, wBest.placement.rect)
   rc.placer.commit(wRect)
-  if (wBest.placement.leader)
-    pen.leader({ x: r.x + r.w / 2, y }, wRect, 'v')
+  if (wBest.placement.leader) pen.leader({ x: r.x + r.w / 2, y }, wRect, 'v')
   pen.label(wText, wRect)
 
-  const lineX = (s: number) => (s > 0 ? rectRight(r) + sc.offset : r.x - sc.offset)
+  const lineX = (s: number) =>
+    s > 0 ? rectRight(r) + sc.offset : r.x - sc.offset
   const hSize = labelSize(hText, sc)
   const hBest = rc.placer.findBestSide([OUT.left, OUT.right], (o) => ({
     size: hSize,
@@ -116,13 +128,20 @@ const rootDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   const sx = hBest.outward.x
   const x = lineX(sx)
   const edgeX = sx > 0 ? rectRight(r) + sc.gap : r.x - sc.gap
-  pen.line({ x: edgeX, y: r.y }, { x: x + sx * sc.tick, y: r.y }, { name: 'Extension' })
-  pen.line({ x: edgeX, y: rectBottom(r) }, { x: x + sx * sc.tick, y: rectBottom(r) }, { name: 'Extension' })
+  pen.line(
+    { x: edgeX, y: r.y },
+    { x: x + sx * sc.tick, y: r.y },
+    { name: 'Extension' }
+  )
+  pen.line(
+    { x: edgeX, y: rectBottom(r) },
+    { x: x + sx * sc.tick, y: rectBottom(r) },
+    { name: 'Extension' }
+  )
   pen.measureV(r.y, rectBottom(r), x)
   const hRect = inside(rc, hBest.placement.rect)
   rc.placer.commit(hRect)
-  if (hBest.placement.leader)
-    pen.leader({ x, y: r.y + r.h / 2 }, hRect, 'h')
+  if (hBest.placement.leader) pen.leader({ x, y: r.y + r.h / 2 }, hRect, 'h')
   pen.label(hText, hRect)
 }
 
@@ -133,7 +152,11 @@ const partDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   const size = labelSize(text, sc)
   const center = { x: r.x + r.w / 2, y: r.y + r.h / 2 }
   if (style.labelPlacement !== 'OUTSIDE' && size.w <= r.w && size.h <= r.h) {
-    const inside = { x: center.x - size.w / 2, y: center.y - size.h / 2, ...size }
+    const inside = {
+      x: center.x - size.w / 2,
+      y: center.y - size.h / 2,
+      ...size,
+    }
     if (placer.isFree(inside)) {
       placer.commit(inside)
       pen.label(text, inside)
@@ -160,9 +183,34 @@ const paddings = (rc: RedlineCtx, part: Part, suffix: string): void => {
   if (info.content) placer.obstacles.push(info.content)
   const bands: Array<[number, Rect, Point, boolean]> = [
     [pads.top, { x: c.x, y: c.y, w: c.w, h: pads.top }, OUT.up, true],
-    [pads.bottom, { x: c.x, y: rectBottom(c) - pads.bottom, w: c.w, h: pads.bottom }, OUT.down, true],
-    [pads.left, { x: c.x, y: c.y + pads.top, w: pads.left, h: c.h - pads.top - pads.bottom }, OUT.left, false],
-    [pads.right, { x: rectRight(c) - pads.right, y: c.y + pads.top, w: pads.right, h: c.h - pads.top - pads.bottom }, OUT.right, false],
+    [
+      pads.bottom,
+      { x: c.x, y: rectBottom(c) - pads.bottom, w: c.w, h: pads.bottom },
+      OUT.down,
+      true,
+    ],
+    [
+      pads.left,
+      {
+        x: c.x,
+        y: c.y + pads.top,
+        w: pads.left,
+        h: c.h - pads.top - pads.bottom,
+      },
+      OUT.left,
+      false,
+    ],
+    [
+      pads.right,
+      {
+        x: rectRight(c) - pads.right,
+        y: c.y + pads.top,
+        w: pads.right,
+        h: c.h - pads.top - pads.bottom,
+      },
+      OUT.right,
+      false,
+    ],
   ]
   for (const [value, band, outward, vertical] of bands) {
     if (value <= 0.005 || band.w <= 0 || band.h <= 0) continue
@@ -198,16 +246,36 @@ const gaps = (rc: RedlineCtx, part: Part): void => {
       const y1 = Math.max(g.ra.y, g.rb.y)
       const y2 = Math.min(rectBottom(g.ra), rectBottom(g.rb))
       const y = (y1 + y2) / 2
-      pen.rect({ x: g.from, y: y1, w: g.to - g.from, h: y2 - y1 }, { fill: style.color, fillOpacity: 0.15, name: 'Gap' })
+      pen.rect(
+        { x: g.from, y: y1, w: g.to - g.from, h: y2 - y1 },
+        { fill: style.color, fillOpacity: 0.15, name: 'Gap' }
+      )
       pen.measureH(g.from, g.to, y)
-      putLabel(rc, formatLength(g.value, style), { x: (g.from + g.to) / 2, y }, [OUT.up, OUT.down], 'h', g.to - g.from)
+      putLabel(
+        rc,
+        formatLength(g.value, style),
+        { x: (g.from + g.to) / 2, y },
+        [OUT.up, OUT.down],
+        'h',
+        g.to - g.from
+      )
     } else {
       const x1 = Math.max(g.ra.x, g.rb.x)
       const x2 = Math.min(rectRight(g.ra), rectRight(g.rb))
       const x = (x1 + x2) / 2
-      pen.rect({ x: x1, y: g.from, w: x2 - x1, h: g.to - g.from }, { fill: style.color, fillOpacity: 0.15, name: 'Gap' })
+      pen.rect(
+        { x: x1, y: g.from, w: x2 - x1, h: g.to - g.from },
+        { fill: style.color, fillOpacity: 0.15, name: 'Gap' }
+      )
       pen.measureV(g.from, g.to, x)
-      putLabel(rc, formatLength(g.value, style), { x, y: (g.from + g.to) / 2 }, [OUT.right, OUT.left], 'v', g.to - g.from)
+      putLabel(
+        rc,
+        formatLength(g.value, style),
+        { x, y: (g.from + g.to) / 2 },
+        [OUT.right, OUT.left],
+        'v',
+        g.to - g.from
+      )
     }
   }
 }
@@ -219,10 +287,22 @@ const radius = (rc: RedlineCtx, part: Part): void => {
   const r = shapeRect(part.shape)
   const values = corners.map(([, v]) => v)
   const at: Array<[Point, Point]> = [
-    [{ x: r.x, y: r.y }, { x: -1, y: -1 }],
-    [{ x: rectRight(r), y: r.y }, { x: 1, y: -1 }],
-    [{ x: rectRight(r), y: rectBottom(r) }, { x: 1, y: 1 }],
-    [{ x: r.x, y: rectBottom(r) }, { x: -1, y: 1 }],
+    [
+      { x: r.x, y: r.y },
+      { x: -1, y: -1 },
+    ],
+    [
+      { x: rectRight(r), y: r.y },
+      { x: 1, y: -1 },
+    ],
+    [
+      { x: rectRight(r), y: rectBottom(r) },
+      { x: 1, y: 1 },
+    ],
+    [
+      { x: r.x, y: rectBottom(r) },
+      { x: -1, y: 1 },
+    ],
   ]
   const names = ['TL', 'TR', 'BR', 'BL']
   const uniform = values.every((v) => v === values[0])
@@ -311,8 +391,7 @@ export const drawMarkers = (
     placer.commit(pr)
     const cy = pin.y + d / 2
     const edge = pin.left ? x + d : x
-    const laneX =
-      edge + (pin.left ? 1 : -1) * sc.gap * (2 + (lane++ % 4)) * 1.5
+    const laneX = edge + (pin.left ? 1 : -1) * sc.gap * (2 + (lane++ % 4)) * 1.5
     leaders.push(() => {
       pen.polyline(
         [

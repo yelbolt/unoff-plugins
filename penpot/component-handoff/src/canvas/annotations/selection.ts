@@ -23,10 +23,7 @@ import type {
   SelectionItem,
 } from '../../app/types/annotations'
 
-const documentedRoot = (
-  s: Shape,
-  c: ReturnType<typeof classify>
-): Shape => {
+const documentedRoot = (s: Shape, c: ReturnType<typeof classify>): Shape => {
   if (c.kind === 'FAMILY' && c.variants) {
     const first = orderedVariantsOf(c.variants, c.container)[0]
     const main = first ? safe(() => first.mainInstance()) : null

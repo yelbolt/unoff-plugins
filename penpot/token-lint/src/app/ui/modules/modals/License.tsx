@@ -321,9 +321,7 @@ export default class License extends PureComponent<LicenseProps, LicenseState> {
     }
 
     return (
-      <Feature
-        isActive={this.features.USER_LICENSE.isActive()}
-      >
+      <Feature isActive={this.features.USER_LICENSE.isActive()}>
         <Dialog
           title={this.props.t('user.manageLicense')}
           actions={{

@@ -36,112 +36,117 @@ type Ref = {
 
 const refLine = (dc: DocCtx, r: Ref, prefix = ''): PanelNode => {
   const { panel } = dc
-    const text = r ? `${prefix}${r.chain ? r.chain.join(' → ') : r.value}` : `${prefix}—`
-    const kids = [panel.swatch(r?.swatch), panel.text(text, { name: 'Value' })]
-    if (r)
-      kids.push(
-        panel.chip(tr(`ref.${r.ref}`), {
-          name: 'Reference',
-        })
-      )
-    return panel.box(kids, {
-      dir: 'row',
-      gap: px(dc, SPACING[8]),
-      alignItems: 'center',
-      name: 'Ref line',
-    })
-  }
+  const text = r
+    ? `${prefix}${r.chain ? r.chain.join(' → ') : r.value}`
+    : `${prefix}—`
+  const kids = [panel.swatch(r?.swatch), panel.text(text, { name: 'Value' })]
+  if (r)
+    kids.push(
+      panel.chip(tr(`ref.${r.ref}`), {
+        name: 'Reference',
+      })
+    )
+  return panel.box(kids, {
+    dir: 'row',
+    gap: px(dc, SPACING[8]),
+    alignItems: 'center',
+    name: 'Ref line',
+  })
+}
 
 const partRows = (dc: DocCtx, part: MergedPart): Array<TableRow> => {
   const { panel, env, refs } = dc
   const sc = env.sc
-    const perEntry = new Map<Entry, Array<PropertyGroup>>()
-    for (const [e, p] of part.shapes)
-      perEntry.set(
-        e,
-        collectProperties(p.shape, [...COLOR_FAMILIES], env.style, refs)
-      )
+  const perEntry = new Map<Entry, Array<PropertyGroup>>()
+  for (const [e, p] of part.shapes)
+    perEntry.set(
+      e,
+      collectProperties(p.shape, [...COLOR_FAMILIES], env.style, refs)
+    )
 
-    const families: Array<{
-      family: PropertyGroup['family']
-      keys: Array<{ key: string; label: string }>
-    }> = []
-    for (const groups of perEntry.values())
-      for (const g of groups) {
-        let f = families.find((x) => x.family === g.family)
-        if (!f) families.push((f = { family: g.family, keys: [] }))
-        for (const r of g.rows)
-          if (!f.keys.some((k) => k.key === r.key))
-            f.keys.push({ key: r.key, label: r.label })
-      }
+  const families: Array<{
+    family: PropertyGroup['family']
+    keys: Array<{ key: string; label: string }>
+  }> = []
+  for (const groups of perEntry.values())
+    for (const g of groups) {
+      let f = families.find((x) => x.family === g.family)
+      if (!f) families.push((f = { family: g.family, keys: [] }))
+      for (const r of g.rows)
+        if (!f.keys.some((k) => k.key === r.key))
+          f.keys.push({ key: r.key, label: r.label })
+    }
 
-    const rows: Array<TableRow> = []
-    families.forEach((f, fi) => {
-      if (fi > 0) rows.push([])
-      rows.push([
-        null,
-        panel.text(tr(`family.${f.family}`), {
-          bold: true,
-          muted: true,
-          font: 'title',
-          size: sc.font * 0.9,
-          name: 'Family',
-        }),
-        null,
-      ])
-      for (const k of f.keys) {
-        const samples: Array<Sample<Ref>> = []
-        for (const [e, groups] of perEntry) {
-          const row = groups
-            .find((g) => g.family === f.family)
-            ?.rows.find((x) => x.key === k.key)
-          const data: Ref = row
-            ? { value: row.value, ref: row.ref, swatch: row.swatch, chain: row.chain }
-            : null
-          samples.push({
-            label: e.label,
-            props: e.props,
-            key: data ? `${data.ref}|${data.value}` : '',
-            data,
-          })
-        }
-        const res = resolveValue(samples, dc.order)
-        const label = propCell(dc, k.label)
-        if (res.kind === 'uniform') {
-          const r = res.data
-          rows.push([
-            panel.swatch(r?.swatch),
-            label,
-            r
-              ? refValue(
-                  dc,
-                  r.chain ? r.chain.join(' → ') : r.value,
-                  tr(k.key === 'typographyStyle' ? 'ref.matched' : `ref.${r.ref}`)
-                )
-              : panel.text('—', { name: 'Value' }),
-          ])
-        } else {
-          const lines: Array<PanelNode> =
-            res.kind === 'driven'
-              ? [
-                  panel.text(`${res.property}:`, { muted: true, name: 'Driver' }),
-                  ...res.items.map((i) => refLine(dc, i.data, `${i.value}  `)),
-                ]
-              : res.items.map((i) =>
-                  refLine(dc, i.data, `${i.label}:  `)
-                )
-          rows.push([
-            null,
-            label,
-            panel.box(lines, {
-              dir: 'column',
-              gap: px(dc, SPACING[4]),
-              name: 'Keyed values',
-            }),
-          ])
-        }
+  const rows: Array<TableRow> = []
+  families.forEach((f, fi) => {
+    if (fi > 0) rows.push([])
+    rows.push([
+      null,
+      panel.text(tr(`family.${f.family}`), {
+        bold: true,
+        muted: true,
+        font: 'title',
+        size: sc.font * 0.9,
+        name: 'Family',
+      }),
+      null,
+    ])
+    for (const k of f.keys) {
+      const samples: Array<Sample<Ref>> = []
+      for (const [e, groups] of perEntry) {
+        const row = groups
+          .find((g) => g.family === f.family)
+          ?.rows.find((x) => x.key === k.key)
+        const data: Ref = row
+          ? {
+              value: row.value,
+              ref: row.ref,
+              swatch: row.swatch,
+              chain: row.chain,
+            }
+          : null
+        samples.push({
+          label: e.label,
+          props: e.props,
+          key: data ? `${data.ref}|${data.value}` : '',
+          data,
+        })
       }
-    })
+      const res = resolveValue(samples, dc.order)
+      const label = propCell(dc, k.label)
+      if (res.kind === 'uniform') {
+        const r = res.data
+        rows.push([
+          panel.swatch(r?.swatch),
+          label,
+          r
+            ? refValue(
+                dc,
+                r.chain ? r.chain.join(' → ') : r.value,
+                tr(k.key === 'typographyStyle' ? 'ref.matched' : `ref.${r.ref}`)
+              )
+            : panel.text('—', { name: 'Value' }),
+        ])
+      } else {
+        const lines: Array<PanelNode> =
+          res.kind === 'driven'
+            ? [
+                panel.text(`${res.property}:`, { muted: true, name: 'Driver' }),
+                ...res.items.map((i) => refLine(dc, i.data, `${i.value}  `)),
+              ]
+            : res.items.map((i) => refLine(dc, i.data, `${i.label}:  `))
+        rows.push([
+          null,
+          label,
+          panel.box(lines, {
+            dir: 'column',
+            gap: px(dc, SPACING[4]),
+            name: 'Keyed values',
+          }),
+        ])
+      }
+    }
+  })
 
   return rows
 }

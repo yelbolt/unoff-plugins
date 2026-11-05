@@ -129,9 +129,7 @@ export default class Announcements extends PureComponent<
   render() {
     if (this.state.status === 'LOADING')
       return (
-        <Feature
-          isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}
-        >
+        <Feature isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}>
           <Dialog
             title={this.props.t('shortcuts.news')}
             isLoading
@@ -141,9 +139,7 @@ export default class Announcements extends PureComponent<
       )
     else if (this.state.status === 'ERROR')
       return (
-        <Feature
-          isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}
-        >
+        <Feature isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}>
           <Dialog
             title={this.props.t('shortcuts.news')}
             isMessage
@@ -158,9 +154,7 @@ export default class Announcements extends PureComponent<
       )
     else if (this.state.announcements.length === 0)
       return (
-        <Feature
-          isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}
-        >
+        <Feature isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}>
           <Dialog
             title={this.props.t('shortcuts.news')}
             isMessage
@@ -196,9 +190,7 @@ export default class Announcements extends PureComponent<
       )
     else
       return (
-        <Feature
-          isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}
-        >
+        <Feature isActive={this.features.HELP_ANNOUNCEMENTS.isActive()}>
           <Dialog
             title={
               this.state.announcements[this.state.position].properties.Title

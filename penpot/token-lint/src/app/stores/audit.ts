@@ -1,5 +1,8 @@
 import { atom } from 'nanostores'
-import { groupIdFromOccurrenceKey, isOccurrenceKey } from '../utils/occurrenceKey'
+import {
+  groupIdFromOccurrenceKey,
+  isOccurrenceKey,
+} from '../utils/occurrenceKey'
 import type { MatchedToken, TokenSetSummary } from '../types/tokens'
 import type {
   RunAuditRequest,
@@ -17,11 +20,7 @@ import type {
 // from a UI event handler except for the local-only $expandedGroupIds toggle.
 
 export type AuditStatus =
-  | 'IDLE'
-  | 'RUNNING'
-  | 'COMPLETED'
-  | 'CANCELLED'
-  | 'ERROR'
+  'IDLE' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ERROR'
 
 export const $auditRequest = atom<RunAuditRequest | null>(null)
 export const $auditStatus = atom<AuditStatus>('IDLE')
@@ -239,10 +238,12 @@ export const applyTokenApplied = (result: ApplyTokenResult) => {
       const groupId = groupIdFromOccurrenceKey(inProgressId)
       const report = $auditReport.get()
       const group = report && findGroupById(report, groupId)
-      if (group && countAppliedOccurrencesForGroup(groupId) >= group.occurrenceCount)
+      if (
+        group &&
+        countAppliedOccurrencesForGroup(groupId) >= group.occurrenceCount
+      )
         markGroupApplied(groupId)
-    } else
-      markGroupApplied(inProgressId)
+    } else markGroupApplied(inProgressId)
 
   $applyInProgressId.set(null)
 }

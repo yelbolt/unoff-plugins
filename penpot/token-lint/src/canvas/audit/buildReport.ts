@@ -59,8 +59,10 @@ export const stableHash = (input: string): string => {
 export const normalizeValue = (value: string | number): string =>
   typeof value === 'string' ? value.toLowerCase() : String(value)
 
-export const groupKey = (category: TokenCategory, value: string | number): string =>
-  `${category}::${normalizeValue(value)}`
+export const groupKey = (
+  category: TokenCategory,
+  value: string | number
+): string => `${category}::${normalizeValue(value)}`
 
 const emptyCoverageByCategory = (): CoverageSummary['byCategory'] => ({
   color: { auditable: 0, compliant: 0, coverageRate: 0 },
@@ -136,7 +138,11 @@ export const buildReport = (input: BuildReportInput): AuditReport => {
   for (const category of ALL_CATEGORIES) {
     const auditable = input.auditableByCategory[category] ?? 0
     const compliant = input.compliantByCategory[category] ?? 0
-    byCategory[category] = { auditable, compliant, coverageRate: rate(compliant, auditable) }
+    byCategory[category] = {
+      auditable,
+      compliant,
+      coverageRate: rate(compliant, auditable),
+    }
     totalAuditable += auditable
     totalCompliant += compliant
   }

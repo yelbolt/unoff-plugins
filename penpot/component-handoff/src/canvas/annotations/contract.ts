@@ -60,7 +60,9 @@ const setIfChanged = (key: string, value: string): boolean => {
 
 const readIndex = (): Array<IndexEntry> => {
   try {
-    const parsed = JSON.parse(file().getSharedPluginData(NS, CONTRACT_INDEX_KEY) || '[]')
+    const parsed = JSON.parse(
+      file().getSharedPluginData(NS, CONTRACT_INDEX_KEY) || '[]'
+    )
     return Array.isArray(parsed)
       ? parsed.filter((e) => e && typeof e.key === 'string')
       : []
@@ -71,7 +73,15 @@ const readIndex = (): Array<IndexEntry> => {
 
 const writeIndex = (list: Array<IndexEntry>): void => {
   const sorted = [...list].sort((a, b) =>
-    a.name < b.name ? -1 : a.name > b.name ? 1 : a.key < b.key ? -1 : a.key > b.key ? 1 : 0
+    a.name < b.name
+      ? -1
+      : a.name > b.name
+        ? 1
+        : a.key < b.key
+          ? -1
+          : a.key > b.key
+            ? 1
+            : 0
   )
   setIfChanged(
     CONTRACT_INDEX_KEY,
@@ -113,7 +123,11 @@ const build = (res: Resolved): Built => {
   if (doc) {
     const o = readOptions(doc.getPluginData(KEYS.options))
     if (!isFamily || o.grouping === 'MERGED') {
-      const docEntries = collectEntries(res, isFamily, isFamily ? o.variantFilter : null)
+      const docEntries = collectEntries(
+        res,
+        isFamily,
+        isFamily ? o.variantFilter : null
+      )
       if (docEntries.length > 0) {
         const model =
           o.depth === 'ALL' && docEntries.length === entries.length
@@ -212,7 +226,8 @@ export const removeContract = (
 ): { updated: ContractsUpdatedData } | Refused => {
   const index = readIndex()
   const known =
-    index.some((e) => e.key === key) || Boolean(file().getSharedPluginData(NS, key))
+    index.some((e) => e.key === key) ||
+    Boolean(file().getSharedPluginData(NS, key))
   if (!known || key === CONTRACT_INDEX_KEY) return refuse('NO_CONTRACT')
   setIfChanged(key, '')
   writeIndex(index.filter((e) => e.key !== key))
@@ -233,14 +248,21 @@ export const collectContractStatuses = (): Array<ContractStatus> => {
         outdated: e.status === 'outdated' || missing,
         missing,
         generatedAt: e.generatedAt || 0,
-        summary: e.summary ?? { props: 0, rules: 0, tokenizedShare: 1, exceptions: 0 },
+        summary: e.summary ?? {
+          props: 0,
+          rules: 0,
+          tokenizedShare: 1,
+          exceptions: 0,
+        },
       }
     })
 }
 
 const setStatus = (entry: IndexEntry, status: 'current' | 'outdated'): void => {
   try {
-    const stored = JSON.parse(file().getSharedPluginData(NS, entry.key) || 'null')
+    const stored = JSON.parse(
+      file().getSharedPluginData(NS, entry.key) || 'null'
+    )
     if (stored && typeof stored === 'object') {
       stored.status = status
       setIfChanged(entry.key, JSON.stringify(stored))
@@ -283,7 +305,7 @@ export const refreshContracts = (): void => {
   if (entries.length === 0) return
   const settings = loadContractSettings()
   const refs = makeRefCtx()
-  for (const entry of entries) 
+  for (const entry of entries)
     try {
       const target = safe(() => page.getShapeById(entry.targetId))
       if (!target) {
@@ -291,17 +313,21 @@ export const refreshContracts = (): void => {
         if (entry.status !== 'outdated') setStatus(entry, 'outdated')
         continue
       }
-      let stored: { fingerprint?: string; tokens?: Record<string, unknown> } = {}
+      let stored: { fingerprint?: string; tokens?: Record<string, unknown> } =
+        {}
       try {
-        stored = JSON.parse(file().getSharedPluginData(NS, entry.key) || '{}') ?? {}
+        stored =
+          JSON.parse(file().getSharedPluginData(NS, entry.key) || '{}') ?? {}
       } catch {
         /* treated as changed */
       }
       // Current only if the tokens it embeds are unchanged too.
-      const tokens = stored.tokens && typeof stored.tokens === 'object' ? stored.tokens : {}
+      const tokens =
+        stored.tokens && typeof stored.tokens === 'object' ? stored.tokens : {}
       const fresh =
         fingerprintOf(target) === (stored.fingerprint ?? '') &&
-        JSON.stringify(expandTokens(refs, Object.keys(tokens))) === JSON.stringify(tokens)
+        JSON.stringify(expandTokens(refs, Object.keys(tokens))) ===
+          JSON.stringify(tokens)
       if (fresh) {
         if (entry.status !== 'current') setStatus(entry, 'current')
       } else if (settings.autoUpdate && rebuild(entry, target)) {
@@ -313,7 +339,10 @@ export const refreshContracts = (): void => {
 }
 
 const rebuild = (entry: IndexEntry, target: Shape): boolean => {
-  const res = resolveTarget(target, entry.target === 'FAMILY' ? 'FAMILY' : 'COMPONENT')
+  const res = resolveTarget(
+    target,
+    entry.target === 'FAMILY' ? 'FAMILY' : 'COMPONENT'
+  )
   if (typeof res === 'string') return false
   store(build(res))
   return true
@@ -327,7 +356,9 @@ export const updateContracts = (
   const wanted =
     data.keys === 'OUTDATED'
       ? statuses.filter((s) => s.outdated && !s.missing)
-      : statuses.filter((s) => Array.isArray(data.keys) && data.keys.includes(s.key))
+      : statuses.filter(
+          (s) => Array.isArray(data.keys) && data.keys.includes(s.key)
+        )
   if (wanted.length === 0) return refuse('NOTHING_TO_UPDATE')
   const page = currentPage()
   const index = readIndex()
@@ -354,6 +385,9 @@ export const saveContractSettings = (raw: unknown): ContractSettings => {
   const clean: ContractSettings = {
     autoUpdate: (raw as { autoUpdate?: unknown } | null)?.autoUpdate === true,
   }
-  penpot.currentFile?.setPluginData(KEYS.contractSettings, JSON.stringify(clean))
+  penpot.currentFile?.setPluginData(
+    KEYS.contractSettings,
+    JSON.stringify(clean)
+  )
   return clean
 }

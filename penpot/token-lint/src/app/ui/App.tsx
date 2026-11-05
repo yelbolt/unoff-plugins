@@ -439,28 +439,30 @@ class App extends Component<AppProps, AppState> {
         checkAnnouncementsVersion(
           this.props.config.urls.announcementsWorkerUrl,
           this.props.config.env.announcementsDbId
-        ).then((version: string) => {
-          this.setState({
-            announcements: {
-              version: version,
-              status: 'NO_ANNOUNCEMENTS',
-            },
-          })
-          sendPluginMessage(
-            {
-              pluginMessage: {
-                type: 'CHECK_ANNOUNCEMENTS_STATUS',
-                data: {
-                  version: version,
+        )
+          .then((version: string) => {
+            this.setState({
+              announcements: {
+                version: version,
+                status: 'NO_ANNOUNCEMENTS',
+              },
+            })
+            sendPluginMessage(
+              {
+                pluginMessage: {
+                  type: 'CHECK_ANNOUNCEMENTS_STATUS',
+                  data: {
+                    version: version,
+                  },
                 },
               },
-            },
-            '*'
-          )
-        }).catch((error) => {
-          console.error(error)
-          return
-        })
+              '*'
+            )
+          })
+          .catch((error) => {
+            console.error(error)
+            return
+          })
       }
 
       const postMessage = () => {
