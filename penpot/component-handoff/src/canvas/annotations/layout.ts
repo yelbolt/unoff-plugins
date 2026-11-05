@@ -14,7 +14,6 @@ import type { Part } from './parts'
 import type { Point, Rect } from './geometry'
 import type { Pen } from './draw'
 
-
 const lv = (v: string): string => tr(`layout.${v}`)
 
 const row = (
@@ -158,7 +157,6 @@ export const layoutRows = (
           row('layout.columns', tr('prop.columns'), grid.columns.map((t) => trackText(t, style)).join(' ') || '—'),
           row('layout.rows', tr('prop.rows'), grid.rows.map((t) => trackText(t, style)).join(' ') || '—')
         )
-      
     }
   }
 
@@ -183,7 +181,6 @@ export const layoutRows = (
   rows.push(...behaviourRows(shape))
   return rows
 }
-
 
 const contentRect = (shape: Shape, l: { topPadding: number; rightPadding: number; bottomPadding: number; leftPadding: number }): Rect => {
   const r = shapeRect(shape)

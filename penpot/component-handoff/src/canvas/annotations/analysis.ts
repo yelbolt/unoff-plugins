@@ -470,7 +470,6 @@ const matchingToken = (
         return info.name
     } else if (typeof r === 'string' && typeof cell.value === 'string') 
       if (r === cell.value) return info.name
-    
   }
   return null
 }

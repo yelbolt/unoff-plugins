@@ -90,7 +90,6 @@ const writeIndex = (list: Array<IndexEntry>): void => {
   )
 }
 
-
 interface Built {
   key: string
   name: string
@@ -187,7 +186,6 @@ const refuse = (reason: RefusalReason): Refused => ({
   refused: { kind: 'CONTRACT', reason },
 })
 
-
 /** Spec: one generation, two readers. Call right after the documentation is drawn. */
 export const writeContract = (res: Resolved): ContractSummary => {
   const built = build(res)
@@ -220,7 +218,6 @@ export const removeContract = (
   writeIndex(index.filter((e) => e.key !== key))
   return { updated: { updated: 0, removed: 1 } }
 }
-
 
 export const collectContractStatuses = (): Array<ContractStatus> => {
   const page = currentPage()
@@ -313,7 +310,6 @@ export const refreshContracts = (): void => {
     } catch (error) {
       console.error('[component-handoff] contract refresh failed', error)
     }
-  
 }
 
 const rebuild = (entry: IndexEntry, target: Shape): boolean => {
@@ -343,7 +339,6 @@ export const updateContracts = (
   }
   return { updated: { updated, removed: 0 } }
 }
-
 
 export const loadContractSettings = (): ContractSettings => {
   try {

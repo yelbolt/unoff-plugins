@@ -136,7 +136,6 @@ const spacing = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
             tokenOf(ctx, s, 'columnGap')
           )
         )
-      
     } else
       info.gaps.forEach((g, i) =>
         rows.push(
