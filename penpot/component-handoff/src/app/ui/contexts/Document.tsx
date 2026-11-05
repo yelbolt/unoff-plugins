@@ -3,6 +3,7 @@ import { doClassnames } from '@unoff/utils'
 import { FeatureStatus } from '@unoff/utils'
 import {
   Button,
+  FormItem,
   Layout,
   Section,
   SectionTitle,
@@ -162,11 +163,19 @@ export default class Documentation extends PureComponent<
     </span>
   )
 
-  // Secondary text under a control: offset to align with the label text.
-  Description = (props: { label: string }) => (
-    <div className="handoff-description">
-      <this.Hint label={props.label} />
-    </div>
+  // A control with its description as the FormItem's embedded helper.
+  Field = (props: {
+    helper?: string | null
+    children: preact.ComponentChildren
+  }) => (
+    <FormItem
+      helper={
+        props.helper ? { type: 'INFO', message: props.helper } : undefined
+      }
+      shouldFill
+    >
+      {props.children}
+    </FormItem>
   )
 
   Warning = (props: { message: string }) => (
@@ -245,12 +254,9 @@ export default class Documentation extends PureComponent<
           const description = describe(value)
 
           return (
-            <div
+            <this.Field
               key={value}
-              className={doClassnames([
-                layouts['stackbar--tight'],
-                layouts['stackbar--fill'],
-              ])}
+              helper={description}
             >
               <Select
                 id={`layers-${value}`}
@@ -261,8 +267,7 @@ export default class Documentation extends PureComponent<
                 isChecked={this.state.settings.depth === value}
                 action={() => updateDocSettings({ depth: value })}
               />
-              {description !== null && <this.Description label={description} />}
-            </div>
+            </this.Field>
           )
         })}
       </div>
@@ -288,32 +293,28 @@ export default class Documentation extends PureComponent<
         body={[
           ...TARGETS.map((value) => ({
             node: (
-              <Select
+              <this.Field
                 key={value}
-                id={`target-${value}`}
-                type="RADIO_BUTTON"
-                name="target"
-                value={value}
-                label={t(`handoff.document.target.${value}`)}
-                isChecked={target === value}
-                isDisabled={value === 'FAMILY' && !canDocumentFamily(item)}
-                action={this.handleTargetChange(value)}
-              />
+                helper={
+                  value === 'FAMILY' && !canDocumentFamily(item)
+                    ? t('handoff.document.target.noFamily')
+                    : null
+                }
+              >
+                <Select
+                  id={`target-${value}`}
+                  type="RADIO_BUTTON"
+                  name="target"
+                  value={value}
+                  label={t(`handoff.document.target.${value}`)}
+                  isChecked={target === value}
+                  isDisabled={value === 'FAMILY' && !canDocumentFamily(item)}
+                  action={this.handleTargetChange(value)}
+                />
+              </this.Field>
             ),
             spacingModifier: 'LARGE' as const,
           })),
-          ...(!canDocumentFamily(item)
-            ? [
-                {
-                  node: (
-                    <this.Description
-                      label={t('handoff.document.target.noFamily')}
-                    />
-                  ),
-                  spacingModifier: 'LARGE' as const,
-                },
-              ]
-            : []),
         ]}
         border={['BOTTOM']}
       />
@@ -440,11 +441,10 @@ export default class Documentation extends PureComponent<
                   layouts['stackbar--fill'],
                 ])}
               >
-                <div
-                  className={doClassnames([
-                    layouts['stackbar--tight'],
-                    layouts['stackbar--fill'],
-                  ])}
+                <this.Field
+                  helper={t(
+                    `handoff.document.views.${VIEW_KEYS[view]}.description`
+                  )}
                 >
                   <Select
                     id={`view-${view}`}
@@ -455,12 +455,7 @@ export default class Documentation extends PureComponent<
                     isChecked={views.includes(view)}
                     action={this.handleViewToggle(view)}
                   />
-                  <this.Description
-                    label={t(
-                      `handoff.document.views.${VIEW_KEYS[view]}.description`
-                    )}
-                  />
-                </div>
+                </this.Field>
                 {view === 'ANATOMY' && views.includes('ANATOMY') && (
                   <this.LayersChoice />
                 )}
@@ -490,12 +485,9 @@ export default class Documentation extends PureComponent<
         }
         body={GROUPINGS.map((value) => ({
           node: (
-            <div
+            <this.Field
               key={value}
-              className={doClassnames([
-                layouts['stackbar--tight'],
-                layouts['stackbar--fill'],
-              ])}
+              helper={t(`handoff.document.grouping.${value}.description`)}
             >
               <Select
                 id={`grouping-${value}`}
@@ -506,10 +498,7 @@ export default class Documentation extends PureComponent<
                 isChecked={this.state.settings.grouping === value}
                 action={() => updateDocSettings({ grouping: value })}
               />
-              <this.Description
-                label={t(`handoff.document.grouping.${value}.description`)}
-              />
-            </div>
+            </this.Field>
           ),
           spacingModifier: 'LARGE' as const,
         }))}

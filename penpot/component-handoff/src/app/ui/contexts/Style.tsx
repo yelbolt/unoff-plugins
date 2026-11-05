@@ -1,5 +1,5 @@
 import { PureComponent } from 'preact/compat'
-import { FeatureStatus, doClassnames } from '@unoff/utils'
+import { FeatureStatus } from '@unoff/utils'
 import {
   Dropdown,
   FormItem,
@@ -9,8 +9,6 @@ import {
   Select,
   SectionTitle,
   SimpleItem,
-  layouts,
-  texts,
 } from '@unoff/ui'
 import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
@@ -239,25 +237,14 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     this.handleDraftChange({ scaleMode })
 
   // Renders
-  Hint = (label: string) => (
-    <div className="handoff-description">
-      <span className={doClassnames([texts.type, texts['type--secondary']])}>
-        {label}
-      </span>
-    </div>
-  )
-
-  // Control and its description form one block (same rhythm as the Documentation tab).
+  // A control with its description as the FormItem's embedded helper.
   Field = (control: preact.ComponentChildren, hint: string) => (
-    <div
-      className={doClassnames([
-        layouts['stackbar--tight'],
-        layouts['stackbar--fill'],
-      ])}
+    <FormItem
+      helper={{ type: 'INFO', message: hint }}
+      shouldFill
     >
       {control}
-      {this.Hint(hint)}
-    </div>
+    </FormItem>
   )
 
   render() {
@@ -286,76 +273,68 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                     body={[
                       {
                         node: (
-                          <div className="handoff-form-item">
-                            <FormItem
+                          <FormItem
+                            id="style-color"
+                            label={t('handoff.style.color.label')}
+                            shouldFill
+                          >
+                            <Input
                               id="style-color"
-                              label={t('handoff.style.color.label')}
-                              shouldFill
-                            >
-                              <Input
-                                id="style-color"
-                                type="COLOR"
-                                value={draft.color}
-                                state={
-                                  this.isColorValid() ? 'DEFAULT' : 'ERROR'
-                                }
-                                onChange={this.handleColorChange}
-                                onPick={this.handleColorChange}
-                                onBlur={this.handleBlur}
-                                isDisabled={isDisabled}
-                              />
-                            </FormItem>
-                          </div>
+                              type="COLOR"
+                              value={draft.color}
+                              state={this.isColorValid() ? 'DEFAULT' : 'ERROR'}
+                              onChange={this.handleColorChange}
+                              onPick={this.handleColorChange}
+                              onBlur={this.handleBlur}
+                              isDisabled={isDisabled}
+                            />
+                          </FormItem>
                         ),
                         spacingModifier: 'LARGE' as const,
                       },
                       {
                         node: (
-                          <div className="handoff-form-item">
-                            <FormItem
+                          <FormItem
+                            id="style-text-size"
+                            label={t('handoff.style.textSize.label')}
+                            shouldFill
+                          >
+                            <Input
                               id="style-text-size"
-                              label={t('handoff.style.textSize.label')}
-                              shouldFill
-                            >
-                              <Input
-                                id="style-text-size"
-                                type="NUMBER"
-                                min="6"
-                                max="96"
-                                step="1"
-                                value={textSize}
-                                onChange={this.handleTextSizeChange}
-                                onBlur={this.handleBlur}
-                                isDisabled={isDisabled}
-                              />
-                            </FormItem>
-                          </div>
+                              type="NUMBER"
+                              min="6"
+                              max="96"
+                              step="1"
+                              value={textSize}
+                              onChange={this.handleTextSizeChange}
+                              onBlur={this.handleBlur}
+                              isDisabled={isDisabled}
+                            />
+                          </FormItem>
                         ),
                         spacingModifier: 'LARGE' as const,
                       },
                       {
                         node: (
-                          <div className="handoff-form-item">
-                            <FormItem
+                          <FormItem
+                            id="style-unit"
+                            label={t('handoff.style.unit.label')}
+                            shouldFill
+                          >
+                            <Dropdown
                               id="style-unit"
-                              label={t('handoff.style.unit.label')}
-                              shouldFill
-                            >
-                              <Dropdown
-                                id="style-unit"
-                                options={UNITS.map((value) => ({
-                                  label: t(`handoff.style.unit.${value}`),
-                                  value,
-                                  type: 'OPTION' as const,
-                                  action: this.handleUnitChange(value),
-                                }))}
-                                selected={draft.unit}
-                                alignment="LEFT"
-                                isDisabled={isDisabled}
-                                pin="TOP"
-                              />
-                            </FormItem>
-                          </div>
+                              options={UNITS.map((value) => ({
+                                label: t(`handoff.style.unit.${value}`),
+                                value,
+                                type: 'OPTION' as const,
+                                action: this.handleUnitChange(value),
+                              }))}
+                              selected={draft.unit}
+                              alignment="LEFT"
+                              isDisabled={isDisabled}
+                              pin="TOP"
+                            />
+                          </FormItem>
                         ),
                         spacingModifier: 'LARGE' as const,
                       },
@@ -378,30 +357,28 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                       body={[
                         {
                           node: (
-                            <div className="handoff-form-item">
-                              <FormItem
+                            <FormItem
+                              id="style-rem-base"
+                              label={t('handoff.style.remBase.label')}
+                              helper={{
+                                type: 'INFO',
+                                message: t('handoff.style.remBase.hint'),
+                              }}
+                              shouldFill
+                            >
+                              <Input
                                 id="style-rem-base"
-                                label={t('handoff.style.remBase.label')}
-                                shouldFill
-                              >
-                                <Input
-                                  id="style-rem-base"
-                                  type="NUMBER"
-                                  min="1"
-                                  max="64"
-                                  step="1"
-                                  value={remBase}
-                                  onChange={this.handleRemBaseChange}
-                                  onBlur={this.handleBlur}
-                                  isDisabled={isDisabled}
-                                />
-                              </FormItem>
-                            </div>
+                                type="NUMBER"
+                                min="1"
+                                max="64"
+                                step="1"
+                                value={remBase}
+                                onChange={this.handleRemBaseChange}
+                                onBlur={this.handleBlur}
+                                isDisabled={isDisabled}
+                              />
+                            </FormItem>
                           ),
-                          spacingModifier: 'LARGE' as const,
-                        },
-                        {
-                          node: this.Hint(t('handoff.style.remBase.hint')),
                           spacingModifier: 'LARGE' as const,
                         },
                       ]}
@@ -492,33 +469,17 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                     }
                     body={[
                       {
-                        node: (
-                          <div
-                            className={doClassnames([
-                              layouts['stackbar--tight'],
-                              layouts['stackbar--fill'],
-                            ])}
-                          >
-                            <Select
-                              id="contract-auto-update"
-                              type="SWITCH_BUTTON"
-                              name="contract-auto-update"
-                              value="autoUpdate"
-                              label={t('handoff.contract.autoUpdate.label')}
-                              isChecked={contractSettings.autoUpdate}
-                              action={this.handleAutoUpdateToggle}
-                            />
-                            <div className="handoff-description">
-                              <span
-                                className={doClassnames([
-                                  texts.type,
-                                  texts['type--secondary'],
-                                ])}
-                              >
-                                {t('handoff.contract.autoUpdate.hint')}
-                              </span>
-                            </div>
-                          </div>
+                        node: this.Field(
+                          <Select
+                            id="contract-auto-update"
+                            type="SWITCH_BUTTON"
+                            name="contract-auto-update"
+                            value="autoUpdate"
+                            label={t('handoff.contract.autoUpdate.label')}
+                            isChecked={contractSettings.autoUpdate}
+                            action={this.handleAutoUpdateToggle}
+                          />,
+                          t('handoff.contract.autoUpdate.hint')
                         ),
                         spacingModifier: 'LARGE' as const,
                       },
