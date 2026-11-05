@@ -398,6 +398,9 @@
           "DESIGN": "Les tailles sont fixes en pixels de design : cohérentes sur le board, mais petites en zoom arrière et grandes en zoom avant.",
           "VIEWPORT": "Les tailles sont ajustées au zoom courant au dessin : lisibles maintenant, mais décalées à un autre niveau de zoom."
         }
+      },
+      "behavior": {
+        "title": "Comportement"
       }
     },
     "contexts": {

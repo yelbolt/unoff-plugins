@@ -398,6 +398,9 @@
           "DESIGN": "Sizes are fixed in design pixels: consistent across the board, but small at low zoom and large at high zoom.",
           "VIEWPORT": "Sizes are adjusted to the current zoom when drawn: readable now, but they look off at other zoom levels."
         }
+      },
+      "behavior": {
+        "title": "Behavior"
       }
     },
     "contexts": {

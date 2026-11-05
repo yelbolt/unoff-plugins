@@ -94,8 +94,5 @@ section.context {
 
 /* Rhythm: secondary text and sub-options read as subordinate */
 .handoff-suboption {
-  margin-left: var(--scale-pos-small);
-  border-left: var(--stroke-width-thin, 1px) solid
-    var(--penpot-color-background-quaternary, currentColor);
   padding-left: var(--scale-pos-xxsmall);
 }

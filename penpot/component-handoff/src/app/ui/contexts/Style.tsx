@@ -237,9 +237,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     this.handleDraftChange({ scaleMode })
 
   // Renders
-  // A control with its description as the FormItem's embedded helper.
-  Field = (control: preact.ComponentChildren, hint: string) => (
+  // A labelled control with its description as the FormItem's embedded helper.
+  Field = (label: string, control: preact.ComponentChildren, hint: string) => (
     <FormItem
+      label={label}
       helper={{ type: 'INFO', message: hint }}
       shouldFill
     >
@@ -290,7 +291,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             />
                           </FormItem>
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                       {
                         node: (
@@ -312,7 +312,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             />
                           </FormItem>
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                       {
                         node: (
@@ -336,7 +335,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             />
                           </FormItem>
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                     ]}
                     border={['BOTTOM']}
@@ -379,7 +377,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                               />
                             </FormItem>
                           ),
-                          spacingModifier: 'LARGE' as const,
                         },
                       ]}
                       border={['BOTTOM']}
@@ -390,7 +387,7 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                       <SimpleItem
                         leftPartSlot={
                           <SectionTitle
-                            label={t('handoff.style.placement.title')}
+                            label={t('handoff.style.behavior.title')}
                           />
                         }
                         isListItem={false}
@@ -400,6 +397,7 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                     body={[
                       {
                         node: this.Field(
+                          t('handoff.style.placement.title'),
                           <Dropdown
                             id="style-placement"
                             options={PLACEMENTS.map((value) => ({
@@ -417,26 +415,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             `handoff.style.placement.hint.${draft.labelPlacement}`
                           )
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
-                    ]}
-                    border={['BOTTOM']}
-                  />
-                  <Section
-                    title={
-                      <SimpleItem
-                        leftPartSlot={
-                          <SectionTitle
-                            label={t('handoff.style.scale.title')}
-                          />
-                        }
-                        isListItem={false}
-                        alignment="CENTER"
-                      />
-                    }
-                    body={[
                       {
                         node: this.Field(
+                          t('handoff.style.scale.title'),
                           <Dropdown
                             id="style-scale"
                             options={SCALE_MODES.map((value) => ({
@@ -452,24 +434,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                           />,
                           t(`handoff.style.scale.hint.${draft.scaleMode}`)
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
-                    ]}
-                    border={['BOTTOM']}
-                  />
-                  <Section
-                    title={
-                      <SimpleItem
-                        leftPartSlot={
-                          <SectionTitle label={t('handoff.contract.title')} />
-                        }
-                        isListItem={false}
-                        alignment="CENTER"
-                      />
-                    }
-                    body={[
                       {
                         node: this.Field(
+                          t('handoff.contract.title'),
                           <Select
                             id="contract-auto-update"
                             type="SWITCH_BUTTON"
@@ -481,7 +449,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                           />,
                           t('handoff.contract.autoUpdate.hint')
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                     ]}
                   />
