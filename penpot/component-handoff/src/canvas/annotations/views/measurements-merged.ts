@@ -24,17 +24,12 @@ import type { Sample } from '../drivers'
 import type { DocCtx, ViewBuild } from './shared'
 import type { PanelNode, TableRow } from '../panel'
 
-// MEASUREMENTS, merged: one card per category, with its own specimen (the
-// first variant, only that category's redlines and the numbers of the parts
-// it lists) and ONE table `# | Part | Property | Value`. A value that differs
-// between variants is keyed by the property that drives it.
 interface MergedTable {
   cat: Category
   rowsAll: Array<TableRow>
   marked: Set<number>
 }
 
-// Every category's table (header included), cells built.
 const tablesOf = (dc: DocCtx, model: MergedModel): Array<MergedTable> => {
   const { panel, env } = dc
   const first = model.entries[0]
@@ -105,7 +100,6 @@ const tablesOf = (dc: DocCtx, model: MergedModel): Array<MergedTable> => {
   return out
 }
 
-// Widest measurement table, from a dry run whose shapes are dropped.
 export const measurementNeedMerged = (
   dc: DocCtx,
   model: MergedModel
@@ -145,7 +139,6 @@ export const buildMeasurementsMerged = (
       cat
     )
     dc.state.rotated = rot || dc.state.rotated
-    // The same numbers as the anatomy, for the parts this table lists.
     dc.state.markers = Math.max(
       dc.state.markers,
       drawMarkers(

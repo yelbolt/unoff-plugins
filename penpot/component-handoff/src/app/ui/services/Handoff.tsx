@@ -22,25 +22,16 @@ import { $documentationsStatus } from '../../stores/annotations'
 import { ConfigContextType } from '../../config/ConfigContext'
 
 interface HandoffProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface HandoffState {
   context: Context | ''
   outdatedCount: number
 }
 
-const CONTEXT_LIST: Array<Context> = [
-  'DOCUMENTATION',
-  'GENERATED',
-  'OPTIONS',
-]
+const CONTEXT_LIST: Array<Context> = ['DOCUMENTATION', 'GENERATED', 'OPTIONS']
 
-export default class Handoff extends PureComponent<
-  HandoffProps,
-  HandoffState
-> {
+export default class Handoff extends PureComponent<HandoffProps, HandoffState> {
   private contexts: Array<ContextItem>
   private theme: string | null
   private unsubscribeStatus: (() => void) | undefined
@@ -100,7 +91,6 @@ export default class Handoff extends PureComponent<
     this.theme = document.documentElement.getAttribute('data-theme')
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeStatus = $documentationsStatus.subscribe((value) =>
       this.setState({ outdatedCount: countOutdated(value) })
@@ -126,13 +116,11 @@ export default class Handoff extends PureComponent<
     }
   }
 
-  // Handlers
   navHandler = (e: Event) =>
     this.setState({
       context: (e.currentTarget as HTMLElement).dataset.feature as Context,
     })
 
-  // Render
   render() {
     const isFlex = this.theme !== 'figma' && this.theme !== 'sketch'
     let fragment

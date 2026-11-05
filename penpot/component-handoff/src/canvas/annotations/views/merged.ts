@@ -12,7 +12,6 @@ import type { Presence, Resolution } from '../drivers'
 import type { DocCtx } from './shared'
 import type { PanelNode } from '../panel'
 
-// Where a part appears among the variants of the family.
 export const presenceOf = (dc: DocCtx, part: MergedPart): Presence =>
   resolvePresence(
     dc.entries.map((e) => ({
@@ -23,8 +22,6 @@ export const presenceOf = (dc: DocCtx, part: MergedPart): Presence =>
     dc.order
   )
 
-// One line as a text, several lines as a column of texts: a cell may hold
-// lines, but a line never wraps.
 export const linesCell = (
   dc: DocCtx,
   strs: Array<string>,
@@ -42,7 +39,6 @@ export const appearsCell = (dc: DocCtx, part: MergedPart): PanelNode =>
     name: 'Appears in',
   })
 
-// A value that may vary: once, keyed by the driving property, or per variant.
 export const valueCell = (dc: DocCtx, res: Resolution<string>): PanelNode => {
   if (res.kind === 'uniform') return dc.panel.text(res.data, { name: 'Value' })
   if (res.kind === 'driven')
@@ -60,7 +56,6 @@ export const valueCell = (dc: DocCtx, res: Resolution<string>): PanelNode => {
   )
 }
 
-// The merged specimen is the first variant: say so for a family.
 export const specimenTitle = (dc: DocCtx): PanelNode =>
   dc.isFamily
     ? dc.panel.text(tr('doc.specimenOn', { variant: dc.entries[0].label }), {
@@ -79,8 +74,6 @@ export const headerCell = (dc: DocCtx, key: string): PanelNode =>
     name: 'Header',
   })
 
-// A measurement value followed by its origin chip: `rule` (a layout property
-// or a token produces it) or `measured` (an observation, not a contract).
 export const withOrigin = (
   dc: DocCtx,
   node: PanelNode,

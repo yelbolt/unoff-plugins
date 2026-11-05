@@ -28,14 +28,14 @@ export const FAMILY_ORDER: Array<PropFamily> = [
 export type RefKind = 'token' | 'style' | 'raw'
 
 export interface PropertyRow {
-  key: string // stable identity, used to compare variants
+  key: string
   label: string
-  value: string // token name, else style name, else raw value
+  value: string
   ref: RefKind
-  swatch?: string // hex of the color this row shows, when it is a plain color
-  code?: string // language-neutral value (layout enums, gradient / image, matched style name) for the machine contract
-  chain?: Array<string> // ref === 'token' and the token references another: `a → b → value`
-  origin?: 'rule' | 'measured' // measurements only: layout property / token vs distance observed between parts no layout places
+  swatch?: string
+  code?: string
+  chain?: Array<string>
+  origin?: 'rule' | 'measured'
 }
 
 export interface PropertyGroup {
@@ -51,7 +51,6 @@ interface Env {
 const hex = (c?: string): string => (c ? c.toUpperCase() : '')
 const pct = (n: number): string => `${trimNumber(n * 100)}%`
 
-// token, else style, else raw. Returns null when there is nothing to show.
 const row = (
   key: string,
   label: string,
@@ -214,8 +213,9 @@ const radius = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
 
 const fillsStrokes = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
   const rows: Array<PropertyRow | null> = []
-  if (s.fills !== 'mixed')
-    s.fills.forEach((f, i) => {
+  const fills = s.fills
+  if (fills !== 'mixed')
+    fills.forEach((f, i) => {
       let raw: string
       if (f.fillColor)
         raw =
@@ -286,7 +286,6 @@ const typography = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
   const size = parseNumericLike(t.fontSize)
   const lh = parseNumericLike(t.lineHeight)
   const ls = parseNumericLike(t.letterSpacing)
-  // Properties a matched style covers (when no token backs them).
   const covered = (token?: string) => (token ? undefined : matched)
   const styleLabel = (name: string) => `${name} ${tr('doc.matched')}`
   const rows: Array<PropertyRow | null> = []
@@ -376,20 +375,22 @@ const effects = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
       )
     )
   })
-  if (s.blur && !s.blur.hidden)
+  const blur = s.blur
+  if (blur && !blur.hidden)
     rows.push(
       row(
         'layerBlur',
         tr('prop.layerBlur'),
-        formatLength(round2(s.blur.value ?? 0), style)
+        formatLength(round2(blur.value ?? 0), style)
       )
     )
-  if (s.backgroundBlur && !s.backgroundBlur.hidden)
+  const bgBlur = s.backgroundBlur
+  if (bgBlur && !bgBlur.hidden)
     rows.push(
       row(
         'backgroundBlur',
         tr('prop.backgroundBlur'),
-        formatLength(round2(s.backgroundBlur.value ?? 0), style)
+        formatLength(round2(bgBlur.value ?? 0), style)
       )
     )
   return compact(rows)
@@ -404,7 +405,6 @@ const READERS: Record<PropFamily, (s: Shape, e: Env) => Array<PropertyRow>> = {
   EFFECTS: effects,
 }
 
-// A token that references another token carries its chain down to the value.
 const withChain =
   (ctx: RefCtx) =>
   (r: PropertyRow): PropertyRow => {

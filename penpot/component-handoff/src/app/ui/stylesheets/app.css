@@ -91,3 +91,7 @@ section.context {
 :root[data-theme='framer'] #app {
   background-color: var(--framer-color-bg);
 }
+
+.handoff-suboption {
+  padding-left: var(--scale-pos-small);
+}

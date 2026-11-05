@@ -1,5 +1,6 @@
 import { parseNumericLike } from '../../utils/numeric'
 import { getAppliedTokenName, makeTokenIndex } from './tokens'
+import { remember } from './memo'
 import type { Shape, Text, TokenProperty } from '@penpot/plugin-types'
 import type { TokenIndex } from './tokens'
 
@@ -12,18 +13,18 @@ interface TypoEntry {
   letterSpacing: string
 }
 
-// Reference resolution context. Precedence: token, else style, else raw.
 export interface RefCtx {
-  colors: Map<string, string> // color style id -> display name
+  colors: Map<string, string>
   typos: Array<TypoEntry>
-  tokens: TokenIndex // active token sets of the file
+  tokens: TokenIndex
 }
 
 const fullName = (e: { name: string; path: string }): string =>
   e.path ? `${e.path} / ${e.name}` : e.name
 
-// Tokens and styles are always resolved.
-export const makeRefCtx = (): RefCtx => {
+export const makeRefCtx = (): RefCtx => remember('refs', buildRefCtx)
+
+const buildRefCtx = (): RefCtx => {
   const ctx: RefCtx = {
     colors: new Map(),
     typos: [],
@@ -69,8 +70,7 @@ const same = (a: unknown, b: unknown): boolean => {
   return !isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 0.0001
 }
 
-// Typography styles have no readable reference: match the text values
-// exactly against the libraries. The result is "matched", never "applied".
+/** Typography styles have no readable reference: matched exactly, so "matched", never "applied". */
 export const matchTypography = (
   ctx: RefCtx,
   text: Text

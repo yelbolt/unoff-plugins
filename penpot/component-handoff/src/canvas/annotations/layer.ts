@@ -14,7 +14,6 @@ export const currentPage = (): Page => {
 export const isLayerGroup = (shape: Shape): shape is Group =>
   shape.type === 'group' && Boolean(shape.getPluginData(KEYS.layer))
 
-// True when the shape is an annotations layer or lives inside one.
 export const isAnnotationShape = (shape: Shape): boolean => {
   let current: Shape | null = shape
   while (current) {
@@ -24,7 +23,6 @@ export const isAnnotationShape = (shape: Shape): boolean => {
   return false
 }
 
-// Top-level shape (direct child of the page root) containing `shape`.
 export const topLevelOf = (shape: Shape): Shape => {
   const rootId = currentPage().root.id
   let current: Shape = shape
@@ -34,7 +32,7 @@ export const topLevelOf = (shape: Shape): Shape => {
 }
 
 export interface LayerKey {
-  key: string // board id, or PAGE_KEY
+  key: string
   board: Shape | null
 }
 
@@ -87,8 +85,7 @@ export const findExisting = (
       ) ?? null)
     : null
 
-// Identity lookup across every layer of the page: a documented target that
-// moved to another board must still be updated, never duplicated.
+/** A target moved to another board must still be updated, never duplicated. */
 export const findExistingAnywhere = (
   kind: AnnotationKind,
   targetIds: Array<string>
@@ -108,7 +105,6 @@ export const findDocumentationById = (id: string): Group | null => {
   return null
 }
 
-// Rects other documentation boards occupy in the layer.
 export const obstaclesOf = (
   layer: Group | null,
   excludeId?: string
@@ -119,8 +115,6 @@ export const obstaclesOf = (
     .map((g) => boundsRect(g))
 }
 
-// Puts a freshly drawn annotation group into its board's layer, creating the
-// layer (a Group at page root, directly above the board) when needed.
 export const placeInLayer = (
   group: Group,
   lk: LayerKey,

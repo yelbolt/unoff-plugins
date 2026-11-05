@@ -5,7 +5,9 @@ import {
   variantComponentsOf,
   variantPropertiesOf,
 } from './target'
+import { resolveTarget } from './target'
 import { visibleChildren } from './spacing'
+import { readPhase } from './memo'
 import {
   annotationsOf,
   findLayers,
@@ -16,12 +18,11 @@ import {
 import { isRotated } from './geometry'
 import type { Shape } from '@penpot/plugin-types'
 import type {
+  DocTarget,
   SelectionDigest,
   SelectionItem,
 } from '../../app/types/annotations'
 
-// The root whose layers get numbered: a family shows its first variant, a
-// copy its main component.
 const documentedRoot = (
   s: Shape,
   c: ReturnType<typeof classify>
@@ -34,12 +35,22 @@ const documentedRoot = (
   return c.main ?? s
 }
 
-const countNested = (s: Shape): number =>
-  visibleChildren(s).reduce((n, k) => n + 1 + countNested(k), 0)
+/** Counted up to NESTED_CAP: walking a whole large board on every selection change freezes Penpot. */
+const NESTED_CAP = 1000
+const countNested = (s: Shape): number => {
+  const stack = [...visibleChildren(s)]
+  let n = 0
+  while (stack.length > 0 && n < NESTED_CAP) {
+    n++
+    stack.push(...visibleChildren(stack.pop() as Shape))
+  }
+  return n
+}
 
 const toItem = (s: Shape): SelectionItem => {
   const c = classify(s)
   const root = documentedRoot(s, c)
+  const annotation = isAnnotationShape(s)
   const variantProps =
     c.kind === 'VARIANT' || c.kind === 'COPY'
       ? safe(
@@ -66,16 +77,29 @@ const toItem = (s: Shape): SelectionItem => {
           ...(safe(() => v.variantProps) ?? {}),
         }))
       : [],
-    topLevelLayers: visibleChildren(root).map((k) => k.name),
-    nestedLayerCount: countNested(root),
+    // A generated documentation is never documented: skip its layer walk.
+    topLevelLayers: annotation ? [] : visibleChildren(root).map((k) => k.name),
+    nestedLayerCount: annotation ? 0 : countNested(root),
     isRotated: isRotated(s),
     hasChildren:
       'children' in s && Array.isArray(s.children) && s.children.length > 0,
-    isAnnotation: isAnnotationShape(s),
+    isAnnotation: annotation,
+    targetIds: {
+      COMPONENT: rootIdOf(s, 'COMPONENT'),
+      FAMILY: rootIdOf(s, 'FAMILY'),
+    },
   }
 }
 
-export const digestSelection = (): SelectionDigest => {
+const rootIdOf = (s: Shape, target: DocTarget): string | null => {
+  const res = safe(() => resolveTarget(s, target))
+  return res && typeof res !== 'string' ? res.root.id : null
+}
+
+export const digestSelection = (): SelectionDigest =>
+  readPhase(() => buildDigest())
+
+const buildDigest = (): SelectionDigest => {
   const selection = penpot.selection
   if (selection.length === 0)
     return {
@@ -90,7 +114,6 @@ export const digestSelection = (): SelectionDigest => {
   const first = selection[0]
   const lk = layerKeyFor(first)
   const ids = new Set(selection.map((s) => s.id))
-  // A copy is documented through its main component.
   for (const s of selection.slice(0, 2)) {
     const main = classify(s).main
     if (main) ids.add(main.id)

@@ -6,36 +6,31 @@ import {
   contractKey,
 } from '../../app/types/annotations'
 import { docName } from './views/name'
-import { resolveTarget, safe, variantPropertiesOf } from './target'
+import { resolveTarget, safe } from './target'
 import { makeRefCtx } from './refs'
 import { readOptions } from './options'
 import { buildMerged } from './merged'
-import { currentPage, findExistingAnywhere, isAnnotationShape } from './layer'
+import { invalidate, readPhase, markSelfWrite } from './memo'
+import { currentPage, findExistingAnywhere } from './layer'
 import { collectEntries } from './groups'
 import { fingerprintOf } from './fingerprint'
 import { KEYS } from './constants'
-import { analyze, expandTokens } from './analysis'
+import { analysisFor, expandTokens } from './analysis'
 import type { Shape } from '@penpot/plugin-types'
 import type {
   AnnotationRefusedData,
   ContractLoadedData,
-  ContractPreviewLoadedData,
   ContractSettings,
   ContractStatus,
   ContractSummary,
-  ContractWrittenData,
   ContractsUpdatedData,
   DocTarget,
-  GenerateContractData,
   RefusalReason,
   UpdateContractsData,
 } from '../../app/types/annotations'
 import type { Resolved } from './target'
 
-// The machine contract: JSON in the file's SHARED plugin data (readable by any
-// plugin, so by the Penpot MCP one). Strings only; parsed inside try/catch;
-// written only when the stored value actually changes, so the contentsave a
-// write triggers does not loop.
+/** Strings only, parsed in try/catch; written only when the value changes, or the contentsave it triggers would loop. */
 
 const NS = CONTRACT_NAMESPACE
 
@@ -44,7 +39,6 @@ interface IndexEntry {
   name: string
   page: string
   status: 'current' | 'outdated'
-  // Extras for the plugin's own list (agents may ignore them).
   target: DocTarget
   targetId: string
   generatedAt: number
@@ -60,6 +54,7 @@ const file = () => {
 const setIfChanged = (key: string, value: string): boolean => {
   if (file().getSharedPluginData(NS, key) === value) return false
   file().setSharedPluginData(NS, key, value)
+  markSelfWrite()
   return true
 }
 
@@ -95,39 +90,38 @@ const writeIndex = (list: Array<IndexEntry>): void => {
   )
 }
 
-// ── Build ──────────────────────────────────────────────────────────────────
 
 interface Built {
   key: string
   name: string
   target: DocTarget
   targetId: string
-  json: string // compact
+  json: string
   summary: ContractSummary
   generatedAt: number
 }
 
 const build = (res: Resolved): Built => {
-  // Children read in z-order, as when the documentation was generated.
   penpot.flags.naturalChildOrdering = true
   const isFamily = res.target === 'FAMILY' && res.variants !== null
-  const entries = collectEntries(res, isFamily, null) // whole family: no filter
-  const order = isFamily && res.variants ? variantPropertiesOf(res.variants) : []
+  const analysis = analysisFor(res, isFamily, null, 'FAMILY_ONLY')
+  const { entries, order } = analysis
   const name = docName(res, isFamily)
-  const analysis = analyze(entries, order, name, makeRefCtx())
 
-  // Part numbers come from the visual documentation of the same target, as
-  // last generated (its depth, its variant filter). None without one, and none
-  // for per-structure grouping (numbers are then per group, not per part).
+  // Part numbers come from the last generated documentation; none for per-structure grouping.
   const numbers = new Map<string, number>()
   const doc = findExistingAnywhere('DOCUMENTATION', [res.root.id])
   if (doc) {
     const o = readOptions(doc.getPluginData(KEYS.options))
     if (!isFamily || o.grouping === 'MERGED') {
       const docEntries = collectEntries(res, isFamily, isFamily ? o.variantFilter : null)
-      if (docEntries.length > 0)
-        for (const p of buildMerged(docEntries, o.depth).parts)
-          if (p.n > 0) numbers.set(p.key, p.n)
+      if (docEntries.length > 0) {
+        const model =
+          o.depth === 'ALL' && docEntries.length === entries.length
+            ? analysis.model
+            : readPhase(() => buildMerged(docEntries, o.depth))
+        for (const p of model.parts) if (p.n > 0) numbers.set(p.key, p.n)
+      }
     }
   }
 
@@ -193,40 +187,12 @@ const refuse = (reason: RefusalReason): Refused => ({
   refused: { kind: 'CONTRACT', reason },
 })
 
-// Same selection rules as the documentation.
-const resolveSelection = (data: GenerateContractData): Resolved | RefusalReason => {
-  const selected = penpot.selection
-  if (selected.length === 0) return 'NO_SELECTION'
-  if (selected.length !== 1) return 'WRONG_SELECTION_COUNT'
-  if (isAnnotationShape(selected[0])) return 'ANNOTATION_SELECTED'
-  return resolveTarget(selected[0], data?.target === 'FAMILY' ? 'FAMILY' : 'COMPONENT')
-}
 
-// ── Actions ────────────────────────────────────────────────────────────────
-
-export const generateContract = (
-  data: GenerateContractData
-): { written: ContractWrittenData } | Refused => {
-  const res = resolveSelection(data)
-  if (typeof res === 'string') return refuse(res)
+/** Spec: one generation, two readers. Call right after the documentation is drawn. */
+export const writeContract = (res: Resolved): ContractSummary => {
   const built = build(res)
-  const created = store(built)
-  return { written: { name: built.name, created, summary: built.summary } }
-}
-
-export const previewContract = (
-  data: GenerateContractData
-): ContractPreviewLoadedData => {
-  const res = resolveSelection(data)
-  if (typeof res === 'string') return { preview: null, reason: res }
-  const built = build(res)
-  return {
-    preview: {
-      summary: built.summary,
-      json: JSON.stringify(JSON.parse(built.json), null, 2),
-    },
-    reason: null,
-  }
+  store(built)
+  return built.summary
 }
 
 export const getContract = (
@@ -255,7 +221,6 @@ export const removeContract = (
   return { updated: { updated: 0, removed: 1 } }
 }
 
-// ── Status and freshness ───────────────────────────────────────────────────
 
 export const collectContractStatuses = (): Array<ContractStatus> => {
   const page = currentPage()
@@ -290,16 +255,14 @@ const setStatus = (entry: IndexEntry, status: 'current' | 'outdated'): void => {
   writeIndex(index.map((e) => (e.key === entry.key ? { ...e, status } : e)))
 }
 
-// Launch and after each save, BEFORE the status is pushed. Flagging is the only
-// write made on the designer's behalf, unless auto-update is on.
+/** Flagging is the only write made on the designer's behalf, unless auto-update is on. */
 export const refreshContracts = (): void => {
   const page = currentPage()
   let index = readIndex()
   if (index.length === 0) return
   penpot.flags.naturalChildOrdering = true
 
-  // A target moved to another page: the entry follows it, so it is listed
-  // where the component now lives instead of being reported missing.
+  // A target moved to another page: the entry follows it instead of being reported missing.
   const pageOf = (id: string): string | null => {
     if (safe(() => page.getShapeById(id))) return page.id
     for (const p of safe(() => file().pages) ?? [])
@@ -337,8 +300,7 @@ export const refreshContracts = (): void => {
       } catch {
         /* treated as changed */
       }
-      // Current when the component AND the tokens it embeds are unchanged:
-      // a token whose value moved makes the contract's `tokens` wrong.
+      // Current only if the tokens it embeds are unchanged too.
       const tokens = stored.tokens && typeof stored.tokens === 'object' ? stored.tokens : {}
       const fresh =
         fingerprintOf(target) === (stored.fingerprint ?? '') &&
@@ -365,6 +327,7 @@ export const updateContracts = (
   data: UpdateContractsData
 ): { updated: ContractsUpdatedData } | Refused => {
   const statuses = collectContractStatuses()
+  invalidate()
   const wanted =
     data.keys === 'OUTDATED'
       ? statuses.filter((s) => s.outdated && !s.missing)
@@ -381,7 +344,6 @@ export const updateContracts = (
   return { updated: { updated, removed: 0 } }
 }
 
-// ── Settings (private plugin data on the file) ─────────────────────────────
 
 export const loadContractSettings = (): ContractSettings => {
   try {

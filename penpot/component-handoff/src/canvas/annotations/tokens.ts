@@ -1,23 +1,21 @@
+import { memoRead } from './memo'
 import type { Shape, TokenProperty } from '@penpot/plugin-types'
 
-// Same source as Token Lint (src/canvas/tokens/readAppliedToken.ts):
-// `shape.tokens[property]` holds the applied token's NAME.
 export const getAppliedTokenName = (
   shape: Shape,
   property: TokenProperty
-): string | undefined => shape.tokens?.[property] || undefined
+): string | undefined =>
+  // shape.tokens converts the whole map on every access: read it once per run.
+  memoRead(`tokens:${shape.id}`, () => shape.tokens ?? null)?.[property] || undefined
 
-// ── Token catalog ───────────────────────────────────────────────────────────
-// Read once per generation (RefCtx). Only ACTIVE sets count: they decide which
-// token a name designates, and the later set wins when a name exists in
-// several of them (TokenCatalog.sets documents that precedence).
+/** Only ACTIVE sets count; the later set wins when a name exists in several. */
 
 export interface TokenInfo {
   name: string
-  type: string // TokenType
-  value: unknown // as defined in the token; may be a `{reference}`
-  resolved: unknown // calculated value, references followed
-  set: string // name of the set holding the winning definition
+  type: string
+  value: unknown
+  resolved: unknown
+  set: string
 }
 
 const REFERENCE = /^\{([^{}]+)\}$/
@@ -28,7 +26,6 @@ export const referenceOf = (value: unknown): string | null => {
   return m ? m[1] : null
 }
 
-// `{a}` references anywhere inside a value (composite tokens).
 export const referencesIn = (value: unknown): Array<string> => {
   const text = typeof value === 'string' ? value : JSON.stringify(value) ?? ''
   const out: Array<string> = []
@@ -43,14 +40,12 @@ const display = (v: unknown): string =>
 
 export class TokenIndex {
   byName = new Map<string, TokenInfo>()
-  types = new Set<string>() // token types present in the file's active sets
+  types = new Set<string>()
 
   get(name: string): TokenInfo | undefined {
     return this.byName.get(name)
   }
 
-  // `button.bg → color.action.primary → #0B5FFF`, or null when the token does
-  // not reference another one (or is unknown).
   chain(name: string): Array<string> | null {
     const path = [name]
     let cur = this.byName.get(name)

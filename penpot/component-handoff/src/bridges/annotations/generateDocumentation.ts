@@ -4,8 +4,6 @@ import { getSelection } from './getSelection'
 import { pushDocumentationsStatus } from './documentationsStatus'
 import type { GenerateDocumentationData } from '../../app/types/annotations'
 
-// GENERATE_DOCUMENTATION -> ANNOTATION_APPLIED | ANNOTATION_REFUSED
-// (then DOCUMENTATIONS_STATUS_CHANGED and SELECTION_CHANGED)
 export const generateDocumentation = (
   data: GenerateDocumentationData
 ): void => {
@@ -21,7 +19,6 @@ export const generateDocumentation = (
         type: 'ANNOTATION_REFUSED',
         data: outcome.refused,
       })
-    // annotatedCount and freshness changed.
     getSelection()
     pushDocumentationsStatus()
   } catch (error) {

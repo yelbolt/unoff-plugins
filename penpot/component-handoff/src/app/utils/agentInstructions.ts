@@ -4,18 +4,16 @@ import {
   CONTRACT_SCHEMA,
 } from '../types/annotations'
 
-/**
- * The text copied by "Copy agent instructions". It is read by an AI agent
- * connected to the Penpot MCP server, not by the designer: it stays in English
- * and is deliberately not a translation key.
- */
-export const buildAgentInstructions = (): string =>
+/** Read by an AI agent, not the designer: English, not a translation key. */
+export const buildAgentInstructions = (key?: string): string =>
   [
     'This Penpot file holds machine contracts written by the Component Handoff plugin. A contract is the declarative description of a component or a component family (props, rules, tokens, exceptions). Use it to implement the component instead of reverse-engineering the design.',
     '',
     `Where to read it (Penpot MCP server, execute_code; shared plugin data, namespace "${CONTRACT_NAMESPACE}"):`,
     `1. The list of contracts: JSON.parse(penpot.currentFile.getSharedPluginData('${CONTRACT_NAMESPACE}', '${CONTRACT_INDEX_KEY}')) -> [{ key, name, page, status }].`,
-    `2. The contract you need: JSON.parse(penpot.currentFile.getSharedPluginData('${CONTRACT_NAMESPACE}', '<key>')), <key> being the "contract:<id>" of its index entry.`,
+    key
+      ? `2. The contract you need is "${key}": JSON.parse(penpot.currentFile.getSharedPluginData('${CONTRACT_NAMESPACE}', '${key}')).`
+      : `2. The contract you need: JSON.parse(penpot.currentFile.getSharedPluginData('${CONTRACT_NAMESPACE}', '<key>')), <key> being the "contract:<id>" of its index entry.`,
     `The schema you are expected to read is "${CONTRACT_SCHEMA}". If a contract declares another schema, say so and stop.`,
     '',
     'Check that it is current before relying on it:',

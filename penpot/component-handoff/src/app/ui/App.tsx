@@ -14,7 +14,6 @@ import { copyWithNotice } from '../utils/clipboard'
 import {
   buildAppliedNotification,
   buildContractsUpdatedNotification,
-  buildContractWrittenNotification,
   buildDocumentationsUpdatedNotification,
   buildRefusedNotification,
 } from '../utils/annotationNotifications'
@@ -38,7 +37,6 @@ import {
   updateUserConsentWithData,
 } from '../stores/consent'
 import {
-  $contractPreview,
   $contractSettings,
   $localNotice,
   PendingChannel,
@@ -189,9 +187,7 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  // Lifecycle
   componentDidMount = async () => {
-    // Load
     sendPluginMessage(
       {
         pluginMessage: {
@@ -204,15 +200,9 @@ class App extends Component<AppProps, AppState> {
       '*'
     )
 
-    // Component Handoff: selection and persisted annotation style
     sendPluginMessage({ pluginMessage: { type: 'GET_SELECTION' } }, '*')
     sendPluginMessage({ pluginMessage: { type: 'GET_ANNOTATION_STYLE' } }, '*')
-    sendPluginMessage(
-      { pluginMessage: { type: 'GET_CONTRACT_SETTINGS' } },
-      '*'
-    )
-    // Outdated documentations: requested once LOAD_DATA is sent, then pushed
-    // spontaneously by the Canvas.
+    sendPluginMessage({ pluginMessage: { type: 'GET_CONTRACT_SETTINGS' } }, '*')
     sendPluginMessage(
       { pluginMessage: { type: 'GET_DOCUMENTATIONS_STATUS' } },
       '*'
@@ -262,7 +252,6 @@ class App extends Component<AppProps, AppState> {
       userConsent: $userConsent.get(),
     })
 
-    // Authentication
     if (getSupabase() !== null && this.props.config.env.isSupabaseEnabled)
       getSupabase()?.auth.onAuthStateChange((event, session) => {
         const actions: {
@@ -319,7 +308,6 @@ class App extends Component<AppProps, AppState> {
         return actions[event]?.()
       })
 
-    // Listener
     window.addEventListener(
       'platformMessage',
       this.handleMessage as EventListener
@@ -340,10 +328,6 @@ class App extends Component<AppProps, AppState> {
     window.removeEventListener('resize', this.handleResize)
   }
 
-  // Handlers
-  // Results of two requests sent together (documentation + contract) arrive
-  // within moments of each other: they share one notification instead of the
-  // second one erasing the first.
   showNotification = (notification: NotificationMessage) => {
     const now = Date.now()
     const previous = this.state.notification
@@ -516,8 +500,6 @@ class App extends Component<AppProps, AppState> {
       }
 
       const postMessage = () => {
-        // surfaceError() replies with POST_MESSAGE only: release any action
-        // still waiting for a Canvas result so its button loader stops.
         clearPending()
         this.setState({
           isNotificationDisplayed: true,
@@ -529,7 +511,6 @@ class App extends Component<AppProps, AppState> {
         })
       }
 
-      // Shows a result and releases the channel it answers.
       const notify = (
         notification: NotificationMessage,
         channel: PendingChannel
@@ -542,11 +523,13 @@ class App extends Component<AppProps, AppState> {
 
       const handleAnnotationStyle = () => setAnnotationStyle(path.data)
 
-      // Autosave acknowledgement: update the stores silently (no notification).
       const handleAnnotationStyleSaved = () => setAnnotationStyle(path.data)
 
       const handleAnnotationApplied = () =>
-        notify(buildAppliedNotification(path.data, this.props.t), 'DOCUMENTATION')
+        notify(
+          buildAppliedNotification(path.data, this.props.t),
+          'DOCUMENTATION'
+        )
 
       const handleAnnotationRefused = () =>
         notify(
@@ -563,21 +546,13 @@ class App extends Component<AppProps, AppState> {
           'DOCUMENTATION'
         )
 
-      const handleContractWritten = () =>
-        notify(
-          buildContractWrittenNotification(path.data, this.props.t),
-          'CONTRACT'
-        )
-
       const handleContractsUpdated = () =>
         notify(
           buildContractsUpdatedNotification(path.data, this.props.t),
           'CONTRACT'
         )
 
-      // The copy follows the reply of GET_CONTRACT, which itself follows the
-      // click: it relies on the browser's transient user activation, with a
-      // textarea fallback (see utils/clipboard.ts).
+      // Relies on transient user activation of the click, with a textarea fallback.
       const handleContractLoaded = () => {
         resolvePending('CONTRACT')
         void copyWithNotice(
@@ -587,10 +562,6 @@ class App extends Component<AppProps, AppState> {
         )
       }
 
-      const handleContractPreview = () => $contractPreview.set(path.data)
-
-      // Only the initial load fills the store: the toggle already updated it
-      // when changed, so the SAVED echo is ignored (no flicker, no message).
       const handleContractSettings = () => $contractSettings.set(path.data)
 
       const handleAnnouncements = () => {
@@ -723,8 +694,6 @@ class App extends Component<AppProps, AppState> {
         ANNOTATION_REFUSED: () => handleAnnotationRefused(),
         DOCUMENTATIONS_STATUS_CHANGED: () => handleDocumentationsStatus(),
         DOCUMENTATIONS_UPDATED: () => handleDocumentationsUpdated(),
-        CONTRACT_WRITTEN: () => handleContractWritten(),
-        CONTRACT_PREVIEW_LOADED: () => handleContractPreview(),
         CONTRACT_LOADED: () => handleContractLoaded(),
         CONTRACTS_UPDATED: () => handleContractsUpdated(),
         CONTRACT_SETTINGS_LOADED: () => handleContractSettings(),
@@ -840,7 +809,6 @@ class App extends Component<AppProps, AppState> {
       : ''
   }
 
-  // Direct Actions
   onDetectBrowserLanguage = (userLanguage: Language) => {
     const browserLang = navigator.language
     const currentLang = userLanguage
@@ -887,7 +855,6 @@ class App extends Component<AppProps, AppState> {
     )
   }
 
-  // Render
   render() {
     if (this.state.isLoaded)
       return (
@@ -905,7 +872,10 @@ class App extends Component<AppProps, AppState> {
               this.state.service === 'COMPONENT_HANDOFF'
             }
           >
-            <Handoff {...this.props} {...this.state} />
+            <Handoff
+              {...this.props}
+              {...this.state}
+            />
           </Feature>
           <Feature isActive={this.state.modalContext !== 'EMPTY'}>
             {document.getElementById('modal') &&

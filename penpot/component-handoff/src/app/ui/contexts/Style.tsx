@@ -1,14 +1,14 @@
 import { PureComponent } from 'preact/compat'
-import { FeatureStatus, doClassnames } from '@unoff/utils'
+import { FeatureStatus } from '@unoff/utils'
 import {
   Dropdown,
   FormItem,
   Input,
   Layout,
   Section,
+  Select,
   SectionTitle,
   SimpleItem,
-  texts,
 } from '@unoff/ui'
 import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
@@ -17,21 +17,21 @@ import { sendAnnotationAction } from '../../utils/annotationActions'
 import { BaseProps, Editor, PlanStatus, Service } from '../../types/app'
 import {
   AnnotationStyle,
+  ContractSettings,
   LabelPlacement,
   ScaleMode,
   Unit,
 } from '../../types/annotations'
-import { $annotationStyle } from '../../stores/annotations'
+import { $annotationStyle, $contractSettings } from '../../stores/annotations'
 import { ConfigContextType } from '../../config/ConfigContext'
 
-interface StyleProps extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+interface StyleProps extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface StyleState {
   draft: AnnotationStyle
   textSize: string
   remBase: string
+  contractSettings: ContractSettings
 }
 
 const UNITS: Array<Unit> = ['px', 'rem']
@@ -40,8 +40,6 @@ const SCALE_MODES: Array<ScaleMode> = ['DESIGN', 'VIEWPORT']
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 const AUTOSAVE_DELAY = 400
 
-// Key-order independent, so a style sent by the UI and the one echoed back by
-// the Canvas compare equal.
 const normalize = (style: AnnotationStyle) =>
   JSON.stringify(
     Object.entries(style).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
@@ -49,6 +47,7 @@ const normalize = (style: AnnotationStyle) =>
 
 export default class Style extends PureComponent<StyleProps, StyleState> {
   private unsubscribeStyle: (() => void) | undefined
+  private unsubscribeContractSettings: (() => void) | undefined
   private saveTimer: ReturnType<typeof setTimeout> | undefined
   private lastSent: string | null = null
 
@@ -83,13 +82,14 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
       draft: { ...style },
       textSize: String(style.textSize),
       remBase: String(style.remBase),
+      contractSettings: $contractSettings.get(),
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
-    // The initial load from the Canvas fills the form. An echo of what was just
-    // sent, or any update while the user is typing, never replaces the fields.
+    this.unsubscribeContractSettings = $contractSettings.subscribe((value) =>
+      this.setState({ contractSettings: value })
+    )
     this.unsubscribeStyle = $annotationStyle.listen((style) => {
       const incoming = normalize(style)
       if (incoming === this.lastSent) return
@@ -107,9 +107,9 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
   componentWillUnmount = () => {
     this.flush()
     if (this.unsubscribeStyle) this.unsubscribeStyle()
+    if (this.unsubscribeContractSettings) this.unsubscribeContractSettings()
   }
 
-  // Helpers
   isColorValid = () => HEX_COLOR.test(this.state.draft.color)
 
   parsedTextSize = () => Number.parseFloat(this.state.textSize)
@@ -129,7 +129,15 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     )
   }
 
-  // Autosave
+  handleAutoUpdateToggle = () => {
+    const next: ContractSettings = {
+      ...this.state.contractSettings,
+      autoUpdate: !this.state.contractSettings.autoUpdate,
+    }
+    $contractSettings.set(next)
+    sendAnnotationAction('SET_CONTRACT_SETTINGS', next)
+  }
+
   save = (draft: AnnotationStyle, textSize: string, remBase: string) => {
     const size = Number.parseFloat(textSize)
     const base = Number.parseFloat(remBase)
@@ -169,7 +177,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     this.saveTimer = setTimeout(this.flush, AUTOSAVE_DELAY)
   }
 
-  // Handlers
   handleColorChange = (e: Event) => {
     const value = (e.currentTarget as HTMLInputElement).value
     this.setState(
@@ -197,7 +204,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
 
   handleBlur = () => this.flush()
 
-  // Dropdown choices are saved immediately.
   handleDraftChange = (changes: Partial<AnnotationStyle>) => () => {
     const draft = { ...this.state.draft, ...changes }
 
@@ -218,16 +224,19 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
   handleScaleModeChange = (scaleMode: ScaleMode) =>
     this.handleDraftChange({ scaleMode })
 
-  // Renders
-  Hint = (label: string) => (
-    <span className={doClassnames([texts.type, texts['type--secondary']])}>
-      {label}
-    </span>
+  Field = (label: string, control: preact.ComponentChildren, hint: string) => (
+    <FormItem
+      label={label}
+      helper={{ type: 'INFO', message: hint }}
+      shouldFill
+    >
+      {control}
+    </FormItem>
   )
 
   render() {
     const { t } = this.props
-    const { draft, textSize, remBase } = this.state
+    const { draft, textSize, remBase, contractSettings } = this.state
     const isDisabled = this.features.SAVE_ANNOTATION_STYLE.isBlocked()
 
     return (
@@ -264,11 +273,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                               onChange={this.handleColorChange}
                               onPick={this.handleColorChange}
                               onBlur={this.handleBlur}
- isDisabled={isDisabled}
+                              isDisabled={isDisabled}
                             />
                           </FormItem>
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                       {
                         node: (
@@ -286,11 +294,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                               value={textSize}
                               onChange={this.handleTextSizeChange}
                               onBlur={this.handleBlur}
- isDisabled={isDisabled}
+                              isDisabled={isDisabled}
                             />
                           </FormItem>
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                       {
                         node: (
@@ -309,12 +316,11 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                               }))}
                               selected={draft.unit}
                               alignment="LEFT"
- isDisabled={isDisabled}
+                              isDisabled={isDisabled}
                               pin="TOP"
                             />
                           </FormItem>
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
                     ]}
                     border={['BOTTOM']}
@@ -338,6 +344,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             <FormItem
                               id="style-rem-base"
                               label={t('handoff.style.remBase.label')}
+                              helper={{
+                                type: 'INFO',
+                                message: t('handoff.style.remBase.hint'),
+                              }}
                               shouldFill
                             >
                               <Input
@@ -349,15 +359,10 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                                 value={remBase}
                                 onChange={this.handleRemBaseChange}
                                 onBlur={this.handleBlur}
- isDisabled={isDisabled}
+                                isDisabled={isDisabled}
                               />
                             </FormItem>
                           ),
-                          spacingModifier: 'LARGE' as const,
-                        },
-                        {
-                          node: this.Hint(t('handoff.style.remBase.hint')),
-                          spacingModifier: 'LARGE' as const,
                         },
                       ]}
                       border={['BOTTOM']}
@@ -368,7 +373,7 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                       <SimpleItem
                         leftPartSlot={
                           <SectionTitle
-                            label={t('handoff.style.placement.title')}
+                            label={t('handoff.style.behavior.title')}
                           />
                         }
                         isListItem={false}
@@ -377,7 +382,8 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                     }
                     body={[
                       {
-                        node: (
+                        node: this.Field(
+                          t('handoff.style.placement.title'),
                           <Dropdown
                             id="style-placement"
                             options={PLACEMENTS.map((value) => ({
@@ -388,38 +394,17 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             }))}
                             selected={draft.labelPlacement}
                             alignment="LEFT"
- isDisabled={isDisabled}
+                            isDisabled={isDisabled}
                             pin="TOP"
-                          />
-                        ),
-                        spacingModifier: 'LARGE' as const,
-                      },
-                      {
-                        node: this.Hint(
+                          />,
                           t(
                             `handoff.style.placement.hint.${draft.labelPlacement}`
                           )
                         ),
-                        spacingModifier: 'LARGE' as const,
                       },
-                    ]}
-                    border={['BOTTOM']}
-                  />
-                  <Section
-                    title={
-                      <SimpleItem
-                        leftPartSlot={
-                          <SectionTitle
-                            label={t('handoff.style.scale.title')}
-                          />
-                        }
-                        isListItem={false}
-                        alignment="CENTER"
-                      />
-                    }
-                    body={[
                       {
-                        node: (
+                        node: this.Field(
+                          t('handoff.style.scale.title'),
                           <Dropdown
                             id="style-scale"
                             options={SCALE_MODES.map((value) => ({
@@ -430,17 +415,26 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             }))}
                             selected={draft.scaleMode}
                             alignment="LEFT"
- isDisabled={isDisabled}
+                            isDisabled={isDisabled}
                             pin="TOP"
-                          />
-                        ),
-                        spacingModifier: 'LARGE' as const,
-                      },
-                      {
-                        node: this.Hint(
+                          />,
                           t(`handoff.style.scale.hint.${draft.scaleMode}`)
                         ),
-                        spacingModifier: 'LARGE' as const,
+                      },
+                      {
+                        node: this.Field(
+                          t('handoff.contract.title'),
+                          <Select
+                            id="contract-auto-update"
+                            type="SWITCH_BUTTON"
+                            name="contract-auto-update"
+                            value="autoUpdate"
+                            label={t('handoff.contract.autoUpdate.label')}
+                            isChecked={contractSettings.autoUpdate}
+                            action={this.handleAutoUpdateToggle}
+                          />,
+                          t('handoff.contract.autoUpdate.hint')
+                        ),
                       },
                     ]}
                   />

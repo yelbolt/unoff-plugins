@@ -5,14 +5,18 @@ All notable changes to this plugin are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+## [0.3.1] - 2026-11-03
 ### Added
-- A machine contract, separate from the visual documentation: a declarative
-  JSON description of a component or family (props, rules, token references,
+- A machine contract written with every documentation: a declarative JSON
+  description of the component or family (props, rules, token references,
   exceptions) stored in the file's shared plugin data, so AI agents connected
   to the Penpot MCP server can read it without opening the plugin. It always
-  covers every variant, and is flagged as outdated when the component changes.
-- Copy the contract, or ready-to-paste instructions for an agent, from the
-  plugin; keep contracts up to date automatically if you opt in.
+  covers every variant, and is flagged as outdated when the component or one
+  of its tokens changes.
+- Copy a documentation's contract, or ready-to-paste instructions for an
+  agent, from its row in the Generated tab; keep contracts up to date
+  automatically from the Options tab if you opt in.
 - A Props view: each variant property with its values and what it drives.
 - A declarative summary in the documentation header: share of tokenized
   values, share of layout-driven parts, and the number of exceptions.
@@ -23,8 +27,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Token chains in the colors view (`button.bg → color.action.primary → #0B5FFF`).
 
 ### Changed
-- The Documentation tab has two sections, Visual documentation and Machine
-  contract, each with its own switch; the Generated tab lists both kinds.
+- The Documentation tab warns when a generation may be slow on a large
+  volume; the Generate button sits at the right of the selection header.
+- Descriptions and sub-options are offset under their control, and the footer
+  icons sit at the right.
+- Faster generation and status checks: the documentation and the contract
+  share one analysis, and each shape property is read once per run.
 
 ## [0.3.0] - 2026-10-22
 ### Added

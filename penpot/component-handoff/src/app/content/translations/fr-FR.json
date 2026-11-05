@@ -303,9 +303,7 @@
         }
       },
       "footer": {
-        "hint": "Généré en boards et textes natifs à côté du design.",
-        "hintBoth": "Documentation dessinée à côté du design ; contrat enregistré dans le fichier.",
-        "hintContract": "Contrat enregistré dans le fichier pour les agents ; rien n'est dessiné."
+        "hint": "Généré en boards et textes natifs à côté du design."
       },
       "cta": {
         "generate": "Générer"
@@ -333,23 +331,11 @@
           "description": "Chaque propriété de variante, ses valeurs et ce qu'elle pilote."
         }
       },
-      "outputs": {
-        "visual": {
-          "title": "Documentation visuelle",
-          "description": "Dessine le composant sur le canvas pour les personnes : vues, tableaux et cotes."
-        },
-        "contract": {
-          "title": "Contrat machine",
-          "description": "Écrit un contrat JSON dans le fichier pour les agents IA ; rien n'est dessiné."
-        }
-      },
-      "contract": {
-        "autoUpdate": {
-          "label": "Garder à jour automatiquement",
-          "hint": "Réécrit un contrat obsolète dès qu'il est détecté, sans demander."
-        },
-        "copyContract": "Copier le contrat",
-        "copyInstructions": "Copier les instructions pour l'agent"
+      "warning": {
+        "large": "Volume important (environ {count} éléments) : la génération s’exécute dans Penpot et peut le figer un moment.",
+        "fewerVariants": "Essayez avec moins de variantes.",
+        "directLayers": "Essayez avec les calques directs uniquement.",
+        "wholeFamily": "Le contrat couvre toujours toutes les variantes."
       }
     },
     "refusal": {
@@ -362,8 +348,7 @@
       "noVariant": "Aucune variante ne correspond aux valeurs cochées.",
       "nothingToUpdate": "Aucune documentation à mettre à jour.",
       "noContract": "Ce contrat n'existe plus.",
-      "nothingToUpdateContract": "Il n'y a aucun contrat à mettre à jour.",
-      "noOutput": "Activez au moins une sortie."
+      "nothingToUpdateContract": "Il n'y a aucun contrat à mettre à jour."
     },
     "result": {
       "documentation": {
@@ -372,11 +357,9 @@
       },
       "rotated": "Élément pivoté : mesuré sur sa boîte englobante.",
       "documentationsUpdated": "{updated} mise(s) à jour, {removed} supprimée(s)",
-      "contract": {
-        "created": "Contrat créé · {name}",
-        "updated": "Contrat mis à jour · {name}"
-      },
-      "contractsUpdated": "{updated, plural, one {# contrat mis à jour} other {# contrats mis à jour}}, {removed} supprimé(s)"
+      "contractsUpdated": "{updated, plural, one {# contrat mis à jour} other {# contrats mis à jour}}, {removed} supprimé(s)",
+      "contractWritten": "Contrat écrit en même temps.",
+      "contractFailed": "Le contrat n'a pas pu être écrit ; la documentation est générée."
     },
     "style": {
       "title": "Style des annotations",
@@ -415,6 +398,9 @@
           "DESIGN": "Les tailles sont fixes en pixels de design : cohérentes sur le board, mais petites en zoom arrière et grandes en zoom avant.",
           "VIEWPORT": "Les tailles sont ajustées au zoom courant au dessin : lisibles maintenant, mais décalées à un autre niveau de zoom."
         }
+      },
+      "behavior": {
+        "title": "Comportement"
       }
     },
     "contexts": {
@@ -424,8 +410,8 @@
       "options": "Options"
     },
     "documentations": {
-      "title": "Documentations et contrats de cette page",
-      "empty": "Aucune documentation ni contrat sur cette page pour l'instant.",
+      "title": "Documentations de cette page",
+      "empty": "Aucune documentation sur cette page pour le moment.",
       "kind": {
         "COMPONENT": "Composant",
         "FAMILY": "Famille"
@@ -438,17 +424,24 @@
       "remove": "Supprimer",
       "updateAll": "Tout mettre à jour",
       "banner": {
-        "one": "{count} sortie doit être mise à jour — son composant a changé ou a été supprimé",
-        "other": "{count} sorties doivent être mises à jour — leurs composants ont changé ou ont été supprimés"
+        "one": "{count} élément à mettre à jour — son composant a changé ou a été supprimé",
+        "other": "{count} éléments à mettre à jour — leurs composants ont changé ou ont été supprimés"
       },
       "tag": {
-        "DOCUMENTATION": "Documentation",
         "CONTRACT": "Contrat"
       },
       "copy": "Copier le contrat",
-      "removeContract": "Supprimer le contrat"
+      "removeContract": "Supprimer le contrat",
+      "copyInstructions": "Copier les instructions pour l'agent",
+      "contractLabel": "Contrat",
+      "contractMenu": "Contrat machine"
     },
     "contract": {
+      "title": "Contrat machine",
+      "autoUpdate": {
+        "label": "Garder à jour automatiquement",
+        "hint": "Réécrit un contrat obsolète dès qu'il est détecté, sans demander."
+      },
       "summary": {
         "props": "{count, plural, one {# prop} other {# props}}",
         "rules": "{count, plural, one {# règle} other {# règles}}",

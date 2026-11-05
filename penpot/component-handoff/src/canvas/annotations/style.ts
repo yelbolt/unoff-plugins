@@ -1,4 +1,5 @@
 import { DEFAULT_ANNOTATION_STYLE } from '../../app/types/annotations'
+import { markSelfWrite } from './memo'
 import { KEYS } from './constants'
 import type { AnnotationStyle } from '../../app/types/annotations'
 
@@ -46,5 +47,6 @@ export const loadStyle = (): AnnotationStyle => {
 export const saveStyle = (style: unknown): AnnotationStyle => {
   const clean = sanitizeStyle(style)
   penpot.currentFile?.setPluginData(KEYS.style, JSON.stringify(clean))
+  markSelfWrite()
   return clean
 }

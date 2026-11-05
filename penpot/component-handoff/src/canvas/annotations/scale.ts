@@ -1,7 +1,6 @@
 import type { AnnotationStyle } from '../../app/types/annotations'
 
-// Every size drawn on canvas goes through this object. DESIGN: k = 1.
-// VIEWPORT: k = 1 / zoom, so sizes read the same on screen at draw-time zoom.
+/** VIEWPORT: k = 1 / zoom, so sizes read the same on screen at draw-time zoom. */
 export interface Scale {
   k: number
   font: number
@@ -10,7 +9,7 @@ export interface Scale {
   gap: number
   offset: number
   pad: number
-  pin: number // pin diameter
+  pin: number
   charW: number
 }
 

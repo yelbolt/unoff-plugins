@@ -2,6 +2,7 @@ import { resolveTarget } from './target'
 import { loadStyle } from './style'
 import { collectStatus } from './status'
 import { normalizeDepth, normalizeFilter, normalizeGrouping, readOptions, sanitizeViews } from './options'
+import { invalidate } from './memo'
 import {
   currentPage,
   findDocumentationById,
@@ -10,6 +11,7 @@ import {
 } from './layer'
 import { countMatching } from './groups'
 import { drawDocumentation } from './documentation'
+import { writeContract } from './contract'
 import { KEYS } from './constants'
 import { commitAnnotation } from './commit'
 import type { Shape } from '@penpot/plugin-types'
@@ -18,6 +20,7 @@ import type {
   AnnotationKind,
   AnnotationRefusedData,
   AnnotationStyle,
+  ContractSummary,
   DocTarget,
   DocumentationsUpdatedData,
   GenerateDocumentationData,
@@ -38,13 +41,11 @@ const refuse = (reason: RefusalReason): { refused: AnnotationRefusedData } => ({
   refused: { kind: KIND, reason },
 })
 
-// Resolves the target and draws; returns a refusal reason when the target
-// cannot be documented. Shared by GENERATE_DOCUMENTATION and the update.
 export const documentShape = (
   shape: Shape,
   data: GenerateDocumentationData,
   style: AnnotationStyle
-): CommitResult | RefusalReason => {
+): (CommitResult & { contract: ContractSummary | null }) | RefusalReason => {
   const res = resolveTarget(shape, data.target)
   if (typeof res === 'string') return res
   if (
@@ -54,14 +55,23 @@ export const documentShape = (
     countMatching(res, data.variantFilter) === 0
   )
     return 'NO_VARIANT'
-  return commitAnnotation(KIND, [res.root], style, (env) =>
+  const result = commitAnnotation(KIND, [res.root], style, (env) =>
     drawDocumentation(env, res, data)
   )
+  // Always the whole family; a failure here never costs the drawn documentation.
+  let contract: ContractSummary | null = null
+  try {
+    contract = writeContract(res)
+  } catch (error) {
+    console.error('[component-handoff] contract write failed', error)
+  }
+  return { ...result, contract }
 }
 
 export const generateDocumentation = (
   data: GenerateDocumentationData
 ): Outcome => {
+  invalidate()
   const selected = penpot.selection
   if (selected.length === 0) return refuse('NO_SELECTION')
   if (selected.length !== 1) return refuse('WRONG_SELECTION_COUNT')
@@ -92,15 +102,15 @@ export const generateDocumentation = (
       rotatedNotice: result.rotated,
       parts: result.parts,
       ...(result.variants !== undefined ? { variants: result.variants } : {}),
+      contract: result.contract,
     },
   }
 }
 
-// Regenerates documentations in place from their stored options; removes the
-// ones whose target is gone (or no longer documentable).
 export const updateDocumentations = (
   data: UpdateDocumentationsData
 ): UpdateOutcome => {
+  invalidate()
   const page = currentPage()
   const status = collectStatus()
   const wanted =
@@ -130,9 +140,7 @@ export const updateDocumentations = (
       readOptions(group.getPluginData(KEYS.options)),
       style
     )
-    // A refusal can be transient (e.g. mainInstance() failing once): keep the
-    // existing documentation untouched rather than deleting it. Only a missing
-    // target removes a documentation.
+    // A refusal can be transient: keep the existing documentation; only a missing target removes it.
     if (typeof result !== 'string') updated++
   }
   return { updated: { updated, removed } }

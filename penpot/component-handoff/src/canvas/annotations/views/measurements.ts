@@ -25,7 +25,6 @@ import type { Entry } from '../groups'
 
 type Measured = Array<{ part: ReturnType<typeof bind>[number]; rows: MeasureRows }>
 
-// The table rows of one category (header included), or null when empty.
 const tableRowsOf = (
   dc: DocCtx,
   rows: Measured,
@@ -55,8 +54,6 @@ const measuredOf = (
     rows: measureRows(p.shape, dc.env.style, dc.refs),
   }))
 
-// Widest measurement table, from a dry run whose shapes are dropped. Used to
-// choose the column width BEFORE any card is drawn.
 export const measurementNeed = (dc: DocCtx): number => {
   if (dc.merged) return measurementNeedMerged(dc, dc.merged)
   const mark = dc.panel.mark()
@@ -73,10 +70,6 @@ export const measurementNeed = (dc: DocCtx): number => {
   return need
 }
 
-// MEASUREMENTS: per measurement group, one card per category (size, padding,
-// gap, radius). Each card has its own specimen with only that category's
-// redlines and a Part | Value table (token, else raw). Empty categories are
-// omitted. Part numbers come from the anatomy plan of the same structure.
 export const buildMeasurements = (dc: DocCtx): ViewBuild => {
   if (dc.merged) return buildMeasurementsMerged(dc, dc.merged)
   const { panel, env } = dc
@@ -112,7 +105,6 @@ export const buildMeasurements = (dc: DocCtx): ViewBuild => {
         }
         const rot = drawRedlines(rc, bind(structure.plan, copy), cat)
         dc.state.rotated = rot || dc.state.rotated
-        // Layout also carries the numbers of the parts it lists.
         if (cat === 'LAYOUT') {
           const shown = bind(structure.plan, copy).filter((p) =>
             rows.some(

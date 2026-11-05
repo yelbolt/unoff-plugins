@@ -1,4 +1,5 @@
 import globalConfig from '../global.config'
+import { invalidate, isSelfSave } from '../canvas/annotations/memo'
 import { tolgee } from '..'
 import enableTrial from './plans/enableTrial'
 import checkUserPreferences from './checks/checkUserPreferences'
@@ -17,9 +18,7 @@ import {
   updateDocumentations,
 } from './annotations/documentationsStatus'
 import {
-  generateContract,
   getContract,
-  getContractPreview,
   getContractSettings,
   removeContract,
   setContractSettings,
@@ -31,9 +30,7 @@ import {
 } from './annotations/annotationStyle'
 
 const loadUI = async () => {
-  // Children read in z-order for the whole session: generation sets it too,
-  // and fingerprints computed at launch (status, contract refresh) must read
-  // children in the same order as when they were stored.
+  // Children read in z-order, as when stored: fingerprints computed at launch must match.
   penpot.flags.naturalChildOrdering = true
 
   // Setup UI
@@ -206,8 +203,6 @@ const loadUI = async () => {
       GET_DOCUMENTATIONS_STATUS: () => getDocumentationsStatus(),
       LOCATE_DOCUMENTATION: () => locateDocumentation(path.data),
       UPDATE_DOCUMENTATIONS: () => updateDocumentations(path.data),
-      GENERATE_CONTRACT: () => generateContract(path.data),
-      GET_CONTRACT_PREVIEW: () => getContractPreview(path.data),
       GET_CONTRACT: () => getContract(path.data),
       UPDATE_CONTRACTS: () => updateContracts(path.data),
       REMOVE_CONTRACT: () => removeContract(path.data),
@@ -247,10 +242,15 @@ const loadUI = async () => {
   })
 
   penpot.on('selectionchange', () => getSelection())
-  // Outdated detection runs while the plugin is open: after each save of the
-  // file, and when the designer changes page.
-  penpot.on('contentsave', () => pushStatusDebounced(500))
+  penpot.on('contentsave', () => {
+    // Saving the plugin's own write changed no documented component: keep the
+    // fingerprints and the reference catalog, drop the rest.
+    if (isSelfSave()) invalidate('fp:', 'refs')
+    else invalidate()
+    pushStatusDebounced()
+  })
   penpot.on('pagechange', () => {
+    invalidate()
     pushDocumentationsStatus()
     getSelection()
   })

@@ -18,18 +18,13 @@ export const COLOR_FAMILIES = [
   'EFFECTS',
 ] as const
 
-// One documented variant (a COMPONENT has a single entry).
 export interface Entry {
-  comp: LibraryComponent | null // instance() source; null clones `main`
-  main: Shape // the main component shape, read for grouping
-  label: string // "Size=M, State=Hover"; '' for a component
-  props: Record<string, string> // the variant's own values
+  comp: LibraryComponent | null
+  main: Shape
+  label: string
+  props: Record<string, string>
 }
 
-// Variants sharing the same structure (same parts by layer path and type),
-// split again into measurement groups (identical measured values) and color
-// groups (identical references). Computed once; the plan is the part
-// numbering shared by anatomy, measurements and colors of the group.
 export interface StructureGroup {
   entries: Array<Entry>
   plan: Array<PartPlan>
@@ -37,8 +32,7 @@ export interface StructureGroup {
   colors: Array<Array<Entry>>
 }
 
-// A variant is kept when, for every property present in the filter, its value
-// is among the ticked ones. Absent properties are unfiltered; null keeps all.
+/** Absent properties are unfiltered; null keeps all. */
 export const matchesFilter = (
   props: Record<string, string>,
   filter: VariantFilter | null
@@ -48,7 +42,6 @@ export const matchesFilter = (
     values.includes(props[name])
   )
 
-// How many variants of the family match the filter.
 export const countMatching = (
   res: Resolved,
   filter: VariantFilter | null

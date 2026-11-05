@@ -1,6 +1,13 @@
 import { PureComponent } from 'preact/compat'
 import { doClassnames } from '@unoff/utils'
-import { Button, Chip, Section, SemanticMessage, layouts, texts } from '@unoff/ui'
+import {
+  Button,
+  Chip,
+  Section,
+  SemanticMessage,
+  layouts,
+  texts,
+} from '@unoff/ui'
 import Documentation from '../contexts/Document'
 import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
@@ -24,9 +31,7 @@ import {
 } from '../../stores/annotations'
 
 interface SelectionHeaderProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface SelectionHeaderState {
   selection: SelectionDigest
@@ -53,7 +58,6 @@ export default class SelectionHeader extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeSelection = $selection.subscribe((value) =>
       this.setState({ selection: value })
@@ -72,7 +76,6 @@ export default class SelectionHeader extends PureComponent<
     if (this.unsubscribePending) this.unsubscribePending()
   }
 
-  // Helpers
   getSelectionLabel = (): string => {
     const { t } = this.props
     const { count } = this.state.selection
@@ -116,59 +119,42 @@ export default class SelectionHeader extends PureComponent<
 
   getBlocker = () => getSelectionBlocker('DOCUMENTATION', this.state.selection)
 
-  // A generated documentation is flagged by a chip, not by a message.
   isDocumentation = (): boolean => this.state.selection.containsAnnotation
 
-  // One information message at most, by priority: blocker, no variant, no
-  // view, existing documentation, rotation. Never two messages for the same
-  // condition.
   getMessage = (): string | null => {
     const { t } = this.props
     const { selection, settings } = this.state
     const blocker = this.getBlocker()
 
-    const { documentation, contract } = settings.outputs
-
     if (this.isDocumentation()) return null
     if (blocker !== null) return getRefusalMessage(blocker, t)
-    if (!documentation && !contract) return t('handoff.refusal.noOutput')
-    // The options of the visual documentation only concern that output.
-    if (documentation) {
-      if (hasNoVariant(selection, settings))
-        return getRefusalMessage('NO_VARIANT', t)
-      if (getEffectiveViews(selection, settings).length === 0)
-        return getRefusalMessage('NO_VIEW', t)
-      if (selection.annotatedCount > 0) return t('handoff.selection.annotated')
-      if (selection.items.some((entry) => entry.isRotated))
-        return t('handoff.selection.rotated')
-    }
+    if (hasNoVariant(selection, settings))
+      return getRefusalMessage('NO_VARIANT', t)
+    if (getEffectiveViews(selection, settings).length === 0)
+      return getRefusalMessage('NO_VIEW', t)
+    if (selection.annotatedCount > 0) return t('handoff.selection.annotated')
+    if (selection.items.some((entry) => entry.isRotated))
+      return t('handoff.selection.rotated')
 
     return null
   }
 
   isGenerating = (): boolean =>
-    this.state.pendingAction === 'GENERATE_DOCUMENTATION' ||
-    this.state.pendingAction === 'GENERATE_CONTRACT'
+    this.state.pendingAction === 'GENERATE_DOCUMENTATION'
 
   handleGenerate = () => {
     const { selection, settings } = this.state
     const target = getTarget(selection, settings)
 
-    if (settings.outputs.documentation)
-      sendAnnotationAction('GENERATE_DOCUMENTATION', {
-        target,
-        views: getEffectiveViews(selection, settings),
-        depth: settings.depth,
-        grouping: target === 'FAMILY' ? settings.grouping : 'MERGED',
-        variantFilter: getVariantFilter(selection, settings),
-      })
-
-    // The contract always covers the whole component or family.
-    if (settings.outputs.contract)
-      sendAnnotationAction('GENERATE_CONTRACT', { target })
+    sendAnnotationAction('GENERATE_DOCUMENTATION', {
+      target,
+      views: getEffectiveViews(selection, settings),
+      depth: settings.depth,
+      grouping: target === 'FAMILY' ? settings.grouping : 'MERGED',
+      variantFilter: getVariantFilter(selection, settings),
+    })
   }
 
-  // Renders
   Secondary = (props: { children: string; title?: string }) => (
     <span
       className={doClassnames([texts.type, texts['type--secondary']])}
@@ -192,11 +178,16 @@ export default class SelectionHeader extends PureComponent<
 
     return (
       <div
-        className={doClassnames([layouts['stackbar--tight'], layouts['stackbar--fill']])}
+        className={doClassnames([
+          layouts['stackbar--tight'],
+          layouts['stackbar--fill'],
+        ])}
       >
         <this.Secondary
           title={item.variantProperties
-            .map((property) => `${property.name}: ${property.values.join(', ')}`)
+            .map(
+              (property) => `${property.name}: ${property.values.join(', ')}`
+            )
             .join('\n')}
         >
           {summary}
@@ -233,24 +224,20 @@ export default class SelectionHeader extends PureComponent<
       this.props.service,
       this.props.editor
     )
-    const { documentation, contract } = settings.outputs
     const isBlocked =
       this.getBlocker() !== null ||
-      (!documentation && !contract) ||
-      (documentation &&
-        (getEffectiveViews(selection, settings).length === 0 ||
-          hasNoVariant(selection, settings))) ||
+      getEffectiveViews(selection, settings).length === 0 ||
+      hasNoVariant(selection, settings) ||
       pendingAction !== null
-    const footerKey = documentation
-      ? contract
-        ? 'handoff.document.footer.hintBoth'
-        : 'handoff.document.footer.hint'
-      : 'handoff.document.footer.hintContract'
 
     return (
       <>
         {message !== null && (
-          <SemanticMessage type="INFO" message={message} isAnchored />
+          <SemanticMessage
+            type="INFO"
+            message={message}
+            isAnchored
+          />
         )}
         <Section
           body={[
@@ -258,16 +245,35 @@ export default class SelectionHeader extends PureComponent<
               node: (
                 <div
                   className={layouts['snackbar--large']}
+                  style={{ justifyContent: 'space-between' }}
                 >
-                  <span
-                    className={doClassnames([texts.type, texts['type--bold']])}
-                    data-testid="selection-label"
+                  <div
+                    className={layouts['snackbar--large']}
+                    style={{ minWidth: 0 }}
                   >
-                    {this.getSelectionLabel()}
-                  </span>
-                  {this.isDocumentation() && (
-                    <Chip>{t('handoff.selection.documentation')}</Chip>
-                  )}
+                    <span
+                      className={doClassnames([
+                        texts.type,
+                        texts['type--bold'],
+                      ])}
+                      data-testid="selection-label"
+                    >
+                      {this.getSelectionLabel()}
+                    </span>
+                    {this.isDocumentation() && (
+                      <Chip>{t('handoff.selection.documentation')}</Chip>
+                    )}
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <Button
+                      type="primary"
+                      label={t('handoff.document.cta.generate')}
+                      isDisabled={isBlocked}
+                      isLoading={this.isGenerating()}
+                      isNew={features.GENERATE_DOCUMENTATION.isNew()}
+                      action={this.handleGenerate}
+                    />
+                  </div>
                 </div>
               ),
               spacingModifier: 'LARGE' as const,
@@ -292,25 +298,12 @@ export default class SelectionHeader extends PureComponent<
               ),
               spacingModifier: 'LARGE' as const,
             },
-            {
-              node: (
-                <Button
-                  type="primary"
-                  label={t('handoff.document.cta.generate')}
-                  isDisabled={isBlocked}
-                  isLoading={this.isGenerating()}
-                  isNew={features.GENERATE_DOCUMENTATION.isNew()}
-                  action={this.handleGenerate}
-                />
-              ),
-              spacingModifier: 'LARGE' as const,
-            },
             ...(message === null && !isBlocked
               ? [
                   {
                     node: (
                       <this.Secondary>
-                        {t(footerKey)}
+                        {t('handoff.document.footer.hint')}
                       </this.Secondary>
                     ),
                     spacingModifier: 'LARGE' as const,

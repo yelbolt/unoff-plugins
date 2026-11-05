@@ -1,6 +1,5 @@
 import { digestSelection } from '../../canvas/annotations/selection'
 
-// GET_SELECTION and penpot 'selectionchange' -> SELECTION_CHANGED
 export const getSelection = (): void => {
   try {
     penpot.ui.sendMessage({
@@ -8,8 +7,7 @@ export const getSelection = (): void => {
       data: digestSelection(),
     })
   } catch (error) {
-    // Fired on every selectionchange: log instead of surfacing, so a
-    // persistent failure does not raise a notification on each click.
+    // Fired on every selectionchange: log, do not surface.
     console.error('[component-handoff] selection digest failed', error)
   }
 }

@@ -6,11 +6,7 @@ type Translate = (
   params?: Record<string, any> | undefined
 ) => string
 
-/**
- * One line describing what a contract holds, e.g.
- * `2 props · 14 rules · 92 % tokenized · 2 exceptions`.
- * Props are omitted for a component (no variant property).
- */
+/** Props are omitted for a component. */
 export const formatContractSummary = (
   summary: ContractSummary,
   t: Translate

@@ -4,7 +4,6 @@ import {
   AnnotationKind,
   AnnotationRefusedData,
   ContractsUpdatedData,
-  ContractWrittenData,
   DocumentationsUpdatedData,
   RefusalReason,
 } from '../types/annotations'
@@ -26,7 +25,6 @@ const REFUSAL_KEYS: Record<RefusalReason, string> = {
   NO_CONTRACT: 'handoff.refusal.noContract',
 }
 
-// A refusal can read differently depending on the output it concerns.
 const CONTRACT_REFUSAL_KEYS: Partial<Record<RefusalReason, string>> = {
   NOTHING_TO_UPDATE: 'handoff.refusal.nothingToUpdateContract',
 }
@@ -58,6 +56,13 @@ export const buildAppliedNotification = (
     ),
   ]
   if (data.rotatedNotice) parts.push(t('handoff.result.rotated'))
+  if (data.contract !== null) parts.push(t('handoff.result.contractWritten'))
+
+  if (data.contract === null) {
+    parts.push(t('handoff.result.contractFailed'))
+
+    return { type: 'WARNING', message: parts.join(' '), timer: 8000 }
+  }
 
   return { type: 'SUCCESS', message: parts.join(' '), timer: 6000 }
 }
@@ -80,20 +85,6 @@ export const buildDocumentationsUpdatedNotification = (
     updated: data.updated,
     removed: data.removed,
   }),
-  timer: 6000,
-})
-
-export const buildContractWrittenNotification = (
-  data: ContractWrittenData,
-  t: Translate
-): NotificationMessage => ({
-  type: 'SUCCESS',
-  message: t(
-    data.created
-      ? 'handoff.result.contract.created'
-      : 'handoff.result.contract.updated',
-    { name: data.name }
-  ),
   timer: 6000,
 })
 

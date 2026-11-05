@@ -1,18 +1,13 @@
-import { collectStatus } from '../../canvas/annotations/status'
+import { collectStatus, warmTarget } from '../../canvas/annotations/status'
 import { updateDocumentations as run } from '../../canvas/annotations/run'
 import { refreshContracts } from '../../canvas/annotations/contract'
 import { surfaceError } from './surfaceError'
 import { getSelection } from './getSelection'
 import type { UpdateDocumentationsData } from '../../app/types/annotations'
 
-// Pushes DOCUMENTATIONS_STATUS_CHANGED. Used by GET_DOCUMENTATIONS_STATUS,
-// the penpot 'contentsave' / 'pagechange' listeners and after generate/update.
-// Fired by listeners: log instead of surfacing, so a persistent failure does
-// not raise a notification on every save.
+/** Fired by listeners: logs instead of surfacing, so a persistent failure does not notify on every save. */
 export const pushDocumentationsStatus = (): void => {
   try {
-    // Contract freshness first (flags outdated ones, or rewrites them when the
-    // designer opted in), so the pushed status already reflects it.
     try {
       refreshContracts()
     } catch (error) {
@@ -27,25 +22,35 @@ export const pushDocumentationsStatus = (): void => {
   }
 }
 
-// GET_DOCUMENTATIONS_STATUS -> DOCUMENTATIONS_STATUS_CHANGED
 export const getDocumentationsStatus = (): void => pushDocumentationsStatus()
 
-// contentsave fires after every save: collapse bursts into one check.
+/** Bursts collapse into one check, one target's fingerprint per tick so Penpot is not frozen; a newer save restarts it. */
 let timer: ReturnType<typeof setTimeout> | undefined
-export const pushStatusDebounced = (delay = 500): void => {
+let refreshRun = 0
+export const pushStatusDebounced = (delay = 1000): void => {
   if (typeof setTimeout !== 'function') {
     pushDocumentationsStatus()
     return
   }
   if (timer !== undefined) clearTimeout(timer)
-  timer = setTimeout(() => {
-    timer = undefined
-    pushDocumentationsStatus()
-  }, delay)
+  const current = ++refreshRun
+  const step = (index: number) => {
+    if (current !== refreshRun) return
+    let more = false
+    try {
+      more = warmTarget(index)
+    } catch (error) {
+      console.error('[component-handoff] status warm-up failed', error)
+    }
+    if (more) timer = setTimeout(() => step(index + 1), 0)
+    else {
+      timer = undefined
+      pushDocumentationsStatus()
+    }
+  }
+  timer = setTimeout(() => step(0), delay)
 }
 
-// UPDATE_DOCUMENTATIONS -> DOCUMENTATIONS_UPDATED | ANNOTATION_REFUSED
-// (then DOCUMENTATIONS_STATUS_CHANGED and SELECTION_CHANGED)
 export const updateDocumentations = (data: UpdateDocumentationsData): void => {
   try {
     const outcome = run(data)

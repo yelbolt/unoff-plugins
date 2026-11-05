@@ -6,8 +6,7 @@ type Translate = (
   params?: Record<string, any> | undefined
 ) => string
 
-// execCommand fallback for iframes where the async Clipboard API is not
-// permitted (the Penpot plugin iframe may lack the clipboard-write policy).
+// The Penpot plugin iframe may lack the clipboard-write policy.
 const copyWithTextarea = (text: string): boolean => {
   const textarea = document.createElement('textarea')
   textarea.value = text
@@ -44,7 +43,6 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
   return copyWithTextarea(text)
 }
 
-/** Copies `text`, then tells the designer whether it worked. */
 export const copyWithNotice = async (
   text: string,
   successKey: string,
