@@ -6,6 +6,7 @@ import {
   Input,
   Layout,
   Section,
+  Select,
   SectionTitle,
   SimpleItem,
   layouts,
@@ -18,11 +19,12 @@ import { sendAnnotationAction } from '../../utils/annotationActions'
 import { BaseProps, Editor, PlanStatus, Service } from '../../types/app'
 import {
   AnnotationStyle,
+  ContractSettings,
   LabelPlacement,
   ScaleMode,
   Unit,
 } from '../../types/annotations'
-import { $annotationStyle } from '../../stores/annotations'
+import { $annotationStyle, $contractSettings } from '../../stores/annotations'
 import { ConfigContextType } from '../../config/ConfigContext'
 
 interface StyleProps extends BaseProps, WithConfigProps, WithTranslationProps {
@@ -33,6 +35,7 @@ interface StyleState {
   draft: AnnotationStyle
   textSize: string
   remBase: string
+  contractSettings: ContractSettings
 }
 
 const UNITS: Array<Unit> = ['px', 'rem']
@@ -50,6 +53,7 @@ const normalize = (style: AnnotationStyle) =>
 
 export default class Style extends PureComponent<StyleProps, StyleState> {
   private unsubscribeStyle: (() => void) | undefined
+  private unsubscribeContractSettings: (() => void) | undefined
   private saveTimer: ReturnType<typeof setTimeout> | undefined
   private lastSent: string | null = null
 
@@ -84,11 +88,15 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
       draft: { ...style },
       textSize: String(style.textSize),
       remBase: String(style.remBase),
+      contractSettings: $contractSettings.get(),
     }
   }
 
   // Lifecycle
   componentDidMount = () => {
+    this.unsubscribeContractSettings = $contractSettings.subscribe((value) =>
+      this.setState({ contractSettings: value })
+    )
     // The initial load from the Canvas fills the form. An echo of what was just
     // sent, or any update while the user is typing, never replaces the fields.
     this.unsubscribeStyle = $annotationStyle.listen((style) => {
@@ -108,6 +116,7 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
   componentWillUnmount = () => {
     this.flush()
     if (this.unsubscribeStyle) this.unsubscribeStyle()
+    if (this.unsubscribeContractSettings) this.unsubscribeContractSettings()
   }
 
   // Helpers
@@ -128,6 +137,16 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
       (this.state.draft.unit !== 'rem' ||
         (Number.isFinite(remBase) && remBase > 0))
     )
+  }
+
+  // Applies and persists as changed: no save button, no confirmation.
+  handleAutoUpdateToggle = () => {
+    const next: ContractSettings = {
+      ...this.state.contractSettings,
+      autoUpdate: !this.state.contractSettings.autoUpdate,
+    }
+    $contractSettings.set(next)
+    sendAnnotationAction('SET_CONTRACT_SETTINGS', next)
   }
 
   // Autosave
@@ -243,7 +262,7 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
 
   render() {
     const { t } = this.props
-    const { draft, textSize, remBase } = this.state
+    const { draft, textSize, remBase, contractSettings } = this.state
     const isDisabled = this.features.SAVE_ANNOTATION_STYLE.isBlocked()
 
     return (
@@ -455,6 +474,51 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
                             pin="TOP"
                           />,
                           t(`handoff.style.scale.hint.${draft.scaleMode}`)
+                        ),
+                        spacingModifier: 'LARGE' as const,
+                      },
+                    ]}
+                    border={['BOTTOM']}
+                  />
+                  <Section
+                    title={
+                      <SimpleItem
+                        leftPartSlot={
+                          <SectionTitle label={t('handoff.contract.title')} />
+                        }
+                        isListItem={false}
+                        alignment="CENTER"
+                      />
+                    }
+                    body={[
+                      {
+                        node: (
+                          <div
+                            className={doClassnames([
+                              layouts['stackbar--tight'],
+                              layouts['stackbar--fill'],
+                            ])}
+                          >
+                            <Select
+                              id="contract-auto-update"
+                              type="SWITCH_BUTTON"
+                              name="contract-auto-update"
+                              value="autoUpdate"
+                              label={t('handoff.contract.autoUpdate.label')}
+                              isChecked={contractSettings.autoUpdate}
+                              action={this.handleAutoUpdateToggle}
+                            />
+                            <div className="handoff-description">
+                              <span
+                                className={doClassnames([
+                                  texts.type,
+                                  texts['type--secondary'],
+                                ])}
+                              >
+                                {t('handoff.contract.autoUpdate.hint')}
+                              </span>
+                            </div>
+                          </div>
                         ),
                         spacingModifier: 'LARGE' as const,
                       },

@@ -127,45 +127,35 @@ export default class SelectionHeader extends PureComponent<
     const { selection, settings } = this.state
     const blocker = this.getBlocker()
 
-    const { documentation, contract } = settings.outputs
 
     if (this.isDocumentation()) return null
     if (blocker !== null) return getRefusalMessage(blocker, t)
-    if (!documentation && !contract) return t('handoff.refusal.noOutput')
-    // The options of the visual documentation only concern that output.
-    if (documentation) {
-      if (hasNoVariant(selection, settings))
-        return getRefusalMessage('NO_VARIANT', t)
-      if (getEffectiveViews(selection, settings).length === 0)
-        return getRefusalMessage('NO_VIEW', t)
-      if (selection.annotatedCount > 0) return t('handoff.selection.annotated')
-      if (selection.items.some((entry) => entry.isRotated))
-        return t('handoff.selection.rotated')
-    }
+    if (hasNoVariant(selection, settings))
+      return getRefusalMessage('NO_VARIANT', t)
+    if (getEffectiveViews(selection, settings).length === 0)
+      return getRefusalMessage('NO_VIEW', t)
+    if (selection.annotatedCount > 0) return t('handoff.selection.annotated')
+    if (selection.items.some((entry) => entry.isRotated))
+      return t('handoff.selection.rotated')
 
     return null
   }
 
   isGenerating = (): boolean =>
-    this.state.pendingAction === 'GENERATE_DOCUMENTATION' ||
-    this.state.pendingAction === 'GENERATE_CONTRACT'
+    this.state.pendingAction === 'GENERATE_DOCUMENTATION'
 
   handleGenerate = () => {
     const { selection, settings } = this.state
     const target = getTarget(selection, settings)
 
-    if (settings.outputs.documentation)
-      sendAnnotationAction('GENERATE_DOCUMENTATION', {
-        target,
-        views: getEffectiveViews(selection, settings),
-        depth: settings.depth,
-        grouping: target === 'FAMILY' ? settings.grouping : 'MERGED',
-        variantFilter: getVariantFilter(selection, settings),
-      })
-
-    // The contract always covers the whole component or family.
-    if (settings.outputs.contract)
-      sendAnnotationAction('GENERATE_CONTRACT', { target })
+    // The Canvas writes the machine contract of the same target alongside.
+    sendAnnotationAction('GENERATE_DOCUMENTATION', {
+      target,
+      views: getEffectiveViews(selection, settings),
+      depth: settings.depth,
+      grouping: target === 'FAMILY' ? settings.grouping : 'MERGED',
+      variantFilter: getVariantFilter(selection, settings),
+    })
   }
 
   // Renders
@@ -233,19 +223,11 @@ export default class SelectionHeader extends PureComponent<
       this.props.service,
       this.props.editor
     )
-    const { documentation, contract } = settings.outputs
     const isBlocked =
       this.getBlocker() !== null ||
-      (!documentation && !contract) ||
-      (documentation &&
-        (getEffectiveViews(selection, settings).length === 0 ||
-          hasNoVariant(selection, settings))) ||
+      getEffectiveViews(selection, settings).length === 0 ||
+      hasNoVariant(selection, settings) ||
       pendingAction !== null
-    const footerKey = documentation
-      ? contract
-        ? 'handoff.document.footer.hintBoth'
-        : 'handoff.document.footer.hint'
-      : 'handoff.document.footer.hintContract'
 
     return (
       <>
@@ -258,16 +240,35 @@ export default class SelectionHeader extends PureComponent<
               node: (
                 <div
                   className={layouts['snackbar--large']}
+                  style={{ justifyContent: 'space-between' }}
                 >
-                  <span
-                    className={doClassnames([texts.type, texts['type--bold']])}
-                    data-testid="selection-label"
+                  <div
+                    className={layouts['snackbar--large']}
+                    style={{ minWidth: 0 }}
                   >
-                    {this.getSelectionLabel()}
-                  </span>
-                  {this.isDocumentation() && (
-                    <Chip>{t('handoff.selection.documentation')}</Chip>
-                  )}
+                    <span
+                      className={doClassnames([
+                        texts.type,
+                        texts['type--bold'],
+                      ])}
+                      data-testid="selection-label"
+                    >
+                      {this.getSelectionLabel()}
+                    </span>
+                    {this.isDocumentation() && (
+                      <Chip>{t('handoff.selection.documentation')}</Chip>
+                    )}
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <Button
+                      type="primary"
+                      label={t('handoff.document.cta.generate')}
+                      isDisabled={isBlocked}
+                      isLoading={this.isGenerating()}
+                      isNew={features.GENERATE_DOCUMENTATION.isNew()}
+                      action={this.handleGenerate}
+                    />
+                  </div>
                 </div>
               ),
               spacingModifier: 'LARGE' as const,
@@ -292,25 +293,12 @@ export default class SelectionHeader extends PureComponent<
               ),
               spacingModifier: 'LARGE' as const,
             },
-            {
-              node: (
-                <Button
-                  type="primary"
-                  label={t('handoff.document.cta.generate')}
-                  isDisabled={isBlocked}
-                  isLoading={this.isGenerating()}
-                  isNew={features.GENERATE_DOCUMENTATION.isNew()}
-                  action={this.handleGenerate}
-                />
-              ),
-              spacingModifier: 'LARGE' as const,
-            },
             ...(message === null && !isBlocked
               ? [
                   {
                     node: (
                       <this.Secondary>
-                        {t(footerKey)}
+                        {t('handoff.document.footer.hint')}
                       </this.Secondary>
                     ),
                     spacingModifier: 'LARGE' as const,

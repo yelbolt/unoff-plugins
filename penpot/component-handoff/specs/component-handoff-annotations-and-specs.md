@@ -18,9 +18,9 @@ Redlines also answer the wrong question. A measured "24" between two blocks says
 
 Engineering increasingly reads designs through AI agents connected to the Penpot MCP server. What an agent sees today is either the raw shape tree (`x`, `y`, bounds — imperative), `generateStyle` output (one shape at a time, literal pixels, no notion of variant), or the drawn documentation (rectangles and text it has to guess the structure of). The plugin's own analysis — drivers, parts, fingerprint — sits in private plugin data no other plugin can read.
 
-## Two outputs, two readers
+## One generation, two readers
 
-Component Handoff produces two outputs from the same analysis. They are **independent**: each has its own switch, its own options, its own place in the panel and its own update policy. Neither is a by-product of the other, and an option of one never changes the other.
+Generating a documentation produces two outputs from the same analysis, for two readers: the **visual documentation** drawn on the canvas, and the **machine contract** written alongside it on the file. There is no switch: the designer goes through the visual documentation first, and every documentation comes with its contract. The contract is then found, copied and handed to an agent from the **Generated** tab, on the row of its documentation. The two outputs still differ in everything else — scope, form, options — and no option of the documentation changes the contract.
 
 | | Visual documentation | Machine contract |
 | --- | --- | --- |
@@ -30,10 +30,10 @@ Component Handoff produces two outputs from the same analysis. They are **indepe
 | Scope | The views ticked, the variants matching the filter | Always the **whole** component or family — every variant, every part, every rule. No view selection, no variant filter |
 | Style | Annotation style (color, text size, unit, placement, scale) | None. Lengths in design pixels, tokens by name |
 | Part identity | Numbers, following the numbered-layers choice | Stable layer paths, plus the number when a visual documentation exists |
-| Interactions | Locate, select, read, update | Copy, copy agent instructions, update, remove |
+| Interactions | Locate, select, read, update | Copy, copy agent instructions — from the documentation's row in the Generated tab |
 | When outdated | Flagged; the designer decides to update | Flagged in the contract itself, so the agent knows; updated by the designer, or automatically if the designer opted in |
 
-The reason for the split: a filter, a numbering depth or a scale mode is a **presentation** choice that helps a human read a sheet. Applied to the contract, it would silently hide variants or rules from an agent that has no way to know they were left out.
+The reason the contract ignores the documentation's options: a filter, a numbering depth or a scale mode is a **presentation** choice that helps a human read a sheet. Applied to the contract, it would silently hide variants or rules from an agent that has no way to know they were left out.
 
 ## User flow
 
@@ -45,24 +45,19 @@ The documentation is written **for developers**: it favours a few dense, useful 
 
 The panel has three tabs: **Documentation** (what to document, generate), **Generated** (the documentations and contracts of the page) and **Options** (annotation style, which applies to the visual documentation only).
 
-Under the selection header and *What to document*, an **Outputs** section groups the two switches, one under the other: **Visual documentation** (on by default) and **Machine contract** (off by default), each with a one-line description of what it produces. Below it come the options of each output that is switched on — the visual documentation's first (steps 4 and 5), then the contract's (step 6). With both switches off, Generate is disabled.
+The Documentation tab holds only the visual documentation's options. The machine contract has none: it is written by every generation, for the same component or family.
 
-Generating runs inside Penpot and blocks it while it works: a large family documented at every depth can freeze the tab for a long time. When the estimated volume of an output is large (documented variants × numbered parts), its options start with a warning that says so and suggests what reduces it — fewer variants, direct layers. The machine contract always covers the whole family, so only its own volume counts. Switching an output on never computes anything by itself.
+Generating runs inside Penpot and blocks it while it works: a large family documented at every depth can freeze the tab for a long time. When the estimated volume is large (documented variants × numbered parts, plus the whole family for the contract), the options start with a warning that says so and suggests what reduces it — fewer variants, direct layers — and that the contract always covers every variant. Ticking options or changing the selection never computes anything by itself.
 
 1. The designer selects a **component** (a main component, a copy, or any board) or a **component family** (a variant container, or one of its variants with "whole family" ticked).
 2. They open the plugin. A single information message, when one applies, sits at the very top — above the selection summary. Never two messages saying the same thing.
 3. A compact header says what will be documented: kind, name, variant count, and a one-line summary of the variant properties (e.g. `Variant · 3 values`, `Size · 4 values`) — never a raw dump of every value. The **Generate** button lives in this header, so it is reachable without scrolling. When the selection is a generated documentation, the header says so with a chip (e.g. `Documentation`) that sets it apart from design selections — no warning message.
 4. **Visual documentation** — they tick which views to generate — variants (family only), props (family only), anatomy, measurements, colors & references. Every list of checkboxes is laid out vertically, one option per line. Under Anatomy, a **numbered layers** choice explains, for the selected element, what each option will do to the generated documentation: *direct layers* numbers the layers directly inside the component (listed by name, with their count) so that anatomy, measurements and colors break it down into those parts, and deeper layers stay part of their parent; *every layer* numbers all nested layers at every depth (with their count), for the most detailed documentation, with a longer parts table and more markers. An element without inner layers says that only the component itself is documented. For a family, they also choose the **grouping** (*merged*: one anatomy and one set of tables for the whole family — the default; *per structure*: one per group of variants sharing a structure).
    For a family they can also narrow **which variants are documented**: the options are built from the family's own properties — one group per property, one checkbox per value, all ticked by default — and a counter shows how many variants match (e.g. `4 / 12 variants`). A variant is documented when each of its property values is ticked. The filter applies to every view of the visual documentation: variants, props, anatomy, measurements and colors. It never applies to the machine contract.
-5. They generate. One documentation board is drawn beside the design.
-6. **Machine contract** — the section has no view, filter or style option: a contract always covers the whole component or family. When the selected component or family already has a contract, it shows that contract's one-line summary (e.g. `2 props · 14 rules · 92 % tokenized · 2 exceptions`), its generation date and whether it is outdated; otherwise it says none has been generated yet. Nothing is computed to show it — it is read from the stored contract. It offers:
-   - **Keep up to date automatically** (off by default) — when an outdated contract is detected, rewrite it without asking. A contract has no visual footprint, so updating it disturbs nothing on the canvas; it stays opt-in because it changes what agents read.
-   - **Copy contract** — the stored JSON, for pasting into a prompt or a repository; unavailable until a contract exists.
-   - **Copy agent instructions** — a short, ready-to-paste text telling an agent connected to the Penpot MCP server where the contract is, how to read it, how to check it is current, and to fall back on the raw design only when no current contract exists (see *Machine contract*).
-   Generating writes or rewrites the contract; nothing is drawn.
-7. In the **Generated** tab they find every documentation and every contract of the page, each row tagged `Documentation` or `Contract`; a component with both has two rows. A documentation row offers **locate** (select and bring into view) and update. A contract row offers copy, update and remove — never locate, as it has no shape. Both kinds show when they are outdated. When a documented main component changes, the tab flags each of its outputs and offers to update, one by one or all at once.
-8. In the **Options** tab they set the annotation style (color, text size, unit, label placement, scale mode). **Changes apply and persist as they are made** — there is no save button and no confirmation message; the scale-mode choice is explained by the dropdown's own hint, with no extra "current mode" line. Every choice offers all its options; a setting with a single option is not shown. The style is stored on the document.
-9. Re-generating on an already-documented component updates the existing documentation and contract rather than duplicating them.
+5. They generate. One documentation board is drawn beside the design, and the machine contract of the same component or family is written on the file — always for the whole family, whatever the filter, views or depth. If the contract cannot be written, the documentation is still generated and the result says so.
+6. In the **Generated** tab they find every documentation of the page. Each row offers **locate** (select and bring into view) and update, and, from its contract: the contract's one-line summary (e.g. `2 props · 14 rules · 92 % tokenized · 2 exceptions`), **Copy contract** (the stored JSON, for pasting into a prompt or a repository) and **Copy agent instructions** (a short, ready-to-paste text telling an agent connected to the Penpot MCP server where this contract is, how to read it, how to check it is current, and to fall back on the raw design only when no current contract exists — see *Machine contract*). A row is outdated when its documentation or its contract is; updating it rewrites what is outdated. A contract whose documentation no longer exists keeps a row of its own, tagged `Contract`, with copy, update and remove — never locate, as it has no shape. When a documented main component changes, the tab flags it and offers to update, one by one or all at once.
+7. In the **Options** tab they set the annotation style (color, text size, unit, label placement, scale mode), and, for the machine contract, **Keep up to date automatically** (off by default): when an outdated contract is detected, rewrite it without asking. A contract has no visual footprint, so updating it disturbs nothing on the canvas; it stays opt-in because it changes what agents read. **Changes apply and persist as they are made** — there is no save button and no confirmation message; the scale-mode choice is explained by the dropdown's own hint, with no extra "current mode" line. Every choice offers all its options; a setting with a single option is not shown. The style is stored on the document.
+8. Re-generating on an already-documented component updates the existing documentation and contract rather than duplicating them.
 
 ## What the documentation shows
 
@@ -181,7 +176,7 @@ The documentation follows the unoff brand, consistently with other generated doc
 - When there is not enough room for a label, offset it with an orthogonal leader line rather than overlap the design.
 - Re-running on a documented component updates the existing documentation; it never creates a duplicate.
 - A documentation is never updated or deleted silently. When its main component changed, the plugin flags it as outdated and the designer decides to update. A documentation whose component is gone is removed only by an explicit action. Detection runs while the plugin is open: at launch and after each save of the file.
-- The visual documentation and the machine contract are separate outputs: each has its own switch and options, and no option of one changes the other. The variant filter, the view selection, the numbered-layers choice and the annotation style apply to the visual documentation only.
+- Every generation writes both outputs; there is no switch. The variant filter, the view selection, the numbered-layers choice and the annotation style apply to the visual documentation only, never to the contract.
 - A contract always covers the whole component or family. It never omits a variant, a part or a rule to stay short.
 - A contract and the visual documentation of the same component, generated from the same state, never disagree on a value, a reference or a driving property.
 - A contract references tokens by name. A resolved value appears in a rule only when no token backs the property.
@@ -230,17 +225,17 @@ The documentation follows the unoff brand, consistently with other generated doc
 - [ ]  A fill or stroke bound to a library color style shows the style name when no token backs it.
 - [ ]  Documenting a family shows every variant as a card with its own property values, first in the documentation, with no default marker and no comparison.
 - [ ]  Editing a documented main component, then saving, flags its documentation as outdated in the plugin; updating it clears the flag.
-- [ ]  The Documentation tab groups the two output switches in one Outputs section; generating with only one switch on produces only that output.
-- [ ]  Switching the machine contract on, or changing the selection, computes nothing: Penpot stays responsive on a 25-variant family.
-- [ ]  A large estimated volume shows a slowness warning in the options of the output concerned.
-- [ ]  Changing the variant filter, the views, the numbered layers or the annotation style in the panel, then generating the contract, gives the same contract as before, `generatedAt` aside.
+- [ ]  Generating a documentation also writes the contract of the same component or family; the Documentation tab has no contract switch or option.
+- [ ]  Ticking options or changing the selection computes nothing: Penpot stays responsive on a 25-variant family.
+- [ ]  A large estimated volume shows a slowness warning above the options.
+- [ ]  Changing the variant filter, the views, the numbered layers or the annotation style, then generating, gives the same contract as before, `generatedAt` and part numbers aside.
 - [ ]  An agent connected to the Penpot MCP server, with Component Handoff closed, reads the index and a contract through `penpot.currentFile.getSharedPluginData('unoff.handoff', …)`.
 - [ ]  A contract lists every variant property and every variant's parts, whatever the filter of the visual documentation.
 - [ ]  On a fully tokenized component, no rule of the contract holds a resolved value.
 - [ ]  Every value that varies across variants appears in the contract with the same driving property as in the visual documentation.
 - [ ]  An absolutely positioned part appears in `exceptions`, never in `rules`; its measurements carry a `measured` chip in the visual documentation.
 - [ ]  Editing a component with a contract, then saving, sets the contract's `status` and its index entry to `outdated`; updating it sets them back to `current`. With *Keep up to date automatically* on, the contract is rewritten instead.
-- [ ]  The Generated tab lists documentations and contracts as separate, tagged rows; a contract row has no locate action.
+- [ ]  In the Generated tab, a documentation's row copies its contract and the agent instructions; a contract without a documentation has its own `Contract` row, with no locate action.
 - [ ]  The Props view lists, for each variant property, every part and property it drives, consistently with the measurement and color tables.
 - [ ]  A token that references another token shows its full chain in the colors view, and in the contract's `tokens`.
 

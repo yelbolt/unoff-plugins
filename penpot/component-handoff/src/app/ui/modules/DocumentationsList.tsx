@@ -11,12 +11,11 @@ import {
 } from '@unoff/ui'
 import { WithTranslationProps } from '../components/WithTranslation'
 import { formatContractSummary } from '../../utils/contractSummary'
+import { copyWithNotice } from '../../utils/clipboard'
+import { GeneratedRow, buildGeneratedRows } from '../../utils/annotationRules'
 import { sendAnnotationAction } from '../../utils/annotationActions'
-import {
-  ContractStatus,
-  DocumentationsStatusData,
-  DocumentationStatus,
-} from '../../types/annotations'
+import { buildAgentInstructions } from '../../utils/agentInstructions'
+import { DocumentationsStatusData } from '../../types/annotations'
 import { $documentationsStatus, $pendingAction } from '../../stores/annotations'
 
 interface DocumentationsListState {
@@ -58,14 +57,26 @@ export default class DocumentationsList extends PureComponent<
   handleLocate = (docId: string) => () =>
     sendAnnotationAction('LOCATE_DOCUMENTATION', { docId })
 
-  handleUpdate = (docId: string) => () =>
-    sendAnnotationAction('UPDATE_DOCUMENTATIONS', { docIds: [docId] })
+  // The documentation update rewrites its contract too.
+  handleUpdate = (row: GeneratedRow) => () => {
+    if (row.updateWith === 'DOCUMENTATION' && row.documentation !== null)
+      sendAnnotationAction('UPDATE_DOCUMENTATIONS', {
+        docIds: [row.documentation.docId],
+      })
+    else if (row.contract !== null)
+      sendAnnotationAction('UPDATE_CONTRACTS', { keys: [row.contract.key] })
+  }
 
+  // The copy follows CONTRACT_LOADED (handled in App.tsx).
   handleCopyContract = (key: string) => () =>
     sendAnnotationAction('GET_CONTRACT', { key })
 
-  handleUpdateContract = (key: string) => () =>
-    sendAnnotationAction('UPDATE_CONTRACTS', { keys: [key] })
+  handleCopyInstructions = (key: string) => () =>
+    void copyWithNotice(
+      buildAgentInstructions(key),
+      'handoff.copy.instructionsCopied',
+      this.props.t
+    )
 
   handleRemoveContract = (key: string) => () =>
     sendAnnotationAction('REMOVE_CONTRACT', { key })
@@ -77,20 +88,41 @@ export default class DocumentationsList extends PureComponent<
     </span>
   )
 
-  Row = (props: {
-    id: string
-    kind: 'DOCUMENTATION' | 'CONTRACT'
-    name: string
-    outdated: boolean
-    missing: boolean
-    details: string
-    actions: preact.ComponentChildren
-  }) => {
+  // One row per documentation, carrying the contract written alongside; a
+  // contract whose documentation is not on the page keeps its own row.
+  Item = (row: GeneratedRow) => {
     const { t } = this.props
+    const { pendingAction } = this.state
+    const { documentation, contract } = row
+    const isOrphan = documentation === null
+    const source = (documentation ?? contract) as NonNullable<
+      typeof documentation | typeof contract
+    >
+    const missing = source.missing
+    const isBusy = pendingAction !== null
+    const needsDocumentationUpdate =
+      documentation !== null && (documentation.outdated || documentation.missing)
+    const generatedAt = source.generatedAt
+    const lines = [
+      [
+        t(`handoff.documentations.kind.${source.target}`),
+        documentation !== null
+          ? (documentation.boardName ?? t('handoff.selection.noBoard'))
+          : null,
+        t('handoff.documentations.generated', {
+          date: new Date(generatedAt).toLocaleDateString(),
+        }),
+      ]
+        .filter((part): part is string => part !== null)
+        .join(' · '),
+      contract !== null
+        ? `${t('handoff.documentations.contractLabel')} · ${formatContractSummary(contract.summary, t)}`
+        : null,
+    ].filter((line): line is string => line !== null)
 
     return (
       <div
-        key={props.id}
+        key={row.id}
         className={layouts['snackbar--large']}
         style={{ justifyContent: 'space-between' }}
       >
@@ -103,138 +135,91 @@ export default class DocumentationsList extends PureComponent<
         >
           <div className={layouts['snackbar--medium']}>
             <span className={doClassnames([texts.type, texts['type--bold']])}>
-              {props.name}
+              {source.name}
             </span>
-            <Chip state="INACTIVE">
-              {t(`handoff.documentations.tag.${props.kind}`)}
-            </Chip>
-            {props.missing ? (
+            {isOrphan && (
+              <Chip state="INACTIVE">
+                {t('handoff.documentations.tag.CONTRACT')}
+              </Chip>
+            )}
+            {missing ? (
               <Chip state="INACTIVE">
                 {t('handoff.documentations.missing')}
               </Chip>
-            ) : props.outdated ? (
+            ) : row.outdated ? (
               <Chip>{t('handoff.documentations.outdated')}</Chip>
             ) : null}
           </div>
-          <this.Hint label={props.details} />
+          {lines.map((line) => (
+            <this.Hint
+              key={line}
+              label={line}
+            />
+          ))}
+          {contract !== null && !missing && (
+            <div className={layouts['snackbar--medium']}>
+              <Button
+                type="tertiary"
+                size="small"
+                label={t('handoff.documentations.copy')}
+                isDisabled={isBusy}
+                action={this.handleCopyContract(contract.key)}
+              />
+              <Button
+                type="tertiary"
+                size="small"
+                label={t('handoff.documentations.copyInstructions')}
+                action={this.handleCopyInstructions(contract.key)}
+              />
+            </div>
+          )}
         </div>
         <div className={layouts['snackbar--medium']} style={{ flexShrink: 0 }}>
-          {props.actions}
+          {documentation !== null && !missing && (
+            <Button
+              type="icon"
+              icon="target"
+              helper={{ label: t('handoff.documentations.locate') }}
+              action={this.handleLocate(documentation.docId)}
+            />
+          )}
+          {(row.updateWith !== null || needsDocumentationUpdate) && (
+            <Button
+              type="secondary"
+              label={t(
+                documentation !== null && documentation.missing
+                  ? 'handoff.documentations.remove'
+                  : 'handoff.documentations.update'
+              )}
+              isDisabled={isBusy}
+              isLoading={
+                pendingAction === 'UPDATE_DOCUMENTATIONS' ||
+                pendingAction === 'UPDATE_CONTRACTS'
+              }
+              action={this.handleUpdate(row)}
+            />
+          )}
+          {isOrphan && contract !== null && (
+            <Button
+              type={contract.missing ? 'secondary' : 'icon'}
+              icon={contract.missing ? undefined : 'trash'}
+              label={
+                contract.missing ? t('handoff.documentations.remove') : undefined
+              }
+              helper={{ label: t('handoff.documentations.removeContract') }}
+              isDisabled={isBusy}
+              isLoading={pendingAction === 'REMOVE_CONTRACT'}
+              action={this.handleRemoveContract(contract.key)}
+            />
+          )}
         </div>
       </div>
     )
   }
 
-  Item = (item: DocumentationStatus) => {
-    const { t } = this.props
-    const { pendingAction } = this.state
-    const needsUpdate = item.outdated || item.missing
-    const details = [
-      t(`handoff.documentations.kind.${item.target}`),
-      item.boardName ?? t('handoff.selection.noBoard'),
-      t('handoff.documentations.generated', {
-        date: new Date(item.generatedAt).toLocaleDateString(),
-      }),
-    ].join(' · ')
-
-    return this.Row({
-      id: `documentation-${item.docId}`,
-      kind: 'DOCUMENTATION',
-      name: item.name,
-      outdated: item.outdated,
-      missing: item.missing,
-      details,
-      actions: (
-        <>
-          {!item.missing && (
-            <Button
-              type="icon"
-              icon="target"
-              helper={{
-                label: t('handoff.documentations.locate'),
-              }}
-              action={this.handleLocate(item.docId)}
-            />
-          )}
-          {needsUpdate && (
-            <Button
-              type="secondary"
-              label={t(
-                item.missing
-                  ? 'handoff.documentations.remove'
-                  : 'handoff.documentations.update'
-              )}
-              isDisabled={pendingAction !== null}
-              isLoading={pendingAction === 'UPDATE_DOCUMENTATIONS'}
-              action={this.handleUpdate(item.docId)}
-            />
-          )}
-        </>
-      ),
-    })
-  }
-
-  // A contract has no shape on the canvas: no locate action.
-  ContractItem = (item: ContractStatus) => {
-    const { t } = this.props
-    const { pendingAction } = this.state
-    const details = [
-      t(`handoff.documentations.kind.${item.target}`),
-      formatContractSummary(item.summary, t),
-      t('handoff.documentations.generated', {
-        date: new Date(item.generatedAt).toLocaleDateString(),
-      }),
-    ].join(' · ')
-
-    return this.Row({
-      id: `contract-${item.key}`,
-      kind: 'CONTRACT',
-      name: item.name,
-      outdated: item.outdated,
-      missing: item.missing,
-      details,
-      actions: (
-        <>
-          <Button
-            type="icon"
-            icon="copy"
-            helper={{
-              label: t('handoff.documentations.copy'),
-            }}
-            isDisabled={pendingAction !== null}
-            action={this.handleCopyContract(item.key)}
-          />
-          {item.outdated && !item.missing && (
-            <Button
-              type="secondary"
-              label={t('handoff.documentations.update')}
-              isDisabled={pendingAction !== null}
-              isLoading={pendingAction === 'UPDATE_CONTRACTS'}
-              action={this.handleUpdateContract(item.key)}
-            />
-          )}
-          <Button
-            type={item.missing ? 'secondary' : 'icon'}
-            icon={item.missing ? undefined : 'trash'}
-            label={
-              item.missing ? t('handoff.documentations.remove') : undefined
-            }
-            helper={{
-              label: t('handoff.documentations.removeContract'),
-            }}
-            isDisabled={pendingAction !== null}
-            isLoading={pendingAction === 'REMOVE_CONTRACT'}
-            action={this.handleRemoveContract(item.key)}
-          />
-        </>
-      ),
-    })
-  }
-
   render() {
     const { t } = this.props
-    const { items, contracts } = this.state.status
-    const isEmpty = items.length === 0 && contracts.length === 0
+    const rows = buildGeneratedRows(this.state.status)
 
     return (
       <Section
@@ -248,23 +233,17 @@ export default class DocumentationsList extends PureComponent<
           />
         }
         body={
-          isEmpty
+          rows.length === 0
             ? [
                 {
                   node: <this.Hint label={t('handoff.documentations.empty')} />,
                   spacingModifier: 'LARGE' as const,
                 },
               ]
-            : [
-                ...items.map((item) => ({
-                  node: this.Item(item),
-                  spacingModifier: 'LARGE' as const,
-                })),
-                ...contracts.map((item) => ({
-                  node: this.ContractItem(item),
-                  spacingModifier: 'LARGE' as const,
-                })),
-              ]
+            : rows.map((row) => ({
+                node: this.Item(row),
+                spacingModifier: 'LARGE' as const,
+              }))
         }
       />
     )

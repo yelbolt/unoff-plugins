@@ -18,7 +18,6 @@ import {
   updateDocumentations,
 } from './annotations/documentationsStatus'
 import {
-  generateContract,
   getContract,
   getContractSettings,
   removeContract,
@@ -206,7 +205,6 @@ const loadUI = async () => {
       GET_DOCUMENTATIONS_STATUS: () => getDocumentationsStatus(),
       LOCATE_DOCUMENTATION: () => locateDocumentation(path.data),
       UPDATE_DOCUMENTATIONS: () => updateDocumentations(path.data),
-      GENERATE_CONTRACT: () => generateContract(path.data),
       GET_CONTRACT: () => getContract(path.data),
       UPDATE_CONTRACTS: () => updateContracts(path.data),
       REMOVE_CONTRACT: () => removeContract(path.data),

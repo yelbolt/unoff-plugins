@@ -14,7 +14,6 @@ import { copyWithNotice } from '../utils/clipboard'
 import {
   buildAppliedNotification,
   buildContractsUpdatedNotification,
-  buildContractWrittenNotification,
   buildDocumentationsUpdatedNotification,
   buildRefusedNotification,
 } from '../utils/annotationNotifications'
@@ -562,12 +561,6 @@ class App extends Component<AppProps, AppState> {
           'DOCUMENTATION'
         )
 
-      const handleContractWritten = () =>
-        notify(
-          buildContractWrittenNotification(path.data, this.props.t),
-          'CONTRACT'
-        )
-
       const handleContractsUpdated = () =>
         notify(
           buildContractsUpdatedNotification(path.data, this.props.t),
@@ -720,7 +713,6 @@ class App extends Component<AppProps, AppState> {
         ANNOTATION_REFUSED: () => handleAnnotationRefused(),
         DOCUMENTATIONS_STATUS_CHANGED: () => handleDocumentationsStatus(),
         DOCUMENTATIONS_UPDATED: () => handleDocumentationsUpdated(),
-        CONTRACT_WRITTEN: () => handleContractWritten(),
         CONTRACT_LOADED: () => handleContractLoaded(),
         CONTRACTS_UPDATED: () => handleContractsUpdated(),
         CONTRACT_SETTINGS_LOADED: () => handleContractSettings(),

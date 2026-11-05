@@ -333,7 +333,6 @@ export default class Shortcuts extends PureComponent<
             <>
               <div
                 className={doClassnames([
-                  'shortcuts',
                   layouts['snackbar--medium'],
                 ])}
               >
@@ -838,11 +837,14 @@ export default class Shortcuts extends PureComponent<
             </>
           }
           leftPartSlot={
-            <Feature isActive={this.features.PRO_PLAN.isActive()}>
-              <PlanControls {...this.props} />
-            </Feature>
+            // The left slot must always exist: it is the one that grows and
+            // pushes the right slot (footer icons) to the right end.
+            <div>
+              <Feature isActive={this.features.PRO_PLAN.isActive()}>
+                <PlanControls {...this.props} />
+              </Feature>
+            </div>
           }
-          shouldReflow
           border={['TOP']}
         />
       </>

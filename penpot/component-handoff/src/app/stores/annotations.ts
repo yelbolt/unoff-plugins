@@ -62,8 +62,9 @@ export const $pendingAction = atom<string | null>(null)
 /**
  * The Canvas answers on one of two channels: the visual documentation
  * (ANNOTATION_APPLIED, DOCUMENTATIONS_UPDATED, ANNOTATION_REFUSED of kind
- * DOCUMENTATION) or the machine contract (CONTRACT_WRITTEN, CONTRACTS_UPDATED,
- * CONTRACT_LOADED, ANNOTATION_REFUSED of kind CONTRACT).
+ * DOCUMENTATION; the contract written alongside is reported in it) or the
+ * machine contract reads and updates (CONTRACTS_UPDATED, CONTRACT_LOADED,
+ * ANNOTATION_REFUSED of kind CONTRACT).
  */
 export type PendingChannel = 'DOCUMENTATION' | 'CONTRACT'
 
@@ -101,7 +102,6 @@ export const $contractSettings = atom<ContractSettings>({
  * and the Document context (the form).
  */
 export interface DocSettings {
-  outputs: { documentation: boolean; contract: boolean } // one switch per output
   target: DocTarget | null // null = follow the default derived from the selection
   views: Array<DocView>
   depth: PartsDetail
@@ -110,7 +110,6 @@ export interface DocSettings {
 }
 
 export const DEFAULT_DOC_SETTINGS: DocSettings = {
-  outputs: { documentation: true, contract: false },
   target: null,
   views: [...DOC_VIEWS],
   depth: 'MAIN',

@@ -2,7 +2,6 @@ import {
   AnnotationAction,
   AnnotationStyle,
   ContractSettings,
-  GenerateContractData,
   GenerateDocumentationData,
   GetContractData,
   LocateDocumentationData,
@@ -21,7 +20,6 @@ type ActionPayloads = {
   GET_DOCUMENTATIONS_STATUS: undefined
   LOCATE_DOCUMENTATION: LocateDocumentationData
   UPDATE_DOCUMENTATIONS: UpdateDocumentationsData
-  GENERATE_CONTRACT: GenerateContractData
   GET_CONTRACT: GetContractData
   UPDATE_CONTRACTS: UpdateContractsData
   REMOVE_CONTRACT: RemoveContractData
@@ -44,7 +42,6 @@ const READ_ONLY_ACTIONS: Array<AnnotationAction> = [
 const PENDING_CHANNELS: Partial<Record<AnnotationAction, PendingChannel>> = {
   GENERATE_DOCUMENTATION: 'DOCUMENTATION',
   UPDATE_DOCUMENTATIONS: 'DOCUMENTATION',
-  GENERATE_CONTRACT: 'CONTRACT',
   UPDATE_CONTRACTS: 'CONTRACT',
   GET_CONTRACT: 'CONTRACT',
   REMOVE_CONTRACT: 'CONTRACT',

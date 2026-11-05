@@ -4,7 +4,6 @@ import {
   AnnotationKind,
   AnnotationRefusedData,
   ContractsUpdatedData,
-  ContractWrittenData,
   DocumentationsUpdatedData,
   RefusalReason,
 } from '../types/annotations'
@@ -58,6 +57,14 @@ export const buildAppliedNotification = (
     ),
   ]
   if (data.rotatedNotice) parts.push(t('handoff.result.rotated'))
+  if (data.contract !== null) parts.push(t('handoff.result.contractWritten'))
+
+  // The documentation is generated either way: a missing contract only warns.
+  if (data.contract === null) {
+    parts.push(t('handoff.result.contractFailed'))
+
+    return { type: 'WARNING', message: parts.join(' '), timer: 8000 }
+  }
 
   return { type: 'SUCCESS', message: parts.join(' '), timer: 6000 }
 }
@@ -80,20 +87,6 @@ export const buildDocumentationsUpdatedNotification = (
     updated: data.updated,
     removed: data.removed,
   }),
-  timer: 6000,
-})
-
-export const buildContractWrittenNotification = (
-  data: ContractWrittenData,
-  t: Translate
-): NotificationMessage => ({
-  type: 'SUCCESS',
-  message: t(
-    data.created
-      ? 'handoff.result.contract.created'
-      : 'handoff.result.contract.updated',
-    { name: data.name }
-  ),
   timer: 6000,
 })
 

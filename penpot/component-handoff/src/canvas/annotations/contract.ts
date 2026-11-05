@@ -11,7 +11,7 @@ import { makeRefCtx } from './refs'
 import { readOptions } from './options'
 import { buildMerged } from './merged'
 import { invalidate, readPhase } from './memo'
-import { currentPage, findExistingAnywhere, isAnnotationShape } from './layer'
+import { currentPage, findExistingAnywhere } from './layer'
 import { collectEntries } from './groups'
 import { fingerprintOf } from './fingerprint'
 import { KEYS } from './constants'
@@ -23,10 +23,8 @@ import type {
   ContractSettings,
   ContractStatus,
   ContractSummary,
-  ContractWrittenData,
   ContractsUpdatedData,
   DocTarget,
-  GenerateContractData,
   RefusalReason,
   UpdateContractsData,
 } from '../../app/types/annotations'
@@ -200,28 +198,16 @@ const refuse = (reason: RefusalReason): Refused => ({
   refused: { kind: 'CONTRACT', reason },
 })
 
-// Same selection rules as the documentation.
-const resolveSelection = (data: GenerateContractData): Resolved | RefusalReason => {
-  const selected = penpot.selection
-  if (selected.length === 0) return 'NO_SELECTION'
-  if (selected.length !== 1) return 'WRONG_SELECTION_COUNT'
-  if (isAnnotationShape(selected[0])) return 'ANNOTATION_SELECTED'
-  return resolveTarget(selected[0], data?.target === 'FAMILY' ? 'FAMILY' : 'COMPONENT')
-}
-
 // ── Actions ────────────────────────────────────────────────────────────────
 
-export const generateContract = (
-  data: GenerateContractData
-): { written: ContractWrittenData } | Refused => {
-  // Keeps what the documentation generated a moment ago just computed
-  // (analysis, references); everything else is read afresh.
-  invalidate('an:', 'fp:', 'refs')
-  const res = resolveSelection(data)
-  if (typeof res === 'string') return refuse(res)
+// Written by every documentation generation and update, for the same target
+// (spec: "One generation, two readers"). Called right after the documentation
+// is drawn, so the analysis and references computed for it are reused and
+// part numbers come from the documentation just generated.
+export const writeContract = (res: Resolved): ContractSummary => {
   const built = build(res)
-  const created = store(built)
-  return { written: { name: built.name, created, summary: built.summary } }
+  store(built)
+  return built.summary
 }
 
 export const getContract = (

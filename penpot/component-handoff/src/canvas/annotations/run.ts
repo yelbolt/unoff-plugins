@@ -11,6 +11,7 @@ import {
 } from './layer'
 import { countMatching } from './groups'
 import { drawDocumentation } from './documentation'
+import { writeContract } from './contract'
 import { KEYS } from './constants'
 import { commitAnnotation } from './commit'
 import type { Shape } from '@penpot/plugin-types'
@@ -19,6 +20,7 @@ import type {
   AnnotationKind,
   AnnotationRefusedData,
   AnnotationStyle,
+  ContractSummary,
   DocTarget,
   DocumentationsUpdatedData,
   GenerateDocumentationData,
@@ -39,13 +41,14 @@ const refuse = (reason: RefusalReason): { refused: AnnotationRefusedData } => ({
   refused: { kind: KIND, reason },
 })
 
-// Resolves the target and draws; returns a refusal reason when the target
-// cannot be documented. Shared by GENERATE_DOCUMENTATION and the update.
+// Resolves the target, draws, then writes the machine contract of the same
+// target; returns a refusal reason when the target cannot be documented.
+// Shared by GENERATE_DOCUMENTATION and the update.
 export const documentShape = (
   shape: Shape,
   data: GenerateDocumentationData,
   style: AnnotationStyle
-): CommitResult | RefusalReason => {
+): (CommitResult & { contract: ContractSummary | null }) | RefusalReason => {
   const res = resolveTarget(shape, data.target)
   if (typeof res === 'string') return res
   if (
@@ -55,9 +58,18 @@ export const documentShape = (
     countMatching(res, data.variantFilter) === 0
   )
     return 'NO_VARIANT'
-  return commitAnnotation(KIND, [res.root], style, (env) =>
+  const result = commitAnnotation(KIND, [res.root], style, (env) =>
     drawDocumentation(env, res, data)
   )
+  // Always the whole family, whatever the documentation's options. A failure
+  // here never costs the designer the documentation just drawn.
+  let contract: ContractSummary | null = null
+  try {
+    contract = writeContract(res)
+  } catch (error) {
+    console.error('[component-handoff] contract write failed', error)
+  }
+  return { ...result, contract }
 }
 
 export const generateDocumentation = (
@@ -94,6 +106,7 @@ export const generateDocumentation = (
       rotatedNotice: result.rotated,
       parts: result.parts,
       ...(result.variants !== undefined ? { variants: result.variants } : {}),
+      contract: result.contract,
     },
   }
 }

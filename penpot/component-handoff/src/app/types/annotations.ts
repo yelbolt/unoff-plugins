@@ -5,10 +5,10 @@
 // ── Domain ─────────────────────────────────────────────────────────────────
 
 /**
- * The two outputs (spec: "Two outputs, two readers"). They are independent:
+ * One generation, two readers (spec: "One generation, two readers"):
  * DOCUMENTATION is drawn on the canvas for humans; CONTRACT is JSON written to
- * the file's shared plugin data for AI agents (Penpot MCP). No option of one
- * changes the other.
+ * the file's shared plugin data for AI agents (Penpot MCP), alongside every
+ * documentation. No option of the documentation changes the contract.
  */
 export type AnnotationKind = 'DOCUMENTATION' | 'CONTRACT'
 
@@ -220,14 +220,6 @@ export interface UpdateDocumentationsData {
   docIds: Array<string> | 'OUTDATED' // explicit ids, or every outdated one on the page
 }
 
-/**
- * The contract always covers the WHOLE component or family: no views, no
- * variant filter, no depth, no style — only what is documented.
- */
-export interface GenerateContractData {
-  target: DocTarget
-}
-
 export interface GetContractData {
   key: string // `contract:<targetId>`
 }
@@ -250,6 +242,10 @@ export interface AnnotationAppliedData {
   rotatedNotice: boolean // at least one measured element was rotated (bbox)
   parts?: number // anatomy parts numbered
   variants?: number // FAMILY: variants documented
+  // The machine contract written alongside, for the same target and always
+  // for the whole family (no filter, views or style); null if it could not be
+  // written — the documentation itself is still generated.
+  contract: ContractSummary | null
 }
 
 export interface AnnotationRefusedData {
@@ -269,12 +265,6 @@ export interface DocumentationsUpdatedData {
   removed: number // documentations whose target is gone, removed
 }
 
-export interface ContractWrittenData {
-  name: string
-  created: boolean // false = an existing contract was rewritten in place
-  summary: ContractSummary
-}
-
 export interface ContractLoadedData {
   key: string
   json: string // the stored contract, pretty-printed, ready to copy
@@ -292,12 +282,11 @@ export type AnnotationAction =
   | 'GET_ANNOTATION_STYLE' //           → ANNOTATION_STYLE_LOADED
   | 'SET_ANNOTATION_STYLE' //   AnnotationStyle → ANNOTATION_STYLE_SAVED
   | 'GENERATE_DOCUMENTATION' // GenerateDocumentationData → ANNOTATION_APPLIED | ANNOTATION_REFUSED
+//                                        (also writes the machine contract of the same target)
   | 'GET_DOCUMENTATIONS_STATUS' //      → DOCUMENTATIONS_STATUS_CHANGED
   | 'LOCATE_DOCUMENTATION' //  LocateDocumentationData → (no reply; selection changes, SELECTION_CHANGED follows)
   | 'UPDATE_DOCUMENTATIONS' //  UpdateDocumentationsData → DOCUMENTATIONS_UPDATED | ANNOTATION_REFUSED
-//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
-  | 'GENERATE_CONTRACT' //      GenerateContractData → CONTRACT_WRITTEN | ANNOTATION_REFUSED (kind CONTRACT)
-//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+//                                        (also rewrites the contracts of the updated targets; then DOCUMENTATIONS_STATUS_CHANGED)
   | 'GET_CONTRACT' //           GetContractData → CONTRACT_LOADED | ANNOTATION_REFUSED (NO_CONTRACT)
   | 'UPDATE_CONTRACTS' //       UpdateContractsData → CONTRACTS_UPDATED | ANNOTATION_REFUSED (NOTHING_TO_UPDATE)
 //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
@@ -314,7 +303,6 @@ export type AnnotationEvent =
   | 'ANNOTATION_REFUSED' //             AnnotationRefusedData
   | 'DOCUMENTATIONS_STATUS_CHANGED' //  DocumentationsStatusData (also pushed on 'contentsave', 'pagechange', and after generate/update)
   | 'DOCUMENTATIONS_UPDATED' //         DocumentationsUpdatedData
-  | 'CONTRACT_WRITTEN' //               ContractWrittenData
   | 'CONTRACT_LOADED' //                ContractLoadedData
   | 'CONTRACTS_UPDATED' //              ContractsUpdatedData
   | 'CONTRACT_SETTINGS_LOADED' //       ContractSettings

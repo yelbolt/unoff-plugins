@@ -110,10 +110,3 @@ section.context {
 .handoff-form-item {
   margin-left: calc(var(--space-inset-200) * -1);
 }
-
-/* Footer icons sit at the right end of the bar */
-.shortcuts {
-  margin-right: var(--scale-pos-xsmall);
-  margin-left: auto;
-  width: fit-content;
-}

@@ -1,5 +1,4 @@
 import {
-  generateContract as run,
   getContract as read,
   loadContractSettings,
   removeContract as drop,
@@ -7,10 +6,8 @@ import {
   updateContracts as refresh,
 } from '../../canvas/annotations/contract'
 import { surfaceError } from './surfaceError'
-import { getSelection } from './getSelection'
 import { pushDocumentationsStatus } from './documentationsStatus'
 import type {
-  GenerateContractData,
   GetContractData,
   RemoveContractData,
   UpdateContractsData,
@@ -18,20 +15,6 @@ import type {
 
 const refused = (r: { refused: unknown }): void =>
   penpot.ui.sendMessage({ type: 'ANNOTATION_REFUSED', data: r.refused })
-
-// GENERATE_CONTRACT -> CONTRACT_WRITTEN | ANNOTATION_REFUSED (then DOCUMENTATIONS_STATUS_CHANGED)
-export const generateContract = (data: GenerateContractData): void => {
-  try {
-    const out = run(data)
-    if ('written' in out)
-      penpot.ui.sendMessage({ type: 'CONTRACT_WRITTEN', data: out.written })
-    else refused(out)
-    pushDocumentationsStatus()
-    getSelection()
-  } catch (error) {
-    surfaceError(error)
-  }
-}
 
 // GET_CONTRACT -> CONTRACT_LOADED | ANNOTATION_REFUSED (NO_CONTRACT)
 export const getContract = (data: GetContractData): void => {

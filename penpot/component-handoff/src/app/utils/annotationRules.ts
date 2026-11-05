@@ -3,7 +3,10 @@ import {
   DocView,
   VariantFilter,
   DocTarget,
+  ContractStatus,
   DocumentationsStatusData,
+  DocumentationStatus,
+  contractKey,
   RefusalReason,
   SelectionDigest,
   SelectionItem,
@@ -119,6 +122,63 @@ export const getVariantFilter = (
   return Object.keys(filter).length > 0 ? filter : null
 }
 
-/** Documentations and contracts that need an update, counted together. */
+/**
+ * One row of the Generated tab: a documentation with the contract written
+ * alongside it, or a contract whose documentation is not on the page.
+ */
+export interface GeneratedRow {
+  id: string
+  documentation: DocumentationStatus | null
+  contract: ContractStatus | null
+  outdated: boolean // the documentation OR its contract is outdated
+  /** How the row is brought up to date: the documentation update rewrites the contract too. */
+  updateWith: 'DOCUMENTATION' | 'CONTRACT' | null
+}
+
+export const buildGeneratedRows = (
+  status: DocumentationsStatusData
+): Array<GeneratedRow> => {
+  const usedKeys = new Set<string>()
+  const rows: Array<GeneratedRow> = status.items.map((item) => {
+    const contract =
+      status.contracts.find(
+        (candidate) => candidate.key === contractKey(item.targetId)
+      ) ?? null
+    if (contract !== null) usedKeys.add(contract.key)
+
+    const documentationOutdated = item.outdated || item.missing
+    const contractOutdated =
+      contract !== null && contract.outdated && !contract.missing
+
+    return {
+      id: `documentation-${item.docId}`,
+      documentation: item,
+      contract,
+      outdated: documentationOutdated || contractOutdated,
+      updateWith: documentationOutdated
+        ? 'DOCUMENTATION'
+        : contractOutdated
+          ? 'CONTRACT'
+          : null,
+    }
+  })
+
+  status.contracts
+    .filter((contract) => !usedKeys.has(contract.key))
+    .forEach((contract) =>
+      rows.push({
+        id: `contract-${contract.key}`,
+        documentation: null,
+        contract,
+        outdated: contract.outdated && !contract.missing,
+        updateWith:
+          contract.outdated && !contract.missing ? 'CONTRACT' : null,
+      })
+    )
+
+  return rows
+}
+
+/** Rows that need an update (a documentation and its own contract count once). */
 export const countOutdated = (status: DocumentationsStatusData): number =>
-  status.outdatedCount + status.contractsOutdatedCount
+  buildGeneratedRows(status).filter((row) => row.outdated).length

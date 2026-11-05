@@ -303,9 +303,7 @@
         }
       },
       "footer": {
-        "hint": "Generated as native boards and text beside the design.",
-        "hintBoth": "Documentation drawn beside the design; contract stored on the file.",
-        "hintContract": "Contract stored on the file for agents; nothing is drawn."
+        "hint": "Generated as native boards and text beside the design."
       },
       "cta": {
         "generate": "Generate"
@@ -333,31 +331,11 @@
           "description": "Each variant property, its values and what it drives."
         }
       },
-      "outputs": {
-        "visual": {
-          "title": "Visual documentation",
-          "description": "Draws the component on the canvas for people: views, tables and redlines."
-        },
-        "contract": {
-          "title": "Machine contract",
-          "description": "Writes a JSON contract on the file for AI agents; nothing is drawn."
-        },
-        "title": "Outputs"
-      },
-      "contract": {
-        "autoUpdate": {
-          "label": "Keep up to date automatically",
-          "hint": "Rewrites an outdated contract as soon as it is detected, without asking."
-        },
-        "copyContract": "Copy contract",
-        "copyInstructions": "Copy agent instructions",
-        "none": "No contract generated yet for this selection."
-      },
       "warning": {
         "large": "Large volume (about {count} elements): generation runs inside Penpot and can freeze it for a while.",
         "fewerVariants": "Try fewer variants.",
         "directLayers": "Try direct layers only.",
-        "wholeFamily": "The contract always covers the whole family."
+        "wholeFamily": "The contract always covers every variant."
       }
     },
     "refusal": {
@@ -370,8 +348,7 @@
       "noVariant": "No variant matches the selected values.",
       "nothingToUpdate": "There is no documentation to update.",
       "noContract": "This contract no longer exists.",
-      "nothingToUpdateContract": "There is no contract to update.",
-      "noOutput": "Switch on at least one output."
+      "nothingToUpdateContract": "There is no contract to update."
     },
     "result": {
       "documentation": {
@@ -380,11 +357,9 @@
       },
       "rotated": "Rotated element: measured on its bounding box.",
       "documentationsUpdated": "{updated} updated, {removed} removed",
-      "contract": {
-        "created": "Contract created · {name}",
-        "updated": "Contract updated · {name}"
-      },
-      "contractsUpdated": "{updated, plural, one {# contract} other {# contracts}} updated, {removed} removed"
+      "contractsUpdated": "{updated, plural, one {# contract} other {# contracts}} updated, {removed} removed",
+      "contractWritten": "Contract written alongside.",
+      "contractFailed": "The contract could not be written; the documentation is generated."
     },
     "style": {
       "title": "Annotation style",
@@ -432,8 +407,8 @@
       "options": "Options"
     },
     "documentations": {
-      "title": "Documentations and contracts on this page",
-      "empty": "No documentation or contract on this page yet.",
+      "title": "Documentations on this page",
+      "empty": "No documentation on this page yet.",
       "kind": {
         "COMPONENT": "Component",
         "FAMILY": "Family"
@@ -446,17 +421,23 @@
       "remove": "Remove",
       "updateAll": "Update all",
       "banner": {
-        "one": "{count} output needs an update — its component changed or was removed",
-        "other": "{count} outputs need an update — their components changed or were removed"
+        "one": "{count} item needs an update — its component changed or was removed",
+        "other": "{count} items need an update — their components changed or were removed"
       },
       "tag": {
-        "DOCUMENTATION": "Documentation",
         "CONTRACT": "Contract"
       },
       "copy": "Copy contract",
-      "removeContract": "Remove contract"
+      "removeContract": "Remove contract",
+      "copyInstructions": "Copy agent instructions",
+      "contractLabel": "Contract"
     },
     "contract": {
+      "title": "Machine contract",
+      "autoUpdate": {
+        "label": "Keep up to date automatically",
+        "hint": "Rewrites an outdated contract as soon as it is detected, without asking."
+      },
       "summary": {
         "props": "{count, plural, one {# prop} other {# props}}",
         "rules": "{count, plural, one {# rule} other {# rules}}",

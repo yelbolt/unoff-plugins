@@ -58,3 +58,14 @@ export const estimateContractVolume = (
 
   return variants * (item.nestedLayerCount + 1)
 }
+
+/**
+ * Every generation draws the visual documentation and writes the contract of
+ * the same target: the slowness warning concerns both together.
+ */
+export const estimateGenerationVolume = (
+  selection: SelectionDigest,
+  settings: DocSettings
+): number =>
+  estimateVisualVolume(selection, settings) +
+  estimateContractVolume(selection, settings)
