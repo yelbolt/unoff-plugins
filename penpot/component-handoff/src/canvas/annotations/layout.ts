@@ -1,5 +1,6 @@
 import { visibleChildren } from './spacing'
 import { tokenOf } from './refs'
+import { memoRead } from './memo'
 import { tr } from './i18n'
 import { rectBottom, rectRight, shapeRect } from './geometry'
 import { formatLength } from './format'
@@ -73,7 +74,10 @@ const GROW: Record<string, string> = {
 
 // Whether `zIndex` reorders the children of a layout: the siblings sorted by
 // zIndex (stable) differ from the layer order.
-const zIndexReorders = (parent: Shape): boolean => {
+const zIndexReorders = (parent: Shape): boolean =>
+  memoRead(`zr:${parent.id}`, () => computeZIndexReorders(parent))
+
+const computeZIndexReorders = (parent: Shape): boolean => {
   const kids =
     'children' in parent && Array.isArray(parent.children)
       ? (parent.children as Array<Shape>)

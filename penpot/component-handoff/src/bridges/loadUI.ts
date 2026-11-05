@@ -1,4 +1,5 @@
 import globalConfig from '../global.config'
+import { invalidate } from '../canvas/annotations/memo'
 import { tolgee } from '..'
 import enableTrial from './plans/enableTrial'
 import checkUserPreferences from './checks/checkUserPreferences'
@@ -19,7 +20,6 @@ import {
 import {
   generateContract,
   getContract,
-  getContractPreview,
   getContractSettings,
   removeContract,
   setContractSettings,
@@ -207,7 +207,6 @@ const loadUI = async () => {
       LOCATE_DOCUMENTATION: () => locateDocumentation(path.data),
       UPDATE_DOCUMENTATIONS: () => updateDocumentations(path.data),
       GENERATE_CONTRACT: () => generateContract(path.data),
-      GET_CONTRACT_PREVIEW: () => getContractPreview(path.data),
       GET_CONTRACT: () => getContract(path.data),
       UPDATE_CONTRACTS: () => updateContracts(path.data),
       REMOVE_CONTRACT: () => removeContract(path.data),
@@ -249,8 +248,13 @@ const loadUI = async () => {
   penpot.on('selectionchange', () => getSelection())
   // Outdated detection runs while the plugin is open: after each save of the
   // file, and when the designer changes page.
-  penpot.on('contentsave', () => pushStatusDebounced(500))
+  // The file changed: what was read from it is stale.
+  penpot.on('contentsave', () => {
+    invalidate()
+    pushStatusDebounced(500)
+  })
   penpot.on('pagechange', () => {
+    invalidate()
     pushDocumentationsStatus()
     getSelection()
   })

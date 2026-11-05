@@ -4,6 +4,7 @@ import {
   variantComponentsOf,
   variantPropertiesOf,
 } from './target'
+import { remember } from './memo'
 import { round2 } from './geometry'
 import type { Shape, Text } from '@penpot/plugin-types'
 
@@ -51,10 +52,11 @@ const describe = (shape: Shape, origin: { x: number; y: number }, isRoot: boolea
   }
   if (!isRoot) out.at = [n(shape.x - origin.x), n(shape.y - origin.y)]
 
+  const fills = shape.fills
   out.fills =
-    shape.fills === 'mixed'
+    fills === 'mixed'
       ? 'mixed'
-      : shape.fills.map((f) => [
+      : fills.map((f) => [
           s(f.fillColor),
           n(f.fillOpacity),
           s(f.fillColorRefId),
@@ -81,10 +83,10 @@ const describe = (shape: Shape, origin: { x: number; y: number }, isRoot: boolea
     n(sh.color?.opacity),
     Boolean(sh.hidden),
   ])
-  out.blur = shape.blur ? [n(shape.blur.value), Boolean(shape.blur.hidden)] : null
-  out.bgBlur = shape.backgroundBlur
-    ? [n(shape.backgroundBlur.value), Boolean(shape.backgroundBlur.hidden)]
-    : null
+  const blur = shape.blur
+  out.blur = blur ? [n(blur.value), Boolean(blur.hidden)] : null
+  const bgBlur = shape.backgroundBlur
+  out.bgBlur = bgBlur ? [n(bgBlur.value), Boolean(bgBlur.hidden)] : null
 
   const tokens = shape.tokens as Record<string, unknown> | undefined
   out.tokens = tokens
@@ -94,14 +96,16 @@ const describe = (shape: Shape, origin: { x: number; y: number }, isRoot: boolea
     : []
 
   if (shape.type === 'board') {
-    const l = shape.flex ?? shape.grid ?? null
+    // Each access converts the layout: read it once.
+    const flex = shape.flex ?? null
+    const l = flex ?? shape.grid ?? null
     if (l)
       out.layout = [
-        shape.flex ? 'flex' : 'grid',
-        shape.flex ? s(shape.flex.dir) : null,
-        shape.flex ? s(shape.flex.wrap) : null,
-        shape.flex ? s(shape.flex.alignItems) : null,
-        shape.flex ? s(shape.flex.justifyContent) : null,
+        flex ? 'flex' : 'grid',
+        flex ? s(flex.dir) : null,
+        flex ? s(flex.wrap) : null,
+        flex ? s(flex.alignItems) : null,
+        flex ? s(flex.justifyContent) : null,
         n(l.topPadding),
         n(l.rightPadding),
         n(l.bottomPadding),
@@ -136,10 +140,9 @@ const describe = (shape: Shape, origin: { x: number; y: number }, isRoot: boolea
     ]
   }
 
-  if ('children' in shape && Array.isArray(shape.children))
-    out.children = (shape.children as Array<Shape>).map((c) =>
-      describe(c, origin, false)
-    )
+  const kids = 'children' in shape ? shape.children : undefined
+  if (Array.isArray(kids))
+    out.children = (kids as Array<Shape>).map((c) => describe(c, origin, false))
   return out
 }
 
@@ -162,7 +165,11 @@ const subtree = (root: Shape): Json =>
 
 // `root` is the documented root: a variant container (FAMILY: every
 // variant's main is covered) or a component / board (its own subtree).
-export const fingerprintOf = (root: Shape): string => {
+export const fingerprintOf = (root: Shape): string =>
+  // Shared by the status refresh, the contract refresh and a generation.
+  remember(`fp:${root.id}`, () => computeFingerprint(root))
+
+const computeFingerprint = (root: Shape): string => {
   if (isContainer(root) && root.variants) {
     const variants = root.variants
     const props = variantPropertiesOf(variants).map((p) => p.name)

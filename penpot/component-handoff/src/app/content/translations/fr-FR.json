@@ -341,7 +341,8 @@
         "contract": {
           "title": "Contrat machine",
           "description": "Écrit un contrat JSON dans le fichier pour les agents IA ; rien n'est dessiné."
-        }
+        },
+        "title": "Sorties"
       },
       "contract": {
         "autoUpdate": {
@@ -349,7 +350,14 @@
           "hint": "Réécrit un contrat obsolète dès qu'il est détecté, sans demander."
         },
         "copyContract": "Copier le contrat",
-        "copyInstructions": "Copier les instructions pour l'agent"
+        "copyInstructions": "Copier les instructions pour l'agent",
+        "none": "Aucun contrat généré pour cette sélection."
+      },
+      "warning": {
+        "large": "Volume important (environ {count} éléments) : la génération s’exécute dans Penpot et peut le figer un moment.",
+        "fewerVariants": "Essayez avec moins de variantes.",
+        "directLayers": "Essayez avec les calques directs uniquement.",
+        "wholeFamily": "Le contrat couvre toujours toute la famille."
       }
     },
     "refusal": {

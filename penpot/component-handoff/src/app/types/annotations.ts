@@ -164,6 +164,11 @@ export interface SelectionItem {
   isRotated: boolean
   hasChildren: boolean
   isAnnotation: boolean // shape belongs to a Component Handoff documentation layer
+  // The documented root for each choice of "What to document" (variant
+  // container for FAMILY, main component otherwise), null when that choice is
+  // refused. Lets the UI find the stored contract (contractKey(id)) in the
+  // status list without computing anything.
+  targetIds: { COMPONENT: string | null; FAMILY: string | null }
 }
 
 export interface SelectionDigest {
@@ -223,9 +228,6 @@ export interface GenerateContractData {
   target: DocTarget
 }
 
-/** Same shape as GenerateContractData: previews the contract of the current selection, writes nothing. */
-export type GetContractPreviewData = GenerateContractData
-
 export interface GetContractData {
   key: string // `contract:<targetId>`
 }
@@ -273,12 +275,6 @@ export interface ContractWrittenData {
   summary: ContractSummary
 }
 
-/** Preview of the selection's contract; `preview` is null when it cannot be built, with the reason. */
-export interface ContractPreviewLoadedData {
-  preview: { summary: ContractSummary; json: string } | null
-  reason: RefusalReason | null
-}
-
 export interface ContractLoadedData {
   key: string
   json: string // the stored contract, pretty-printed, ready to copy
@@ -302,7 +298,6 @@ export type AnnotationAction =
 //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
   | 'GENERATE_CONTRACT' //      GenerateContractData → CONTRACT_WRITTEN | ANNOTATION_REFUSED (kind CONTRACT)
 //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
-  | 'GET_CONTRACT_PREVIEW' //   GetContractPreviewData → CONTRACT_PREVIEW_LOADED (never refused: reason is in the payload)
   | 'GET_CONTRACT' //           GetContractData → CONTRACT_LOADED | ANNOTATION_REFUSED (NO_CONTRACT)
   | 'UPDATE_CONTRACTS' //       UpdateContractsData → CONTRACTS_UPDATED | ANNOTATION_REFUSED (NOTHING_TO_UPDATE)
 //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
@@ -320,7 +315,6 @@ export type AnnotationEvent =
   | 'DOCUMENTATIONS_STATUS_CHANGED' //  DocumentationsStatusData (also pushed on 'contentsave', 'pagechange', and after generate/update)
   | 'DOCUMENTATIONS_UPDATED' //         DocumentationsUpdatedData
   | 'CONTRACT_WRITTEN' //               ContractWrittenData
-  | 'CONTRACT_PREVIEW_LOADED' //        ContractPreviewLoadedData
   | 'CONTRACT_LOADED' //                ContractLoadedData
   | 'CONTRACTS_UPDATED' //              ContractsUpdatedData
   | 'CONTRACT_SETTINGS_LOADED' //       ContractSettings

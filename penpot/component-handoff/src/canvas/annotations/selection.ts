@@ -5,7 +5,9 @@ import {
   variantComponentsOf,
   variantPropertiesOf,
 } from './target'
+import { resolveTarget } from './target'
 import { visibleChildren } from './spacing'
+import { readPhase } from './memo'
 import {
   annotationsOf,
   findLayers,
@@ -16,6 +18,7 @@ import {
 import { isRotated } from './geometry'
 import type { Shape } from '@penpot/plugin-types'
 import type {
+  DocTarget,
   SelectionDigest,
   SelectionItem,
 } from '../../app/types/annotations'
@@ -72,10 +75,24 @@ const toItem = (s: Shape): SelectionItem => {
     hasChildren:
       'children' in s && Array.isArray(s.children) && s.children.length > 0,
     isAnnotation: isAnnotationShape(s),
+    targetIds: {
+      COMPONENT: rootIdOf(s, 'COMPONENT'),
+      FAMILY: rootIdOf(s, 'FAMILY'),
+    },
   }
 }
 
-export const digestSelection = (): SelectionDigest => {
+// The documented root for a choice; null when that choice is refused. Only
+// classifies the selection: no analysis, no fingerprint.
+const rootIdOf = (s: Shape, target: DocTarget): string | null => {
+  const res = safe(() => resolveTarget(s, target))
+  return res && typeof res !== 'string' ? res.root.id : null
+}
+
+export const digestSelection = (): SelectionDigest =>
+  readPhase(() => buildDigest())
+
+const buildDigest = (): SelectionDigest => {
   const selection = penpot.selection
   if (selection.length === 0)
     return {

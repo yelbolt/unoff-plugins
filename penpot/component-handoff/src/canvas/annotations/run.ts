@@ -2,6 +2,7 @@ import { resolveTarget } from './target'
 import { loadStyle } from './style'
 import { collectStatus } from './status'
 import { normalizeDepth, normalizeFilter, normalizeGrouping, readOptions, sanitizeViews } from './options'
+import { invalidate } from './memo'
 import {
   currentPage,
   findDocumentationById,
@@ -62,6 +63,7 @@ export const documentShape = (
 export const generateDocumentation = (
   data: GenerateDocumentationData
 ): Outcome => {
+  invalidate() // a user action reads the file as it is now
   const selected = penpot.selection
   if (selected.length === 0) return refuse('NO_SELECTION')
   if (selected.length !== 1) return refuse('WRONG_SELECTION_COUNT')
@@ -101,6 +103,7 @@ export const generateDocumentation = (
 export const updateDocumentations = (
   data: UpdateDocumentationsData
 ): UpdateOutcome => {
+  invalidate()
   const page = currentPage()
   const status = collectStatus()
   const wanted =

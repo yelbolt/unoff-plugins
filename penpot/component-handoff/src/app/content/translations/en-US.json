@@ -341,7 +341,8 @@
         "contract": {
           "title": "Machine contract",
           "description": "Writes a JSON contract on the file for AI agents; nothing is drawn."
-        }
+        },
+        "title": "Outputs"
       },
       "contract": {
         "autoUpdate": {
@@ -349,7 +350,14 @@
           "hint": "Rewrites an outdated contract as soon as it is detected, without asking."
         },
         "copyContract": "Copy contract",
-        "copyInstructions": "Copy agent instructions"
+        "copyInstructions": "Copy agent instructions",
+        "none": "No contract generated yet for this selection."
+      },
+      "warning": {
+        "large": "Large volume (about {count} elements): generation runs inside Penpot and can freeze it for a while.",
+        "fewerVariants": "Try fewer variants.",
+        "directLayers": "Try direct layers only.",
+        "wholeFamily": "The contract always covers the whole family."
       }
     },
     "refusal": {

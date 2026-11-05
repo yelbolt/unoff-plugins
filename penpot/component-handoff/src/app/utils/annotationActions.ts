@@ -5,7 +5,6 @@ import {
   GenerateContractData,
   GenerateDocumentationData,
   GetContractData,
-  GetContractPreviewData,
   LocateDocumentationData,
   RemoveContractData,
   UpdateContractsData,
@@ -23,7 +22,6 @@ type ActionPayloads = {
   LOCATE_DOCUMENTATION: LocateDocumentationData
   UPDATE_DOCUMENTATIONS: UpdateDocumentationsData
   GENERATE_CONTRACT: GenerateContractData
-  GET_CONTRACT_PREVIEW: GetContractPreviewData
   GET_CONTRACT: GetContractData
   UPDATE_CONTRACTS: UpdateContractsData
   REMOVE_CONTRACT: RemoveContractData
@@ -38,7 +36,6 @@ const READ_ONLY_ACTIONS: Array<AnnotationAction> = [
   'LOCATE_DOCUMENTATION',
   // Autosave: persisted silently, never shown as a pending action.
   'SET_ANNOTATION_STYLE',
-  'GET_CONTRACT_PREVIEW',
   'GET_CONTRACT_SETTINGS',
   'SET_CONTRACT_SETTINGS',
 ]

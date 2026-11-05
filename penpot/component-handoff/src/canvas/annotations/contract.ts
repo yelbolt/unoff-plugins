@@ -6,20 +6,20 @@ import {
   contractKey,
 } from '../../app/types/annotations'
 import { docName } from './views/name'
-import { resolveTarget, safe, variantPropertiesOf } from './target'
+import { resolveTarget, safe } from './target'
 import { makeRefCtx } from './refs'
 import { readOptions } from './options'
 import { buildMerged } from './merged'
+import { invalidate, readPhase } from './memo'
 import { currentPage, findExistingAnywhere, isAnnotationShape } from './layer'
 import { collectEntries } from './groups'
 import { fingerprintOf } from './fingerprint'
 import { KEYS } from './constants'
-import { analyze, expandTokens } from './analysis'
+import { analysisFor, expandTokens } from './analysis'
 import type { Shape } from '@penpot/plugin-types'
 import type {
   AnnotationRefusedData,
   ContractLoadedData,
-  ContractPreviewLoadedData,
   ContractSettings,
   ContractStatus,
   ContractSummary,
@@ -111,10 +111,11 @@ const build = (res: Resolved): Built => {
   // Children read in z-order, as when the documentation was generated.
   penpot.flags.naturalChildOrdering = true
   const isFamily = res.target === 'FAMILY' && res.variants !== null
-  const entries = collectEntries(res, isFamily, null) // whole family: no filter
-  const order = isFamily && res.variants ? variantPropertiesOf(res.variants) : []
+  // Whole family, no filter. Shared with the documentation generated just
+  // before it (same analysis), not recomputed.
+  const analysis = analysisFor(res, isFamily, null, 'FAMILY_ONLY')
+  const { entries, order } = analysis
   const name = docName(res, isFamily)
-  const analysis = analyze(entries, order, name, makeRefCtx())
 
   // Part numbers come from the visual documentation of the same target, as
   // last generated (its depth, its variant filter). None without one, and none
@@ -125,9 +126,15 @@ const build = (res: Resolved): Built => {
     const o = readOptions(doc.getPluginData(KEYS.options))
     if (!isFamily || o.grouping === 'MERGED') {
       const docEntries = collectEntries(res, isFamily, isFamily ? o.variantFilter : null)
-      if (docEntries.length > 0)
-        for (const p of buildMerged(docEntries, o.depth).parts)
-          if (p.n > 0) numbers.set(p.key, p.n)
+      if (docEntries.length > 0) {
+        // The analysis already walked every variant at depth ALL: reuse it
+        // when the documentation covers the same variants at that depth.
+        const model =
+          o.depth === 'ALL' && docEntries.length === entries.length
+            ? analysis.model
+            : readPhase(() => buildMerged(docEntries, o.depth))
+        for (const p of model.parts) if (p.n > 0) numbers.set(p.key, p.n)
+      }
     }
   }
 
@@ -207,26 +214,14 @@ const resolveSelection = (data: GenerateContractData): Resolved | RefusalReason 
 export const generateContract = (
   data: GenerateContractData
 ): { written: ContractWrittenData } | Refused => {
+  // Keeps what the documentation generated a moment ago just computed
+  // (analysis, references); everything else is read afresh.
+  invalidate('an:', 'fp:', 'refs')
   const res = resolveSelection(data)
   if (typeof res === 'string') return refuse(res)
   const built = build(res)
   const created = store(built)
   return { written: { name: built.name, created, summary: built.summary } }
-}
-
-export const previewContract = (
-  data: GenerateContractData
-): ContractPreviewLoadedData => {
-  const res = resolveSelection(data)
-  if (typeof res === 'string') return { preview: null, reason: res }
-  const built = build(res)
-  return {
-    preview: {
-      summary: built.summary,
-      json: JSON.stringify(JSON.parse(built.json), null, 2),
-    },
-    reason: null,
-  }
 }
 
 export const getContract = (
@@ -365,6 +360,7 @@ export const updateContracts = (
   data: UpdateContractsData
 ): { updated: ContractsUpdatedData } | Refused => {
   const statuses = collectContractStatuses()
+  invalidate()
   const wanted =
     data.keys === 'OUTDATED'
       ? statuses.filter((s) => s.outdated && !s.missing)

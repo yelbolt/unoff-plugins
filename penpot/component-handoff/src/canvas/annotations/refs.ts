@@ -1,5 +1,6 @@
 import { parseNumericLike } from '../../utils/numeric'
 import { getAppliedTokenName, makeTokenIndex } from './tokens'
+import { remember } from './memo'
 import type { Shape, Text, TokenProperty } from '@penpot/plugin-types'
 import type { TokenIndex } from './tokens'
 
@@ -23,7 +24,9 @@ const fullName = (e: { name: string; path: string }): string =>
   e.path ? `${e.path} / ${e.name}` : e.name
 
 // Tokens and styles are always resolved.
-export const makeRefCtx = (): RefCtx => {
+export const makeRefCtx = (): RefCtx => remember('refs', buildRefCtx)
+
+const buildRefCtx = (): RefCtx => {
   const ctx: RefCtx = {
     colors: new Map(),
     typos: [],

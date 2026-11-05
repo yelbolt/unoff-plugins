@@ -1,3 +1,4 @@
+import { memoRead } from './memo'
 import { round2, shapeRect, unionRects } from './geometry'
 import type { Shape } from '@penpot/plugin-types'
 import type { Rect } from './geometry'
@@ -29,9 +30,11 @@ export interface SpacingInfo {
 }
 
 export const visibleChildren = (shape: Shape): Array<Shape> =>
-  'children' in shape && Array.isArray(shape.children)
-    ? (shape.children as Array<Shape>).filter((c) => !c.hidden)
-    : []
+  memoRead(`kids:${shape.id}`, () =>
+    'children' in shape && Array.isArray(shape.children)
+      ? (shape.children as Array<Shape>).filter((c) => !c.hidden)
+      : []
+  )
 
 export const layoutOf = (shape: Shape) =>
   shape.type === 'board' ? (shape.flex ?? shape.grid ?? null) : null
@@ -42,7 +45,10 @@ const overlap1d = (a1: number, a2: number, b1: number, b2: number): boolean =>
 // Paddings and gaps of one container, or null when there is nothing to
 // measure. Layout containers report their layout values (what the panel
 // shows); others report computed insets and measured distances.
-export const spacingOf = (shape: Shape): SpacingInfo | null => {
+export const spacingOf = (shape: Shape): SpacingInfo | null =>
+  memoRead(`spacing:${shape.id}`, () => computeSpacing(shape))
+
+const computeSpacing = (shape: Shape): SpacingInfo | null => {
   const kids = visibleChildren(shape)
   const rotated = shape.rotation % 360 !== 0
   const layout = rotated ? null : layoutOf(shape)

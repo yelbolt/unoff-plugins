@@ -2,7 +2,6 @@ import { atom } from 'nanostores'
 import { NotificationMessage } from '../types/messages'
 import {
   AnnotationStyle,
-  ContractPreviewLoadedData,
   ContractSettings,
   DEFAULT_ANNOTATION_STYLE,
   DEFAULT_CONTRACT_SETTINGS,
@@ -92,9 +91,6 @@ export const $localNotice = atom<NotificationMessage | null>(null)
 
 export const showLocalNotice = (notice: NotificationMessage) =>
   $localNotice.set({ ...notice })
-
-/** Latest contract preview of the selection; null until the Canvas answered. */
-export const $contractPreview = atom<ContractPreviewLoadedData | null>(null)
 
 export const $contractSettings = atom<ContractSettings>({
   ...DEFAULT_CONTRACT_SETTINGS,

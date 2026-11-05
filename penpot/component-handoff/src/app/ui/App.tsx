@@ -38,7 +38,6 @@ import {
   updateUserConsentWithData,
 } from '../stores/consent'
 import {
-  $contractPreview,
   $contractSettings,
   $localNotice,
   PendingChannel,
@@ -587,8 +586,6 @@ class App extends Component<AppProps, AppState> {
         )
       }
 
-      const handleContractPreview = () => $contractPreview.set(path.data)
-
       // Only the initial load fills the store: the toggle already updated it
       // when changed, so the SAVED echo is ignored (no flicker, no message).
       const handleContractSettings = () => $contractSettings.set(path.data)
@@ -724,7 +721,6 @@ class App extends Component<AppProps, AppState> {
         DOCUMENTATIONS_STATUS_CHANGED: () => handleDocumentationsStatus(),
         DOCUMENTATIONS_UPDATED: () => handleDocumentationsUpdated(),
         CONTRACT_WRITTEN: () => handleContractWritten(),
-        CONTRACT_PREVIEW_LOADED: () => handleContractPreview(),
         CONTRACT_LOADED: () => handleContractLoaded(),
         CONTRACTS_UPDATED: () => handleContractsUpdated(),
         CONTRACT_SETTINGS_LOADED: () => handleContractSettings(),

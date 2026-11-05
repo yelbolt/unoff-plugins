@@ -1,11 +1,17 @@
 import { DEFAULT_ANNOTATION_STYLE } from '../../app/types/annotations'
+import { docName } from './views/name'
 import { referenceOf, referencesIn } from './tokens'
+import { variantPropertiesOf } from './target'
+import { makeRefCtx } from './refs'
 import { collectProperties } from './properties'
 import { buildMerged } from './merged'
+import { readPhase, remember } from './memo'
 import { CATEGORIES, measureRows } from './measure'
-import { COLOR_FAMILIES } from './groups'
+import { COLOR_FAMILIES, collectEntries } from './groups'
 import { resolveKeyed, resolvePresenceKeyed } from './drivers'
-import type { ContractSummary } from '../../app/types/annotations'
+import type { ContractSummary, VariantFilter } from '../../app/types/annotations'
+import type { TokenInfo } from './tokens'
+import type { Resolved } from './target'
 import type { RefCtx } from './refs'
 import type { PropertyRow } from './properties'
 import type { MergedModel, MergedPart } from './merged'
@@ -206,7 +212,42 @@ const isPlaced = (part: MergedPart): boolean =>
     )
   })
 
+// The analysis of a target, computed once and shared: the documentation's
+// header / Props view and the contract read the same one when they are
+// generated together (same target, same variants kept, same property order).
+// Entries and order are part of the result.
+export const analysisFor = (
+  res: Resolved,
+  isFamily: boolean,
+  filter: VariantFilter | null,
+  orderMode: 'FAMILY_ONLY' | 'ANY_VARIANTS'
+): Analysis =>
+  remember(
+    `an:${res.root.id}|${res.source.id}|${isFamily}|${orderMode}|${JSON.stringify(filter ?? null)}`,
+    () =>
+      readPhase(() => {
+        const entries = collectEntries(res, isFamily, filter)
+        const useOrder = orderMode === 'ANY_VARIANTS' ? res.variants : isFamily && res.variants
+        const full = useOrder && res.variants ? variantPropertiesOf(res.variants) : []
+        // Property orders keep only the ticked values.
+        const order = full.map((o) => {
+          const ticked = filter?.[o.name]
+          return ticked
+            ? { name: o.name, values: o.values.filter((v) => ticked.includes(v)) }
+            : o
+        })
+        return analyze(entries, order, docName(res, isFamily), makeRefCtx())
+      })
+  )
+
 export const analyze = (
+  entries: Array<Entry>,
+  order: Array<PropertyOrder>,
+  rootName: string,
+  refs: RefCtx
+): Analysis => readPhase(() => analyzeEntries(entries, order, rootName, refs))
+
+const analyzeEntries = (
   entries: Array<Entry>,
   order: Array<PropertyOrder>,
   rootName: string,
@@ -218,10 +259,16 @@ export const analyze = (
   const types = refs.tokens.types
 
   // Rows of every part in every variant that has it.
-  const rows = new Map<MergedPart, Map<Entry, Array<PropertyRow>>>()
+  // Indexed by key once: no list scan per key per variant.
+  const rows = new Map<MergedPart, Map<Entry, Map<string, PropertyRow>>>()
   for (const part of model.parts) {
-    const m = new Map<Entry, Array<PropertyRow>>()
-    for (const [e, p] of part.shapes) m.set(e, rowsOf(p.shape, refs))
+    const m = new Map<Entry, Map<string, PropertyRow>>()
+    for (const [e, p] of part.shapes) {
+      const byKey = new Map<string, PropertyRow>()
+      // First row of a key wins, as list.find did.
+      for (const r of rowsOf(p.shape, refs)) if (!byKey.has(r.key)) byKey.set(r.key, r)
+      m.set(e, byKey)
+    }
     rows.set(part, m)
   }
 
@@ -250,13 +297,13 @@ export const analyze = (
     if (part.n > 0 && pres(partsOut[pi].in)) 
       drives.push({ by: pres(partsOut[pi].in) as Array<string>, part: part.name, prop: '', presence: true })
     
-    const perEntry = rows.get(part) as Map<Entry, Array<PropertyRow>>
+    const perEntry = rows.get(part) as Map<Entry, Map<string, PropertyRow>>
     const absolute = [...part.shapes.values()].some((p) => p.shape.layoutChild?.absolute)
 
     // Keys in first-seen order.
-    const keys: Array<string> = []
-    for (const list of perEntry.values())
-      for (const r of list) if (!keys.includes(r.key)) keys.push(r.key)
+    const keySet = new Set<string>()
+    for (const byKey of perEntry.values()) for (const k of byKey.keys()) keySet.add(k)
+    const keys = [...keySet]
 
     interface Item {
       key: string
@@ -268,7 +315,7 @@ export const analyze = (
     for (const key of keys) {
       const samples: Array<Sample<Cell>> = []
       for (const [e, list] of perEntry) {
-        const r = list.find((x) => x.key === key)
+        const r = list.get(key)
         const cell = r ? cellOf(r) : LENGTH.test(key) ? { ...NULL_CELL, value: 0 } : NULL_CELL
         samples.push({ label: e.label, props: e.props, key: JSON.stringify([cell.token, cell.value]), data: cell })
       }
@@ -412,14 +459,28 @@ export const analyze = (
 const pres = (p: PartOut['in']): Array<string> | null =>
   p === 'all' ? null : Object.keys(p)[0].split('|')
 
+// The tokens of a backing type, in catalog order, listed once per catalog.
+const CANDIDATES = new WeakMap<RefCtx, Map<string, Array<TokenInfo>>>()
+const candidates = (refs: RefCtx, backing: Array<string>): Array<TokenInfo> => {
+  let byBacking = CANDIDATES.get(refs)
+  if (!byBacking) CANDIDATES.set(refs, (byBacking = new Map()))
+  const id = backing.join('|')
+  let list = byBacking.get(id)
+  if (!list)
+    byBacking.set(
+      id,
+      (list = [...refs.tokens.byName.values()].filter((i) => backing.includes(i.type)))
+    )
+  return list
+}
+
 // A token of a backing type whose resolved value equals the raw value.
 const matchingToken = (
   refs: RefCtx,
   backing: Array<string>,
   cell: Cell
 ): string | null => {
-  for (const info of refs.tokens.byName.values()) {
-    if (!backing.includes(info.type)) continue
+  for (const info of candidates(refs, backing)) {
     const r = info.resolved
     if (typeof r === 'number' && typeof cell.value === 'number') {
       if (Math.abs(r - cell.value) < 0.0001) return info.name

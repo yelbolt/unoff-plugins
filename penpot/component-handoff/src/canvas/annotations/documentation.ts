@@ -12,8 +12,9 @@ import { makeRefCtx } from './refs'
 import { bindParts } from './parts'
 import { Panel } from './panel'
 import { buildMerged } from './merged'
+import { readPhase } from './memo'
 import { tr } from './i18n'
-import { collectEntries, computeGroups, countMatching } from './groups'
+import { computeGroups, countMatching } from './groups'
 import {
   boundsRect,
   intersects,
@@ -23,7 +24,7 @@ import {
 } from './geometry'
 import { fingerprintOf } from './fingerprint'
 import { BRAND, LAYOUT, RADIUS } from './constants'
-import { analyze } from './analysis'
+import { analysisFor } from './analysis'
 import type { Board, Shape } from '@penpot/plugin-types'
 import type { GenerateDocumentationData } from '../../app/types/annotations'
 import type { ViewBuild } from './views/shared'
@@ -57,16 +58,10 @@ export const drawDocumentation = (
 
     const refs = makeRefCtx()
     const filter = isFamily ? (data.variantFilter ?? null) : null
-    const entries = collectEntries(res, isFamily, filter)
     const fullOrder = res.variants ? variantPropertiesOf(res.variants) : []
-    // Property orders keep only the ticked values.
-    const order = fullOrder.map((o) => {
-      const ticked = filter?.[o.name]
-      return ticked
-        ? { name: o.name, values: o.values.filter((v) => ticked.includes(v)) }
-        : o
-    })
-    const analysis = analyze(entries, order, docName(res, isFamily), refs)
+    // One analysis, shared with the contract generated right after.
+    const analysis = analysisFor(res, isFamily, filter, 'ANY_VARIANTS')
+    const { entries, order } = analysis
     // Header line, only when the filter actually excludes something.
     const total = isFamily ? countMatching(res, null) : 0
     const restricted = fullOrder.flatMap((o, i) =>
@@ -90,15 +85,19 @@ export const drawDocumentation = (
     const merged =
       !isFamily || data.grouping === 'MERGED'
         ? entries.length > 0
-          ? buildMerged(entries, depth)
+          ? depth === 'ALL'
+            ? analysis.model // already walked by the analysis
+            : readPhase(() => buildMerged(entries, depth))
           : null
         : null
     const structures =
       !merged && (on('ANATOMY') || on('MEASUREMENTS') || on('COLORS'))
-        ? computeGroups(entries, depth, style, refs, {
-            measure: on('MEASUREMENTS'),
-            color: on('COLORS'),
-          })
+        ? readPhase(() =>
+            computeGroups(entries, depth, style, refs, {
+              measure: on('MEASUREMENTS'),
+              color: on('COLORS'),
+            })
+          )
         : []
 
     // Grid column width, from known numbers: the minimum column, widened when

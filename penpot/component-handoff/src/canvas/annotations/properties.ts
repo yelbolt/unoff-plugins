@@ -214,8 +214,9 @@ const radius = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
 
 const fillsStrokes = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
   const rows: Array<PropertyRow | null> = []
-  if (s.fills !== 'mixed')
-    s.fills.forEach((f, i) => {
+  const fills = s.fills
+  if (fills !== 'mixed')
+    fills.forEach((f, i) => {
       let raw: string
       if (f.fillColor)
         raw =
@@ -376,20 +377,22 @@ const effects = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
       )
     )
   })
-  if (s.blur && !s.blur.hidden)
+  const blur = s.blur
+  if (blur && !blur.hidden)
     rows.push(
       row(
         'layerBlur',
         tr('prop.layerBlur'),
-        formatLength(round2(s.blur.value ?? 0), style)
+        formatLength(round2(blur.value ?? 0), style)
       )
     )
-  if (s.backgroundBlur && !s.backgroundBlur.hidden)
+  const bgBlur = s.backgroundBlur
+  if (bgBlur && !bgBlur.hidden)
     rows.push(
       row(
         'backgroundBlur',
         tr('prop.backgroundBlur'),
-        formatLength(round2(s.backgroundBlur.value ?? 0), style)
+        formatLength(round2(bgBlur.value ?? 0), style)
       )
     )
   return compact(rows)

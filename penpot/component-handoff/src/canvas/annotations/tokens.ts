@@ -1,3 +1,4 @@
+import { memoRead } from './memo'
 import type { Shape, TokenProperty } from '@penpot/plugin-types'
 
 // Same source as Token Lint (src/canvas/tokens/readAppliedToken.ts):
@@ -5,7 +6,9 @@ import type { Shape, TokenProperty } from '@penpot/plugin-types'
 export const getAppliedTokenName = (
   shape: Shape,
   property: TokenProperty
-): string | undefined => shape.tokens?.[property] || undefined
+): string | undefined =>
+  // shape.tokens converts the whole map on every access: read it once per run.
+  memoRead(`tokens:${shape.id}`, () => shape.tokens ?? null)?.[property] || undefined
 
 // ── Token catalog ───────────────────────────────────────────────────────────
 // Read once per generation (RefCtx). Only ACTIVE sets count: they decide which

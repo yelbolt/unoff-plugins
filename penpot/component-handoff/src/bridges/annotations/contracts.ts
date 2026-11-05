@@ -2,7 +2,6 @@ import {
   generateContract as run,
   getContract as read,
   loadContractSettings,
-  previewContract,
   removeContract as drop,
   saveContractSettings,
   updateContracts as refresh,
@@ -13,7 +12,6 @@ import { pushDocumentationsStatus } from './documentationsStatus'
 import type {
   GenerateContractData,
   GetContractData,
-  GetContractPreviewData,
   RemoveContractData,
   UpdateContractsData,
 } from '../../app/types/annotations'
@@ -31,23 +29,6 @@ export const generateContract = (data: GenerateContractData): void => {
     pushDocumentationsStatus()
     getSelection()
   } catch (error) {
-    surfaceError(error)
-  }
-}
-
-// GET_CONTRACT_PREVIEW -> CONTRACT_PREVIEW_LOADED (never refused)
-export const getContractPreview = (data: GetContractPreviewData): void => {
-  try {
-    penpot.ui.sendMessage({
-      type: 'CONTRACT_PREVIEW_LOADED',
-      data: previewContract(data),
-    })
-  } catch (error) {
-    // The panel still gets an answer; the error is surfaced as well.
-    penpot.ui.sendMessage({
-      type: 'CONTRACT_PREVIEW_LOADED',
-      data: { preview: null, reason: null },
-    })
     surfaceError(error)
   }
 }
