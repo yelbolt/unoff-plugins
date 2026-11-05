@@ -430,7 +430,8 @@
       "copy": "Copier le contrat",
       "removeContract": "Supprimer le contrat",
       "copyInstructions": "Copier les instructions pour l'agent",
-      "contractLabel": "Contrat"
+      "contractLabel": "Contrat",
+      "contractMenu": "Contrat machine"
     },
     "contract": {
       "title": "Contrat machine",

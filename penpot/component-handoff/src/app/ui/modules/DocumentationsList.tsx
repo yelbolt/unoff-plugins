@@ -3,6 +3,7 @@ import { doClassnames } from '@unoff/utils'
 import {
   Button,
   Chip,
+  Menu,
   Section,
   SectionTitle,
   SimpleItem,
@@ -156,25 +157,29 @@ export default class DocumentationsList extends PureComponent<
               label={line}
             />
           ))}
-          {contract !== null && !missing && (
-            <div className={layouts['snackbar--medium']}>
-              <Button
-                type="tertiary"
-                size="small"
-                label={t('handoff.documentations.copy')}
-                isDisabled={isBusy}
-                action={this.handleCopyContract(contract.key)}
-              />
-              <Button
-                type="tertiary"
-                size="small"
-                label={t('handoff.documentations.copyInstructions')}
-                action={this.handleCopyInstructions(contract.key)}
-              />
-            </div>
-          )}
         </div>
         <div className={layouts['snackbar--medium']} style={{ flexShrink: 0 }}>
+          {contract !== null && !missing && (
+            <Menu
+              id={`contract-menu-${contract.key}`}
+              type="ICON"
+              icon="draft"
+              alignment="BOTTOM_RIGHT"
+              helper={{ label: t('handoff.documentations.contractMenu') }}
+              options={[
+                {
+                  type: 'OPTION',
+                  label: t('handoff.documentations.copy'),
+                  action: this.handleCopyContract(contract.key),
+                },
+                {
+                  type: 'OPTION',
+                  label: t('handoff.documentations.copyInstructions'),
+                  action: this.handleCopyInstructions(contract.key),
+                },
+              ]}
+            />
+          )}
           {documentation !== null && !missing && (
             <Button
               type="icon"
