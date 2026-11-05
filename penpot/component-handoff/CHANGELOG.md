@@ -25,8 +25,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Token chains in the colors view (`button.bg → color.action.primary → #0B5FFF`).
 
 ### Changed
-- The Documentation tab has two sections, Visual documentation and Machine
-  contract, each with its own switch; the Generated tab lists both kinds.
+- The Documentation tab groups both outputs, Visual documentation and Machine
+  contract, in an Outputs section with one switch each, and warns when a
+  generation may be slow on a large volume; the Generated tab lists both kinds.
+- Faster generation and status checks: the documentation and the contract
+  share one analysis, and each shape property is read once per run.
 
 ## [0.3.0] - 2026-10-22
 ### Added
