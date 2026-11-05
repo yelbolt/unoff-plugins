@@ -7,14 +7,11 @@ export interface PlaceRequest {
   size: { w: number; h: number }
   anchor: Point
   outward: Point
-  // Axis along which `span` is measured; the label "fits" when its extent on
-  // that axis is <= span.
   axis: 'h' | 'v'
   span: number
   pref: LabelPlacement
   dist0?: number
-  // Natural OUTSIDE position is not adjacent to the measured line (padding):
-  // it needs a leader.
+  // Natural OUTSIDE position is not adjacent to the measured line (padding): needs a leader.
   outsideNeedsLeader?: boolean
 }
 
@@ -23,10 +20,6 @@ export interface Placement {
   leader: boolean
 }
 
-/**
- * Collision-aware label placement. Obstacles = the measured design elements
- * (where relevant) + labels already placed in the same layer.
- */
 export class Placer {
   constructor(
     public obstacles: Array<Rect>,
@@ -42,7 +35,6 @@ export class Placer {
     this.obstacles.push(r)
   }
 
-  // Pure: does not register the rect.
   find(req: PlaceRequest): Placement {
     const { size, anchor, outward } = req
     const mk = (cx: number, cy: number): Rect => ({
@@ -69,7 +61,6 @@ export class Placer {
         return { rect: r0, leader: Boolean(req.outsideNeedsLeader) }
     }
 
-    // Does not fit, or collides: step outward and sideways, with a leader.
     const perp: Point = { x: -outward.y, y: outward.x }
     const stepOut = half * 2 + this.sc.gap
     const stepSide =

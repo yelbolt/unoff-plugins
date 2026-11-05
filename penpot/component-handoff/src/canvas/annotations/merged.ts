@@ -6,25 +6,20 @@ import type { Entry } from './groups'
 export interface MergedPart {
   n: number
   key: string
-  name: string // layer name, from the first variant that has the part
+  name: string
   type: string
   path: string
-  cpath: string // contract spelling of the path (from the first variant that has the part)
-  shapes: Map<Entry, Part> // the part's live shape in each variant that has it
+  cpath: string
+  shapes: Map<Entry, Part>
 }
 
 export interface MergedModel {
   entries: Array<Entry>
-  plan: Array<PartPlan> // the first variant's plan: binds the specimen copy
-  parts: Array<MergedPart> // ordered by number; 0 is the root
+  plan: Array<PartPlan>
+  parts: Array<MergedPart>
 }
 
-/**
- * Numbering: the first variant keeps its own walk order (0..k); each later
- * variant then contributes its unseen parts, in walk order, after the last
- * number already given. A part absent from the first variant therefore has a
- * number but no marker on the specimen.
- */
+/** Later variants number their unseen parts after the first's; such a part has a number but no marker on the specimen. */
 export const buildMerged = (
   entries: Array<Entry>,
   depth: PartsDetail

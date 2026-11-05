@@ -18,11 +18,6 @@ const readOptions = (g: Group): { target: 'COMPONENT' | 'FAMILY' } => {
   }
 }
 
-/**
- * Warms the fingerprint of the `index`-th documented target of the page (its
- * documentations and contracts together). Returns false once every target is
- * done. Lets the status refresh run one target per tick instead of one block.
- */
 export const warmTarget = (index: number): boolean => {
   const page = currentPage()
   const ids = new Set<string>()
@@ -39,11 +34,7 @@ export const warmTarget = (index: number): boolean => {
   return true
 }
 
-/**
- * Freshness of every documentation of the current page. A documentation whose
- * target is gone is reported `missing` AND `outdated`, so that "update all"
- * also clears it (it is removed by UPDATE_DOCUMENTATIONS).
- */
+/** A documentation whose target is gone is `missing` AND `outdated`, so "update all" also removes it. */
 export const collectStatus = (): DocumentationsStatusData => {
   const page = currentPage()
   const items: Array<DocumentationStatus> = []

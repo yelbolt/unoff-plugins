@@ -58,7 +58,6 @@ export const buildAppliedNotification = (
   if (data.rotatedNotice) parts.push(t('handoff.result.rotated'))
   if (data.contract !== null) parts.push(t('handoff.result.contractWritten'))
 
-  // The documentation is generated either way: a missing contract only warns.
   if (data.contract === null) {
     parts.push(t('handoff.result.contractFailed'))
 

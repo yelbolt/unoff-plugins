@@ -71,11 +71,6 @@ export const colorsNeed = (dc: DocCtx): number => {
   return need
 }
 
-/**
- * COLORS: per color group, a specimen card (title + copy with part numbers)
- * followed by one card per part: a table of fills, strokes, typography and
- * effects: swatch, then token, else style, else raw.
- */
 export const buildColors = (dc: DocCtx): ViewBuild => {
   if (dc.merged) return buildColorsMerged(dc, dc.merged)
   const { panel, env } = dc

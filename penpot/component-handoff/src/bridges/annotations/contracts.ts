@@ -63,9 +63,6 @@ export const getContractSettings = (): void => {
   }
 }
 
-/**
- * Turning auto-update on settles contracts that are already outdated on the next status push.
- */
 export const setContractSettings = (settings: unknown): void => {
   try {
     penpot.ui.sendMessage({

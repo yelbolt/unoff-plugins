@@ -18,12 +18,7 @@ import type { MergedModel, MergedPart } from './merged'
 import type { Entry } from './groups'
 import type { PropertyOrder, Sample } from './drivers'
 
-/**
- * THE analysis. Parts, drivers, references and layout are computed once here,
- * from the same functions the visual views use (measureRows, collectProperties,
- * resolveValue's drivers). The contract and the documentation's header / Props
- * view are serializers of this result: they cannot drift apart.
- */
+/** Single source for the contract and the documentation's header / Props view. */
 
 export type Value =
   | string
@@ -39,7 +34,7 @@ export interface PartOut {
   path: string
   type: string
   in: 'all' | Record<string, Array<string>>
-  mergedKey: string // `${path}:${type}`, the key the documentation's numbering uses
+  mergedKey: string
 }
 
 export type RuleOut = { part: string; prop: string } & (
@@ -64,7 +59,7 @@ export interface TokenOut {
 
 export interface Drive {
   by: Array<string>
-  part: string // layer name
+  part: string
   prop: string // contract property name, or '' for presence
   presence: boolean
 }
@@ -80,7 +75,7 @@ export interface Analysis {
   drives: Array<Drive>
   tokens: Record<string, TokenOut>
   summary: ContractSummary
-  layoutShare: number // 0..1 — parts placed by a layout
+  layoutShare: number
 }
 
 const PX = { ...DEFAULT_ANNOTATION_STYLE, unit: 'px' as const }
@@ -212,12 +207,6 @@ const isPlaced = (part: MergedPart): boolean =>
     )
   })
 
-/**
- * The analysis of a target, computed once and shared: the documentation's
- * header / Props view and the contract read the same one when they are
- * generated together (same target, same variants kept, same property order).
- * Entries and order are part of the result.
- */
 export const analysisFor = (
   res: Resolved,
   isFamily: boolean,
@@ -260,14 +249,11 @@ const analyzeEntries = (
     p.cpath ? `${rootName}/${p.cpath}` : rootName
   const types = refs.tokens.types
 
-  // Rows of every part in every variant that has it.
-  // Indexed by key once: no list scan per key per variant.
   const rows = new Map<MergedPart, Map<Entry, Map<string, PropertyRow>>>()
   for (const part of model.parts) {
     const m = new Map<Entry, Map<string, PropertyRow>>()
     for (const [e, p] of part.shapes) {
       const byKey = new Map<string, PropertyRow>()
-      // First row of a key wins, as list.find did.
       for (const r of rowsOf(p.shape, refs)) if (!byKey.has(r.key)) byKey.set(r.key, r)
       m.set(e, byKey)
     }
@@ -302,7 +288,6 @@ const analyzeEntries = (
     const perEntry = rows.get(part) as Map<Entry, Map<string, PropertyRow>>
     const absolute = [...part.shapes.values()].some((p) => p.shape.layoutChild?.absolute)
 
-    // Keys in first-seen order.
     const keySet = new Set<string>()
     for (const byKey of perEntry.values()) for (const k of byKey.keys()) keySet.add(k)
     const keys = [...keySet]
@@ -358,7 +343,6 @@ const analyzeEntries = (
       return
     }
 
-    // Layout and sizing fold into one rule each when uniform.
     const fold = (map: Record<string, string>, prop: string) => {
       const folded: Record<string, Value> = {}
       for (const it of items) {
@@ -385,9 +369,7 @@ const analyzeEntries = (
       const base = baseOf(it.prop)
       const measured = it.cells.some((c) => c.measured)
       if (measured && (base === 'width' || base === 'height')) {
-        // A size produced by fill / fit in every variant is a consequence of
-        // the `sizing` rule, not an exception: leave it out. When some
-        // variants fix it, fall through and state it as a value.
+        // A size produced by fill / fit in every variant is a consequence of `sizing`, not an exception.
         if (it.cells.every((c) => c.measured || c.value === null)) continue
       } else if (measured) {
         exceptions.push({
@@ -518,11 +500,6 @@ const collectTokens = (
   return expandTokens(refs, [...wanted])
 }
 
-/**
- * The token entries for `names` and every token they reference, as they are
- * now, sorted by name. Also used to tell whether a stored contract's tokens
- * changed since it was written.
- */
 export const expandTokens = (
   refs: RefCtx,
   names: Array<string>

@@ -7,18 +7,9 @@ import {
   isFamilyFiltered,
 } from './annotationRules'
 
-/**
- * Estimated number of elements above which a generation is announced as
- * potentially slow: it runs inside Penpot and can freeze it. Shared by the
- * visual documentation and the machine contract.
- */
+/** Element count above which a generation can freeze Penpot and is announced as slow. */
 export const LARGE_VOLUME_THRESHOLD = 120
 
-/**
- * Visual documentation: documented variants (after the filter, 1 for a
- * component) x parts (layers numbered by the chosen depth, +1 for the root).
- * Computed from the selection digest only.
- */
 export const estimateVisualVolume = (
   selection: SelectionDigest,
   settings: DocSettings
@@ -40,10 +31,6 @@ export const estimateVisualVolume = (
   return variants * parts
 }
 
-/**
- * Machine contract: it always covers the whole family, so every variant x
- * (every nested layer + the root).
- */
 export const estimateContractVolume = (
   selection: SelectionDigest,
   settings: DocSettings
@@ -59,10 +46,6 @@ export const estimateContractVolume = (
   return variants * (item.nestedLayerCount + 1)
 }
 
-/**
- * Every generation draws the visual documentation and writes the contract of
- * the same target: the slowness warning concerns both together.
- */
 export const estimateGenerationVolume = (
   selection: SelectionDigest,
   settings: DocSettings

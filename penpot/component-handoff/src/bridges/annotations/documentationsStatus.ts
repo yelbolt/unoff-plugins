@@ -5,16 +5,9 @@ import { surfaceError } from './surfaceError'
 import { getSelection } from './getSelection'
 import type { UpdateDocumentationsData } from '../../app/types/annotations'
 
-/**
- * Pushes DOCUMENTATIONS_STATUS_CHANGED. Used by GET_DOCUMENTATIONS_STATUS,
- * the penpot 'contentsave' / 'pagechange' listeners and after generate/update.
- * Fired by listeners: log instead of surfacing, so a persistent failure does
- * not raise a notification on every save.
- */
+/** Fired by listeners: logs instead of surfacing, so a persistent failure does not notify on every save. */
 export const pushDocumentationsStatus = (): void => {
   try {
-    // Contract freshness first (flags outdated ones, or rewrites them when the
-    // designer opted in), so the pushed status already reflects it.
     try {
       refreshContracts()
     } catch (error) {
@@ -31,12 +24,7 @@ export const pushDocumentationsStatus = (): void => {
 
 export const getDocumentationsStatus = (): void => pushDocumentationsStatus()
 
-/**
- * contentsave fires after every save: bursts collapse into one check, and the
- * check computes one target's fingerprint per tick before pushing (from the
- * cache), so Penpot gets the hand back between targets instead of freezing
- * for the whole page. A newer save restarts the run.
- */
+/** Bursts collapse into one check, one target's fingerprint per tick so Penpot is not frozen; a newer save restarts it. */
 let timer: ReturnType<typeof setTimeout> | undefined
 let refreshRun = 0
 export const pushStatusDebounced = (delay = 1000): void => {

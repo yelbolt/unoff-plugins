@@ -8,17 +8,7 @@ import { remember } from './memo'
 import { round2 } from './geometry'
 import type { Shape, Text } from '@penpot/plugin-types'
 
-/**
- * Stable hash of a documented target, stored at generation and recomputed on
- * contentsave. It covers what the documentation shows: names, structure,
- * size, layout paddings and gaps, radii, fills (refs included), strokes, text
- * properties, shadows, blurs and `shape.tokens`.
- *
- * Determinism: object keys are written in a fixed order, token keys are
- * sorted, variants are ordered by their property values. The root's absolute
- * x/y is NOT covered, so moving the component never flags it; children carry
- * their offset from the root, which is stable under a move.
- */
+/** The root's absolute x/y is NOT covered (moving never flags it); children carry their offset from the root. */
 
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json }
 
@@ -164,14 +154,8 @@ const hash = (str: string): string => {
 const subtree = (root: Shape): Json =>
   describe(root, { x: root.x, y: root.y }, true)
 
-/**
- * `root` is the documented root: a variant container (FAMILY: every
- * variant's main is covered) or a component / board (its own subtree).
- */
 export const fingerprintOf = (root: Shape): string =>
-  // Shared by the status refresh, the contract refresh and a generation.
-  // Long TTL: fingerprints are dropped by invalidate() on every real change,
-  // and the sliced status refresh warms them one target at a time.
+  // Long TTL: invalidate() drops fingerprints on every real change.
   remember(`fp:${root.id}`, () => computeFingerprint(root), 60_000)
 
 const computeFingerprint = (root: Shape): string => {

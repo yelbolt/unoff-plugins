@@ -32,7 +32,6 @@ const READ_ONLY_ACTIONS: Array<AnnotationAction> = [
   'GET_ANNOTATION_STYLE',
   'GET_DOCUMENTATIONS_STATUS',
   'LOCATE_DOCUMENTATION',
-  // Autosave: persisted silently, never shown as a pending action.
   'SET_ANNOTATION_STYLE',
   'GET_CONTRACT_SETTINGS',
   'SET_CONTRACT_SETTINGS',
@@ -46,11 +45,7 @@ const PENDING_CHANNELS: Partial<Record<AnnotationAction, PendingChannel>> = {
   REMOVE_CONTRACT: 'CONTRACT',
 }
 
-/**
- * Sends a UI → Canvas action and marks it pending until its result message
- * releases the channel in App.tsx. Several actions may be pending at once
- * (one per channel); the loader waits for all of them.
- */
+/** Several actions may be pending at once, one per channel. */
 export const sendAnnotationAction = <A extends AnnotationAction>(
   type: A,
   data?: ActionPayloads[A]

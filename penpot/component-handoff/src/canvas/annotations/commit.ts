@@ -26,13 +26,13 @@ export interface DrawEnv {
   placer: Placer
   lk: LayerKey
   layer: Group | null
-  existing: Group | null // previous drawing of the same target, updated in place
+  existing: Group | null
 }
 
 export interface DrawResult {
   rotated: boolean
-  group: Group | null // the documentation positions itself and returns its group
-  name: string // component or family name
+  group: Group | null
+  name: string
   fingerprint: string
   options: Record<string, unknown>
   parts: number
@@ -49,10 +49,6 @@ export interface CommitResult {
   variants?: number
 }
 
-/**
- * Prepare the environment, run `draw`, tag the result, place it in the layer
- * and drop the previous drawing of the same target (wherever it lives).
- */
 export const commitAnnotation = (
   kind: AnnotationKind,
   targets: Array<Shape>,
@@ -92,12 +88,10 @@ export const commitAnnotation = (
   group.setPluginData(KEYS.generatedAt, String(Date.now()))
   group.setPluginData(KEYS.name, result.name)
 
-  // Re-fetch the layer: removing the previous drawing may have emptied (and
-  // thus deleted) it, so place first, remove after.
+  // Place first, remove after: removing the previous drawing may delete its emptied layer.
   try {
     placeInLayer(group, lk, layer)
   } catch (error) {
-    // Do not leave an orphan documentation on the page.
     try {
       group.remove()
     } catch {

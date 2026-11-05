@@ -119,12 +119,8 @@ export default class SelectionHeader extends PureComponent<
 
   getBlocker = () => getSelectionBlocker('DOCUMENTATION', this.state.selection)
 
-  // A generated documentation is flagged by a chip, not by a message.
   isDocumentation = (): boolean => this.state.selection.containsAnnotation
 
-  // One information message at most, by priority: blocker, no variant, no
-  // view, existing documentation, rotation. Never two messages for the same
-  // condition.
   getMessage = (): string | null => {
     const { t } = this.props
     const { selection, settings } = this.state
@@ -150,7 +146,6 @@ export default class SelectionHeader extends PureComponent<
     const { selection, settings } = this.state
     const target = getTarget(selection, settings)
 
-    // The Canvas writes the machine contract of the same target alongside.
     sendAnnotationAction('GENERATE_DOCUMENTATION', {
       target,
       views: getEffectiveViews(selection, settings),

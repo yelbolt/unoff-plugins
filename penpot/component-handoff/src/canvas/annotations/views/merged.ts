@@ -22,10 +22,6 @@ export const presenceOf = (dc: DocCtx, part: MergedPart): Presence =>
     dc.order
   )
 
-/**
- * One line as a text, several lines as a column of texts: a cell may hold
- * lines, but a line never wraps.
- */
 export const linesCell = (
   dc: DocCtx,
   strs: Array<string>,
@@ -78,10 +74,6 @@ export const headerCell = (dc: DocCtx, key: string): PanelNode =>
     name: 'Header',
   })
 
-/**
- * A measurement value followed by its origin chip: `rule` (a layout property
- * or a token produces it) or `measured` (an observation, not a contract).
- */
 export const withOrigin = (
   dc: DocCtx,
   node: PanelNode,

@@ -21,13 +21,6 @@ const linesOf = (dc: DocCtx, drives: Array<Drive>, suffix = ''): Array<string> =
   return out
 }
 
-/**
- * PROPS (family only): the component's API, read the other way round from the
- * measurement and color tables. One row per variant property, with its values
- * and what it drives; a property that drives nothing says so; values no single
- * property explains are listed under Combined. Read from the same analysis as
- * the machine contract.
- */
 export const buildProps = (dc: DocCtx): ViewBuild | null => {
   if (!dc.isFamily || dc.order.length === 0) return null
   const { panel, analysis } = dc

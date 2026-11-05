@@ -156,11 +156,6 @@ export const colorsNeedMerged = (dc: DocCtx, model: MergedModel): number => {
   return need
 }
 
-/**
- * COLORS, merged: ONE specimen of the first variant with the part numbers,
- * then one card per part of the union. A reference that differs between
- * variants is keyed by the property that drives it.
- */
 export const buildColorsMerged = (
   dc: DocCtx,
   model: MergedModel

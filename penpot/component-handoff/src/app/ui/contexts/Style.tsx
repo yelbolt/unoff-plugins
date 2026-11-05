@@ -40,8 +40,6 @@ const SCALE_MODES: Array<ScaleMode> = ['DESIGN', 'VIEWPORT']
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
 const AUTOSAVE_DELAY = 400
 
-// Key-order independent, so a style sent by the UI and the one echoed back by
-// the Canvas compare equal.
 const normalize = (style: AnnotationStyle) =>
   JSON.stringify(
     Object.entries(style).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
@@ -92,8 +90,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     this.unsubscribeContractSettings = $contractSettings.subscribe((value) =>
       this.setState({ contractSettings: value })
     )
-    // The initial load from the Canvas fills the form. An echo of what was just
-    // sent, or any update while the user is typing, never replaces the fields.
     this.unsubscribeStyle = $annotationStyle.listen((style) => {
       const incoming = normalize(style)
       if (incoming === this.lastSent) return
@@ -133,7 +129,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     )
   }
 
-  // Applies and persists as changed: no save button, no confirmation.
   handleAutoUpdateToggle = () => {
     const next: ContractSettings = {
       ...this.state.contractSettings,
@@ -209,7 +204,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
 
   handleBlur = () => this.flush()
 
-  // Dropdown choices are saved immediately.
   handleDraftChange = (changes: Partial<AnnotationStyle>) => () => {
     const draft = { ...this.state.draft, ...changes }
 

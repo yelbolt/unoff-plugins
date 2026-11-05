@@ -4,11 +4,7 @@ import {
   CONTRACT_SCHEMA,
 } from '../types/annotations'
 
-/**
- * The text copied by "Copy agent instructions". It is read by an AI agent
- * connected to the Penpot MCP server, not by the designer: it stays in English
- * and is deliberately not a translation key.
- */
+/** Read by an AI agent, not the designer: English, not a translation key. */
 export const buildAgentInstructions = (key?: string): string =>
   [
     'This Penpot file holds machine contracts written by the Component Handoff plugin. A contract is the declarative description of a component or a component family (props, rules, tokens, exceptions). Use it to implement the component instead of reverse-engineering the design.',

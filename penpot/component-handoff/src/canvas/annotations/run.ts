@@ -41,11 +41,6 @@ const refuse = (reason: RefusalReason): { refused: AnnotationRefusedData } => ({
   refused: { kind: KIND, reason },
 })
 
-/**
- * Resolves the target, draws, then writes the machine contract of the same
- * target; returns a refusal reason when the target cannot be documented.
- * Shared by GENERATE_DOCUMENTATION and the update.
- */
 export const documentShape = (
   shape: Shape,
   data: GenerateDocumentationData,
@@ -63,8 +58,7 @@ export const documentShape = (
   const result = commitAnnotation(KIND, [res.root], style, (env) =>
     drawDocumentation(env, res, data)
   )
-  // Always the whole family, whatever the documentation's options. A failure
-  // here never costs the designer the documentation just drawn.
+  // Always the whole family; a failure here never costs the drawn documentation.
   let contract: ContractSummary | null = null
   try {
     contract = writeContract(res)
@@ -77,7 +71,7 @@ export const documentShape = (
 export const generateDocumentation = (
   data: GenerateDocumentationData
 ): Outcome => {
-  invalidate() // a user action reads the file as it is now
+  invalidate()
   const selected = penpot.selection
   if (selected.length === 0) return refuse('NO_SELECTION')
   if (selected.length !== 1) return refuse('WRONG_SELECTION_COUNT')
@@ -113,10 +107,6 @@ export const generateDocumentation = (
   }
 }
 
-/**
- * Regenerates documentations in place from their stored options; removes the
- * ones whose target is gone (or no longer documentable).
- */
 export const updateDocumentations = (
   data: UpdateDocumentationsData
 ): UpdateOutcome => {
@@ -150,9 +140,7 @@ export const updateDocumentations = (
       readOptions(group.getPluginData(KEYS.options)),
       style
     )
-    // A refusal can be transient (e.g. mainInstance() failing once): keep the
-    // existing documentation untouched rather than deleting it. Only a missing
-    // target removes a documentation.
+    // A refusal can be transient: keep the existing documentation; only a missing target removes it.
     if (typeof result !== 'string') updated++
   }
   return { updated: { updated, removed } }

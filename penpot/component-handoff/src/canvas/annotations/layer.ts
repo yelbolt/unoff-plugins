@@ -32,7 +32,7 @@ export const topLevelOf = (shape: Shape): Shape => {
 }
 
 export interface LayerKey {
-  key: string // board id, or PAGE_KEY
+  key: string
   board: Shape | null
 }
 
@@ -85,10 +85,7 @@ export const findExisting = (
       ) ?? null)
     : null
 
-/**
- * Identity lookup across every layer of the page: a documented target that
- * moved to another board must still be updated, never duplicated.
- */
+/** A target moved to another board must still be updated, never duplicated. */
 export const findExistingAnywhere = (
   kind: AnnotationKind,
   targetIds: Array<string>

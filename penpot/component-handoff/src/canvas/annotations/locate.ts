@@ -1,10 +1,6 @@
 import { findDocumentationById } from './layer'
 import { boundsRect } from './geometry'
 
-/**
- * Selects a documentation and brings it into view. Returns false when no
- * documentation has this id on the current page.
- */
 export const locateDocumentation = (docId: string): boolean => {
   const group = findDocumentationById(docId)
   if (!group) return false

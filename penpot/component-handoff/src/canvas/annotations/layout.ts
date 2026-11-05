@@ -14,18 +14,9 @@ import type { Part } from './parts'
 import type { Point, Rect } from './geometry'
 import type { Pen } from './draw'
 
-/**
- * The Layout category: how a part lays out its children (flex / grid) and how
- * it is sized inside its own parent (fix / fill / fit). Wording follows the
- * Penpot properties panel: "fit" is the API's 'auto'.
- */
 
 const lv = (v: string): string => tr(`layout.${v}`)
 
-/**
- * `code` is the language-neutral value the machine contract reads; `value` is
- * what the sheet displays.
- */
 const row = (
   key: string,
   label: string,
@@ -43,9 +34,6 @@ const row = (
 const enumRow = (key: string, label: string, v: string): PropertyRow =>
   row(key, label, lv(v), undefined, v)
 
-/**
- * `1fr 1fr 120px` — flex tracks in fr, fixed in px, percent in %, auto.
- */
 export const trackText = (t: Track, style: AnnotationStyle): string => {
   const v = t.value ?? 0
   if (t.type === 'flex') return `${round(v)}fr`
@@ -75,10 +63,6 @@ const GROW: Record<string, string> = {
   'auto-height': 'autoHeight',
 }
 
-/**
- * Whether `zIndex` reorders the children of a layout: the siblings sorted by
- * zIndex (stable) differ from the layer order.
- */
 const zIndexReorders = (parent: Shape): boolean =>
   memoRead(`zr:${parent.id}`, () => computeZIndexReorders(parent))
 
@@ -94,11 +78,6 @@ const computeZIndexReorders = (parent: Shape): boolean => {
   return sorted.some((e, i) => e.i !== i)
 }
 
-/**
- * What a developer cannot read off a static specimen: how a text grows, how a
- * part outside any layout resizes with its parent, whether a container clips,
- * and a layer order set by zIndex. Language-neutral values (`code`).
- */
 const behaviourRows = (shape: Shape): Array<PropertyRow> => {
   const rows: Array<PropertyRow> = []
   if (shape.type === 'text') {
@@ -223,8 +202,6 @@ type Mode = 'fix' | 'fill' | 'fit'
 
 const unit = (sc: RedlineCtx['sc']): number => Math.max(sc.stroke * 1.5, 1)
 
-// A stepped head whose tip is at `tip`, pointing towards `s` (+1 / -1) along
-// `axis`; it extends backwards 3u from the tip.
 const head = (pen: Pen, u: number, tip: Point, axis: Axis, s: number): void => {
   for (let j = 0; j < 3; j++) {
     const len = u * (1 + 2 * j)
@@ -241,7 +218,6 @@ const arrow = (pen: Pen, u: number, from: Point, to: Point): void => {
   head(pen, u, to, axis, Math.sign(axis === 'h' ? to.x - from.x : to.y - from.y))
 }
 
-// Sizing glyph along `axis` from a0 to a1, centred on the cross coordinate c.
 // fix  |—|   a tick at each end
 // fill ◄—►   heads point outward, to the edges
 // fit  ►—◄   heads point inward, hugging the content
@@ -280,8 +256,6 @@ const clampTo = (rc: RedlineCtx, r: Rect): Rect => {
   }
 }
 
-// First free candidate wins (the Placer knows glyphs and earlier pills); the
-// first candidate is used when none is free.
 const putPill = (
   rc: RedlineCtx,
   text: string,
@@ -308,15 +282,10 @@ const resolveTracks = (tracks: Array<Track>, avail: number, gap: number): Array<
   return out.map((s) => (s < 0 ? (fr > 0 ? (rest * -s) / fr : 0) : s))
 }
 
-/**
- * The overlay of every listed part. Pass 1 draws outlines, glyphs, arrows and
- * brackets and registers them as obstacles; pass 2 places the pills so none
- * lands on a glyph. Nothing is drawn over a part's content.
- */
 export const drawLayoutOverlay = (rc: RedlineCtx, parts: Array<Part>): void => {
   const { pen, sc, placer, style } = rc
   const u = unit(sc)
-  const g = sc.gap * 2 // distance between a part and its glyph
+  const g = sc.gap * 2
   const half = u * 3.5
   const pills: Array<() => void> = []
 

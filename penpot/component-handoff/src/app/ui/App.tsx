@@ -203,8 +203,6 @@ class App extends Component<AppProps, AppState> {
     sendPluginMessage({ pluginMessage: { type: 'GET_SELECTION' } }, '*')
     sendPluginMessage({ pluginMessage: { type: 'GET_ANNOTATION_STYLE' } }, '*')
     sendPluginMessage({ pluginMessage: { type: 'GET_CONTRACT_SETTINGS' } }, '*')
-    // Outdated documentations: requested once LOAD_DATA is sent, then pushed
-    // spontaneously by the Canvas.
     sendPluginMessage(
       { pluginMessage: { type: 'GET_DOCUMENTATIONS_STATUS' } },
       '*'
@@ -330,9 +328,6 @@ class App extends Component<AppProps, AppState> {
     window.removeEventListener('resize', this.handleResize)
   }
 
-  // Results of two requests sent together (documentation + contract) arrive
-  // within moments of each other: they share one notification instead of the
-  // second one erasing the first.
   showNotification = (notification: NotificationMessage) => {
     const now = Date.now()
     const previous = this.state.notification
@@ -505,8 +500,6 @@ class App extends Component<AppProps, AppState> {
       }
 
       const postMessage = () => {
-        // surfaceError() replies with POST_MESSAGE only: release any action
-        // still waiting for a Canvas result so its button loader stops.
         clearPending()
         this.setState({
           isNotificationDisplayed: true,
@@ -518,7 +511,6 @@ class App extends Component<AppProps, AppState> {
         })
       }
 
-      // Shows a result and releases the channel it answers.
       const notify = (
         notification: NotificationMessage,
         channel: PendingChannel
@@ -531,7 +523,6 @@ class App extends Component<AppProps, AppState> {
 
       const handleAnnotationStyle = () => setAnnotationStyle(path.data)
 
-      // Autosave acknowledgement: update the stores silently (no notification).
       const handleAnnotationStyleSaved = () => setAnnotationStyle(path.data)
 
       const handleAnnotationApplied = () =>
@@ -561,9 +552,7 @@ class App extends Component<AppProps, AppState> {
           'CONTRACT'
         )
 
-      // The copy follows the reply of GET_CONTRACT, which itself follows the
-      // click: it relies on the browser's transient user activation, with a
-      // textarea fallback (see utils/clipboard.ts).
+      // Relies on transient user activation of the click, with a textarea fallback.
       const handleContractLoaded = () => {
         resolvePending('CONTRACT')
         void copyWithNotice(
@@ -573,8 +562,6 @@ class App extends Component<AppProps, AppState> {
         )
       }
 
-      // Only the initial load fills the store: the toggle already updated it
-      // when changed, so the SAVED echo is ignored (no flicker, no message).
       const handleContractSettings = () => $contractSettings.set(path.data)
 
       const handleAnnouncements = () => {

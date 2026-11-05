@@ -40,11 +40,6 @@ const cloneOf = (dc: DocCtx, shape: Shape): PanelNode => {
   return { shape: ph, w: shape.width, h: shape.height }
 }
 
-/**
- * Compact anatomy (1 to 4 parts, specimen within 2 columns): a specimen card
- * of 2 columns and a parts card of 4. Otherwise a single card of 6. `body`
- * builds the parts content for a known content width.
- */
 const anatomyCards = (
   dc: DocCtx,
   title: PanelNode,

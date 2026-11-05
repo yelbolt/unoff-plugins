@@ -178,8 +178,6 @@ export default class Documentation extends PureComponent<
     />
   )
 
-  // One warning: each generation draws the documentation and writes the
-  // contract of the same target.
   VisualWarning = () => {
     const { t } = this.props
     const { selection, settings } = this.state

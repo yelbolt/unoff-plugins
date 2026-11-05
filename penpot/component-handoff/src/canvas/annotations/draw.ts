@@ -47,8 +47,7 @@ export class Pen {
     return shape
   }
 
-  // A solid filled rectangle: the only primitive for every line. Paths are
-  // never used (their geometry is not reliably applied).
+  // Solid rectangles are the only primitive: path geometry is not reliably applied.
   bar(
     x: number,
     y: number,
@@ -66,9 +65,7 @@ export class Pen {
     return this.track(bar, name)
   }
 
-  // Orthogonal segment as a thin rectangle, extended by half its thickness at
-  // both ends so connected segments meet cleanly. A diagonal request is
-  // split into a horizontal then a vertical segment.
+  // A diagonal request is split into a horizontal then a vertical segment.
   line(
     a: Point,
     b: Point,
@@ -131,10 +128,6 @@ export class Pen {
     this.track(e, name)
   }
 
-  // A pill or a disc holding one auto-width text, centered by flex alignment
-  // (the text size is never read). `r` is the placed rect: a fixed badge
-  // takes exactly its size; otherwise the pill fits the text, padded to match
-  // the label size estimate, and hangs from the rect's top-left corner.
   badge(
     str: string,
     r: Rect,
@@ -217,9 +210,6 @@ export class Pen {
     this.track(rect, name)
   }
 
-  // Orthogonal leader from `anchor` to the label rect: straight when the
-  // anchor faces the rect, else one elbow. `prefer` is the axis it leaves the
-  // anchor along (the label's outward direction).
   leader(anchor: Point, target: Rect, prefer: 'h' | 'v' = 'v'): void {
     const inX = anchor.x >= target.x && anchor.x <= rectRight(target)
     const inY = anchor.y >= target.y && anchor.y <= rectBottom(target)

@@ -30,9 +30,7 @@ import {
 } from './annotations/annotationStyle'
 
 const loadUI = async () => {
-  // Children read in z-order for the whole session: generation sets it too,
-  // and fingerprints computed at launch (status, contract refresh) must read
-  // children in the same order as when they were stored.
+  // Children read in z-order, as when stored: fingerprints computed at launch must match.
   penpot.flags.naturalChildOrdering = true
 
   // Setup UI
@@ -244,9 +242,6 @@ const loadUI = async () => {
   })
 
   penpot.on('selectionchange', () => getSelection())
-  // Outdated detection runs while the plugin is open: after each save of the
-  // file, and when the designer changes page.
-  // The file changed: what was read from it is stale.
   penpot.on('contentsave', () => {
     // Saving the plugin's own write changed no documented component: keep the
     // fingerprints and the reference catalog, drop the rest.

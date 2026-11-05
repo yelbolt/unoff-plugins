@@ -234,10 +234,6 @@ const radius = (rc: RedlineCtx, part: Part): void => {
   }
 }
 
-/**
- * Redlines of ONE category, drawn on its own specimen. Parts carry live
- * shapes of the copy. Returns true when a measured part was rotated.
- */
 export const drawRedlines = (
   rc: RedlineCtx,
   parts: Array<Part>,
@@ -260,12 +256,6 @@ export const drawRedlines = (
   return rotated
 }
 
-/**
- * Numbered markers in two aligned margin columns (left / right of the copy).
- * Each pin sits at its part's height when the column has room, pushed down
- * otherwise; its leader is orthogonal: along the row, one vertical elbow
- * when the pin was pushed, then along the part's row to the anchor.
- */
 export const drawMarkers = (
   rc: RedlineCtx,
   parts: Array<Part>,
@@ -279,7 +269,6 @@ export const drawMarkers = (
     .filter((p) => p.n > 0)
     .sort((a, b) => shapeRect(a.shape).y - shapeRect(b.shape).y)
 
-  // The pin columns clear every label already committed on their side.
   const obs = placer.obstacles
   const leftEdge = Math.min(root.x, ...obs.map((o) => o.x))
   const rightEdge = Math.max(rectRight(root), ...obs.map((o) => rectRight(o)))
@@ -293,7 +282,7 @@ export const drawMarkers = (
     part: Part
     anchor: Point
     left: boolean
-    y: number // pin top
+    y: number
   }
   const pins: Array<Pin> = marked.map((part) => {
     const r = shapeRect(part.shape)

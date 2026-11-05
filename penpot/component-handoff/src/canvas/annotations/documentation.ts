@@ -34,11 +34,6 @@ import type { PanelNode } from './panel'
 import type { Pen } from './draw'
 import type { DrawEnv, DrawResult } from './commit'
 
-/**
- * The documentation board: a flex column holding the header, then
- * one section per ticked view (VARIANTS, ANATOMY, MEASUREMENTS, COLORS), each
- * a full-width title over its cards.
- */
 export const drawDocumentation = (
   env: DrawEnv,
   res: Resolved,
@@ -54,8 +49,7 @@ export const drawDocumentation = (
 
   try {
     const isFamily = res.target === 'FAMILY' && res.variants !== null
-    // Fingerprint of the target as it is now, before anything is drawn. It
-    // reads the documented root only: grouping never changes it.
+    // Reads the documented root only: grouping never changes it.
     const fingerprint = fingerprintOf(res.root)
 
     const refs = makeRefCtx()
@@ -80,13 +74,12 @@ export const drawDocumentation = (
             .filter(Boolean)
             .join('  ·  ')
         : null
-    // Grouping applies to a family only; a component is always laid out the
-    // merged way (a single variant).
+    // A component is always laid out merged (single variant).
     const merged =
       !isFamily || data.grouping === 'MERGED'
         ? entries.length > 0
           ? depth === 'ALL'
-            ? analysis.model // already walked by the analysis
+            ? analysis.model
             : readPhase(() => buildMerged(entries, depth))
           : null
         : null
@@ -133,9 +126,7 @@ export const drawDocumentation = (
       },
       copyOf: (e) => (e.comp ? e.comp.instance() : e.main.clone()),
     }
-    // Raise the column width (never past the cap) so that a measurement
-    // table fits a span of 3 and a color part table a span of 2: cards are
-    // never widened for them. Dry runs; their shapes are dropped.
+    // Dry runs (shapes dropped): widen the column so a measurement table fits span 3 and a color table span 2.
     const raise = (span: number, need: number) => {
       if (need > 0)
         dc.colW = Math.min(
@@ -157,10 +148,6 @@ export const drawDocumentation = (
           bindParts(s.plan, s.entries[0].main).some((p) => isRotated(p.shape))
         )
 
-    // The 6-column grid is realised with flex rows: the documentation is a
-    // fit column of the header and one fit section per view; a section is a
-    // title over fit rows; a row holds cards of FIXED width (from their span)
-    // and fit height, packed in reading order.
     const cols = LAYOUT.gridColumns
     const sections: Array<PanelNode> = [buildHeader(dc)]
     const section = (b: ViewBuild | null) => {
@@ -191,8 +178,7 @@ export const drawDocumentation = (
         line = []
         left = cols
       }
-      // Strict reading order, no backfill: a unit that does not fit the
-      // remaining columns, or that breaks before, starts a new row.
+      // Strict reading order, no backfill.
       for (const u of units) {
         const w = spanOf(u)
         if (line.length > 0 && (u[0].breakBefore || w > left)) close()
@@ -232,11 +218,7 @@ export const drawDocumentation = (
     const rootShape = root.shape
     rootBoard = rootShape
 
-    // Update in place: keep the position the designer gave the previous
-    // drawing. Otherwise: right of the target's top-level board, below the
-    // documentations already there. Only the target's bounds and the previous
-    // documentation's x/y are read; the size used to dodge obstacles is the
-    // estimate.
+    // Update in place keeps the designer's position; otherwise right of the target, below existing documentations.
     const spot = { x: 0, y: 0, w: root.w, h: root.h }
     if (existing) {
       const at = boundsRect(existing)
@@ -258,8 +240,7 @@ export const drawDocumentation = (
     const group = penpot.group([root.shape])
     if (!group) throw new Error('Could not group the documentation')
 
-    // Nothing may stay at page root next to the documentation: whatever was
-    // created and never attached is removed.
+    // Nothing created and never attached may stay at page root.
     const pageRootId = safe(() => penpot.currentPage?.root.id)
     const stray = (s: Shape): boolean =>
       safe(() => !s.parent || s.parent.id === pageRootId) === true
@@ -289,8 +270,6 @@ export const drawDocumentation = (
       variants: isFamily && on('VARIANTS') ? entries.length : undefined,
     }
   } catch (error) {
-    // Everything built so far, including panel boards/texts and overlay
-    // shapes not yet attached to the documentation board.
     created.forEach((s) => safe(() => s.remove()))
     panel?.created.forEach((s) => safe(() => s.remove()))
     pens.forEach((p) => p.shapes.forEach((s) => safe(() => s.remove())))

@@ -19,7 +19,6 @@ export const generateDocumentation = (
         type: 'ANNOTATION_REFUSED',
         data: outcome.refused,
       })
-    // annotatedCount and freshness changed.
     getSelection()
     pushDocumentationsStatus()
   } catch (error) {

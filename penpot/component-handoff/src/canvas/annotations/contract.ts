@@ -30,12 +30,7 @@ import type {
 } from '../../app/types/annotations'
 import type { Resolved } from './target'
 
-/**
- * The machine contract: JSON in the file's SHARED plugin data (readable by any
- * plugin, so by the Penpot MCP one). Strings only; parsed inside try/catch;
- * written only when the stored value actually changes, so the contentsave a
- * write triggers does not loop.
- */
+/** Strings only, parsed in try/catch; written only when the value changes, or the contentsave it triggers would loop. */
 
 const NS = CONTRACT_NAMESPACE
 
@@ -44,7 +39,6 @@ interface IndexEntry {
   name: string
   page: string
   status: 'current' | 'outdated'
-  // Extras for the plugin's own list (agents may ignore them).
   target: DocTarget
   targetId: string
   generatedAt: number
@@ -102,24 +96,19 @@ interface Built {
   name: string
   target: DocTarget
   targetId: string
-  json: string // compact
+  json: string
   summary: ContractSummary
   generatedAt: number
 }
 
 const build = (res: Resolved): Built => {
-  // Children read in z-order, as when the documentation was generated.
   penpot.flags.naturalChildOrdering = true
   const isFamily = res.target === 'FAMILY' && res.variants !== null
-  // Whole family, no filter. Shared with the documentation generated just
-  // before it (same analysis), not recomputed.
   const analysis = analysisFor(res, isFamily, null, 'FAMILY_ONLY')
   const { entries, order } = analysis
   const name = docName(res, isFamily)
 
-  // Part numbers come from the visual documentation of the same target, as
-  // last generated (its depth, its variant filter). None without one, and none
-  // for per-structure grouping (numbers are then per group, not per part).
+  // Part numbers come from the last generated documentation; none for per-structure grouping.
   const numbers = new Map<string, number>()
   const doc = findExistingAnywhere('DOCUMENTATION', [res.root.id])
   if (doc) {
@@ -127,8 +116,6 @@ const build = (res: Resolved): Built => {
     if (!isFamily || o.grouping === 'MERGED') {
       const docEntries = collectEntries(res, isFamily, isFamily ? o.variantFilter : null)
       if (docEntries.length > 0) {
-        // The analysis already walked every variant at depth ALL: reuse it
-        // when the documentation covers the same variants at that depth.
         const model =
           o.depth === 'ALL' && docEntries.length === entries.length
             ? analysis.model
@@ -201,12 +188,7 @@ const refuse = (reason: RefusalReason): Refused => ({
 })
 
 
-/**
- * Written by every documentation generation and update, for the same target
- * (spec: "One generation, two readers"). Called right after the documentation
- * is drawn, so the analysis and references computed for it are reused and
- * part numbers come from the documentation just generated.
- */
+/** Spec: one generation, two readers. Call right after the documentation is drawn. */
 export const writeContract = (res: Resolved): ContractSummary => {
   const built = build(res)
   store(built)
@@ -273,18 +255,14 @@ const setStatus = (entry: IndexEntry, status: 'current' | 'outdated'): void => {
   writeIndex(index.map((e) => (e.key === entry.key ? { ...e, status } : e)))
 }
 
-/**
- * Launch and after each save, BEFORE the status is pushed. Flagging is the only
- * write made on the designer's behalf, unless auto-update is on.
- */
+/** Flagging is the only write made on the designer's behalf, unless auto-update is on. */
 export const refreshContracts = (): void => {
   const page = currentPage()
   let index = readIndex()
   if (index.length === 0) return
   penpot.flags.naturalChildOrdering = true
 
-  // A target moved to another page: the entry follows it, so it is listed
-  // where the component now lives instead of being reported missing.
+  // A target moved to another page: the entry follows it instead of being reported missing.
   const pageOf = (id: string): string | null => {
     if (safe(() => page.getShapeById(id))) return page.id
     for (const p of safe(() => file().pages) ?? [])
@@ -322,8 +300,7 @@ export const refreshContracts = (): void => {
       } catch {
         /* treated as changed */
       }
-      // Current when the component AND the tokens it embeds are unchanged:
-      // a token whose value moved makes the contract's `tokens` wrong.
+      // Current only if the tokens it embeds are unchanged too.
       const tokens = stored.tokens && typeof stored.tokens === 'object' ? stored.tokens : {}
       const fresh =
         fingerprintOf(target) === (stored.fingerprint ?? '') &&

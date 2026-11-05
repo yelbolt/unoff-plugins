@@ -1,34 +1,20 @@
 /**
- * Short-lived caches. Every read of a Penpot shape property crosses into the
- * host (ClojureScript) and converts data: the same property must be read once
- * per run, not once per consumer.
- *
- *  - `remember`  : results shared between runs for a few seconds (fingerprints,
- *                  reference catalog, analysis). Dropped by `invalidate()` on
- *                  each user-triggered action, on contentsave and pagechange,
- *                  and by TTL.
- *  - `memoRead`  : raw shape reads (children, tokens, spacing…). Active ONLY
- *                  inside `readPhase`, where the plugin reads and never
- *                  writes; dropped when the outermost phase ends, so drawing
- *                  code (which mutates shapes) never sees a stale value.
+ * `remember`: results shared between runs (dropped by invalidate(), contentsave, pagechange, TTL).
+ * `memoRead`: raw shape reads, active only inside `readPhase` (reads only), so drawing never sees a stale value.
  */
 
 const TTL = 2500
 
-/** Last time the plugin itself wrote to the file (see `isSelfSave`). */
 let lastSelfWrite = 0
 const SELF_SAVE_WINDOW = 3000
 
-/** Call right after the plugin writes to the file (shapes, plugin data). */
 export const markSelfWrite = (): void => {
   lastSelfWrite = Date.now()
 }
 
 /**
- * A contentsave this soon after the plugin's own write is most likely that
- * write being saved: it changed no documented component, so fingerprints can
- * be kept. Trade-off: an edit made by the designer within the window is only
- * detected at the next save.
+ * A contentsave this soon after the plugin's own write is taken as that write, so fingerprints are kept.
+ * Trade-off: a designer edit within the window is only detected at the next save.
  */
 export const isSelfSave = (): boolean =>
   Date.now() - lastSelfWrite <= SELF_SAVE_WINDOW

@@ -4,44 +4,34 @@ import type { Board, Font, Shape, Text } from '@penpot/plugin-types'
 import type { AnnotationStyle } from '../../app/types/annotations'
 import type { Scale } from './scale'
 
-/**
- * A shape built by the panel plus its ESTIMATED size. The estimate is derived
- * from known numbers only (font size, character count, fixed sizes); it is
- * never read back from the platform, because Penpot resolves auto layout
- * asynchronously. It only balances columns and sizes things that are fixed
- * up front. The layout itself is always done by native flex.
- */
+/** Size is ESTIMATED from known numbers, never read back: Penpot resolves auto layout asynchronously. */
 export interface PanelNode {
   shape: Shape
   w: number
   h: number
-  lines?: number // text lines it holds
-  span?: number // columns a card occupies (default 6)
-  join?: boolean // card sticks to the previous one in the packing
-  breakBefore?: boolean // card always starts a new row
-  fill?: boolean // takes the width of its flex parent (layoutChild 'fill')
-  outerW?: number // card only: real outer width, when wider than its span
+  lines?: number
+  span?: number
+  join?: boolean
+  breakBefore?: boolean
+  fill?: boolean
+  outerW?: number
 }
 
-/**
- * A table row: its cells (null = empty cell), or an empty array for a spacer
- * between two groups of rows.
- */
 export type TableRow = Array<PanelNode | null>
 
 interface BoxOptions {
   dir: 'row' | 'column'
   gap: number
-  rowGap?: number // overrides the gap between wrapped rows
-  pad?: number // all sides
-  padX?: number // overrides the horizontal padding
-  padY?: number // overrides the vertical padding
+  rowGap?: number
+  pad?: number
+  padX?: number
+  padY?: number
   fill?: string
   fillOpacity?: number
   radius?: number
   alignItems?: 'start' | 'center' | 'end' | 'stretch'
   justify?: 'start' | 'center' | 'end' | 'space-between'
-  wrap?: boolean // flex wrap; its width comes from a fixed or fill parent
+  wrap?: boolean
   fixedWidth?: number
   name: string
 }
@@ -57,7 +47,6 @@ interface TextOptions {
   name?: string
 }
 
-// Rough glyph widths relative to the default estimate, per brand font.
 const WIDEN: Record<FontRole, number> = { title: 1.2, body: 1.05 }
 
 export class Panel {
@@ -75,7 +64,6 @@ export class Panel {
       }
   }
 
-  // Font lookups, done once per generation. null = missing, fall back.
   private fonts = new Map<string, Font | null>()
 
   constructor(
@@ -104,8 +92,6 @@ export class Panel {
     return this.fonts.get(family) ?? null
   }
 
-  // Applies the brand font and weight. Silent fallback to the current
-  // default when the font or the weight is missing.
   private applyFont(text: Text, role: FontRole, weight: number): void {
     const font = this.font(role === 'title' ? FONT_TITLE : FONT_BODY)
     try {
@@ -172,7 +158,6 @@ export class Panel {
     return { shape: rect, w, h, lines: 1 }
   }
 
-  // Small color square; without a color, an empty square keeps columns aligned.
   swatch(color?: string): PanelNode {
     const size = Math.round(16 * this.sc.k)
     const rect = penpot.createRectangle()
@@ -308,12 +293,7 @@ export class Panel {
     )
   }
 
-  // A table, built ROW BY ROW: a flex column of FILL width, whose rows are
-  // flex rows of fill width and fit height, whose cells are boards of FIXED
-  // width (the table's width split by the columns' needs) and FIT height. A
-  // multi-line cell grows its row and never overlaps the next one. Every row
-  // uses the same column widths, so columns line up. `width` is the known
-  // content width of the card holding the table.
+  // Built row by row with fixed-width cells: a multi-line cell grows its row without overlapping the next.
   table(
     rows: Array<TableRow>,
     o: { width: number; name: string; rowGap?: number; colGap?: number }

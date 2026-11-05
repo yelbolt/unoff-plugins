@@ -35,11 +35,7 @@ const documentedRoot = (
   return c.main ?? s
 }
 
-/**
- * Nested visible layers, counted up to `NESTED_CAP`: past it the count only
- * feeds the slowness warning, and walking a whole large board (a generated
- * documentation, a page-sized board) on every selection change freezes Penpot.
- */
+/** Counted up to NESTED_CAP: walking a whole large board on every selection change freezes Penpot. */
 const NESTED_CAP = 1000
 const countNested = (s: Shape): number => {
   const stack = [...visibleChildren(s)]
@@ -95,10 +91,6 @@ const toItem = (s: Shape): SelectionItem => {
   }
 }
 
-/**
- * The documented root for a choice; null when that choice is refused. Only
- * classifies the selection: no analysis, no fingerprint.
- */
 const rootIdOf = (s: Shape, target: DocTarget): string | null => {
   const res = safe(() => resolveTarget(s, target))
   return res && typeof res !== 'string' ? res.root.id : null

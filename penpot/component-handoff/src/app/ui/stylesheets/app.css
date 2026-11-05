@@ -92,7 +92,6 @@ section.context {
   background-color: var(--framer-color-bg);
 }
 
-/* Rhythm: secondary text and sub-options read as subordinate */
 .handoff-suboption {
   padding-left: var(--scale-pos-small);
 }

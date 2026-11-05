@@ -13,7 +13,6 @@ import {
 } from '../types/annotations'
 import { DocSettings } from '../stores/annotations'
 
-/** Why an action is unavailable for the current selection, or null if it fits. */
 export const getSelectionBlocker = (
   kind: AnnotationKind,
   selection: SelectionDigest
@@ -27,7 +26,6 @@ export const getSelectionBlocker = (
   return null
 }
 
-/** The single documentable item, or null when the selection is not exactly one. */
 export const getDocumentedItem = (
   selection: SelectionDigest
 ): SelectionItem | null =>
@@ -35,7 +33,6 @@ export const getDocumentedItem = (
     ? selection.items[0]
     : null
 
-/** A family is reachable when the selection exposes at least one variant. */
 export const canDocumentFamily = (item: SelectionItem | null): boolean =>
   item !== null && item.variantCount > 0
 
@@ -52,7 +49,6 @@ export const getTarget = (
   return target === 'FAMILY' && !canDocumentFamily(item) ? 'COMPONENT' : target
 }
 
-// VARIANTS and PROPS only exist for a family.
 export const getEffectiveViews = (
   selection: SelectionDigest,
   settings: DocSettings
@@ -119,16 +115,11 @@ export const getVariantFilter = (
   return Object.keys(filter).length > 0 ? filter : null
 }
 
-/**
- * One row of the Generated tab: a documentation with the contract written
- * alongside it, or a contract whose documentation is not on the page.
- */
 export interface GeneratedRow {
   id: string
   documentation: DocumentationStatus | null
   contract: ContractStatus | null
   outdated: boolean // the documentation OR its contract is outdated
-  /** How the row is brought up to date: the documentation update rewrites the contract too. */
   updateWith: 'DOCUMENTATION' | 'CONTRACT' | null
 }
 
@@ -175,6 +166,5 @@ export const buildGeneratedRows = (
   return rows
 }
 
-/** Rows that need an update (a documentation and its own contract count once). */
 export const countOutdated = (status: DocumentationsStatusData): number =>
   buildGeneratedRows(status).filter((row) => row.outdated).length

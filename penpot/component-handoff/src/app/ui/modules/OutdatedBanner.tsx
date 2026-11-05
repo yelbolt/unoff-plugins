@@ -39,8 +39,6 @@ export default class OutdatedBanner extends PureComponent<
     if (this.unsubscribePending) this.unsubscribePending()
   }
 
-  // A documentation update rewrites its contract too: a contract is updated on
-  // its own only when its documentation is current (or not on the page).
   handleUpdateAll = () => {
     const { rows } = this.state
     const docIds = rows

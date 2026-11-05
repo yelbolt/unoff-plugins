@@ -18,13 +18,9 @@ import type { DrawEnv } from '../commit'
 import type { Analysis } from '../analysis'
 import type { PartsDetail } from '../../../app/types/annotations'
 
-/**
- * A view: a title and its cards. Everything a card holds, specimen overlays
- * included, is fully drawn when the view is returned.
- */
 export interface ViewBuild {
   title?: PanelNode
-  cards: Array<PanelNode> // packed into the grid by the documentation, by span
+  cards: Array<PanelNode>
 }
 
 export interface DocCtx {
@@ -34,16 +30,16 @@ export interface DocCtx {
   refs: RefCtx
   depth: PartsDetail
   isFamily: boolean
-  entries: Array<Entry> // every documented variant (one for a component)
-  structures: Array<StructureGroup> // SPLIT: computed once, shared by all views
-  merged: MergedModel | null // MERGED (and any component): the union model
-  order: Array<PropertyOrder> // variant properties, in the family's own order; only ticked values when filtered
-  analysis: Analysis // the one analysis the contract is also serialized from
-  filterNote: string | null // set when the variant filter excludes something
-  colW: number // width of one grid column, from known numbers
+  entries: Array<Entry>
+  structures: Array<StructureGroup>
+  merged: MergedModel | null
+  order: Array<PropertyOrder>
+  analysis: Analysis
+  filterNote: string | null
+  colW: number
   state: { rotated: boolean; markers: number }
   track: <T extends Shape>(shape: T) => T
-  pens: Array<Pen> // overlay pens, drained if the draw fails
+  pens: Array<Pen>
   copyOf: (entry: Entry) => Shape
 }
 
@@ -113,12 +109,7 @@ export const variantNeed = (
   )
 }
 
-/**
- * The size of a card: its span, its outer width and the width left to its
- * content. The span is the smallest one, from `span` up, whose content width
- * holds `need` (a specimen stage, a table). When even the whole grid is too
- * narrow, the card grows: it takes the full row and the width it needs.
- */
+/** The smallest span whose content width holds `need`; past the whole grid the card grows to the width it needs. */
 export interface CardSize {
   span: number
   outer: number
@@ -136,10 +127,6 @@ export const sizeOf = (dc: DocCtx, span: number, need = 0): CardSize => {
   }
 }
 
-/**
- * A card size of exactly `span` columns: never widened. A table that needs
- * more is scaled down by the table itself.
- */
 export const fixedSize = (dc: DocCtx, span: number): CardSize => ({
   span,
   outer: spanW(dc, span),
@@ -156,11 +143,6 @@ export const colWFor = (
       span
   )
 
-/**
- * A card: a flex column of FIXED width (from its span) and fit height, on the
- * light brand surface. Its children that hold containers use fill width. The
- * documentation packs cards by span; `join` keeps one next to the previous.
- */
 export const card = (
   dc: DocCtx,
   kids: Array<PanelNode>,
@@ -199,10 +181,6 @@ export const subCard = (
     name,
   })
 
-/**
- * Sub-boxes of a wrapping flex row of FILL width: it wraps inside the card
- * holding it and grows downwards.
- */
 export const wrapRows = (
   dc: DocCtx,
   nodes: Array<PanelNode>,
@@ -252,17 +230,11 @@ export const titleBlock = (dc: DocCtx, entries: Array<Entry>): PanelNode => {
 export interface Stage {
   board: Board
   node: PanelNode
-  rect: Rect // where the stage is NOW, from known numbers
+  rect: Rect
   copy: Shape
 }
 
-/**
- * Absolutely positioned content lives only here: a board with NO layout,
- * sized up front from the copy's own width and height plus fixed margins.
- * Everything (copy, redlines, markers, leaders) is drawn inside it, in
- * coordinates relative to its position at creation. Appended afterwards into
- * its card with fixed sizing, flex layout moves it and its children with it.
- */
+/** Absolutely positioned content lives only in a layout-free board, appended with fixed sizing so flex moves it along. */
 export const makeStage = (
   dc: DocCtx,
   copy: Shape,
@@ -296,10 +268,6 @@ export const makeStage = (
   }
 }
 
-/**
- * Centres a fixed-size specimen in its card: a fill-width flex row whose
- * content is justified to the centre. No offset is ever computed.
- */
 export const centered = (dc: DocCtx, node: PanelNode): PanelNode =>
   dc.panel.fillWidth(
     dc.panel.box([node], {

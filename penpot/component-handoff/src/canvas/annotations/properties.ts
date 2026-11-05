@@ -28,14 +28,14 @@ export const FAMILY_ORDER: Array<PropFamily> = [
 export type RefKind = 'token' | 'style' | 'raw'
 
 export interface PropertyRow {
-  key: string // stable identity, used to compare variants
+  key: string
   label: string
-  value: string // token name, else style name, else raw value
+  value: string
   ref: RefKind
-  swatch?: string // hex of the color this row shows, when it is a plain color
-  code?: string // language-neutral value (layout enums, gradient / image, matched style name) for the machine contract
-  chain?: Array<string> // ref === 'token' and the token references another: `a → b → value`
-  origin?: 'rule' | 'measured' // measurements only: layout property / token vs distance observed between parts no layout places
+  swatch?: string
+  code?: string
+  chain?: Array<string>
+  origin?: 'rule' | 'measured'
 }
 
 export interface PropertyGroup {
@@ -51,9 +51,6 @@ interface Env {
 const hex = (c?: string): string => (c ? c.toUpperCase() : '')
 const pct = (n: number): string => `${trimNumber(n * 100)}%`
 
-/**
- * token, else style, else raw. Returns null when there is nothing to show.
- */
 const row = (
   key: string,
   label: string,

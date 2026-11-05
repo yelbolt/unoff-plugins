@@ -14,9 +14,9 @@ interface TypoEntry {
 }
 
 export interface RefCtx {
-  colors: Map<string, string> // color style id -> display name
+  colors: Map<string, string>
   typos: Array<TypoEntry>
-  tokens: TokenIndex // active token sets of the file
+  tokens: TokenIndex
 }
 
 const fullName = (e: { name: string; path: string }): string =>
@@ -70,10 +70,7 @@ const same = (a: unknown, b: unknown): boolean => {
   return !isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 0.0001
 }
 
-/**
- * Typography styles have no readable reference: match the text values
- * exactly against the libraries. The result is "matched", never "applied".
- */
+/** Typography styles have no readable reference: matched exactly, so "matched", never "applied". */
 export const matchTypography = (
   ctx: RefCtx,
   text: Text

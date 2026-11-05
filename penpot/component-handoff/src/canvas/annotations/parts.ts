@@ -3,18 +3,14 @@ import type { Shape } from '@penpot/plugin-types'
 import type { PartsDetail } from '../../app/types/annotations'
 
 export interface Part {
-  n: number // 0 = the root, then 1..n in walk order
+  n: number
   shape: Shape
   level: number
-  path: string // layer-name path relative to the root ('' for the root)
-  cpath: string // same path in the machine contract's spelling: `Icon[2]` when siblings share a name
-  idx: Array<number> // child indexes (visible children) from the root
+  path: string
+  cpath: string
+  idx: Array<number>
 }
 
-/**
- * MAIN = direct children, ALL = every nested visible layer. Hidden parts are
- * skipped.
- */
 export const walkParts = (root: Shape, depth: PartsDetail): Array<Part> => {
   const out: Array<Part> = []
   const max = depth === 'ALL' ? Infinity : 1
@@ -50,11 +46,7 @@ export const walkParts = (root: Shape, depth: PartsDetail): Array<Part> => {
   return out
 }
 
-/**
- * The numbering, computed ONCE. Anatomy, measurements and colors copies are
- * structural clones, so each one binds this plan to its own shapes instead of
- * walking again: the numbers cannot drift between views.
- */
+/** Computed ONCE: each view binds this plan to its own shapes, so numbers cannot drift. */
 export interface PartPlan {
   n: number
   level: number

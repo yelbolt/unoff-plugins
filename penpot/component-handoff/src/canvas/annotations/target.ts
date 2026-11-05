@@ -12,8 +12,7 @@ import type {
   VariantProperty,
 } from '../../app/types/annotations'
 
-// Component/variant plumbing. Every Penpot call that can throw on a shape
-// outside the current file (external library, other page) goes through safe().
+// Every Penpot call that can throw on a shape outside the current file goes through safe().
 export const safe = <T>(fn: () => T): T | null => {
   try {
     return fn()
@@ -45,10 +44,6 @@ export const variantLabel = (comp: LibraryVariantComponent): string =>
     .map(([k, v]) => `${k}=${v}`)
     .join(', ')
 
-/**
- * The variants in the family's own order: the order of the container's
- * children when it can be read, else the order variantComponents() returns.
- */
 export const orderedVariantsOf = (
   variants: Variants,
   container: VariantContainer | null
@@ -70,7 +65,7 @@ export const orderedVariantsOf = (
 export interface Classified {
   kind: ComponentKind
   comp: LibraryComponent | null
-  main: Shape | null // the main component shape (itself for MAIN / VARIANT)
+  main: Shape | null
   container: VariantContainer | null
   variants: Variants | null
 }
@@ -116,13 +111,13 @@ export const classify = (s: Shape): Classified => {
 export interface Resolved {
   kind: ComponentKind
   target: DocTarget
-  root: Shape // identity: container for FAMILY, main otherwise
-  source: Shape // shape whose anatomy is documented
-  comp: LibraryComponent | null // anatomy is comp.instance() when set
+  root: Shape
+  source: Shape
+  comp: LibraryComponent | null
   container: VariantContainer | null
   variants: Variants | null
-  shown: LibraryVariantComponent | null // family documented through its first variant
-  copyFallback: boolean // COPY whose main is not on this page
+  shown: LibraryVariantComponent | null
+  copyFallback: boolean
 }
 
 const onCurrentPage = (s: Shape | null): s is Shape =>

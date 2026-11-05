@@ -56,7 +56,6 @@ export default class DocumentationsList extends PureComponent<
   handleLocate = (docId: string) => () =>
     sendAnnotationAction('LOCATE_DOCUMENTATION', { docId })
 
-  // The documentation update rewrites its contract too.
   handleUpdate = (row: GeneratedRow) => () => {
     if (row.updateWith === 'DOCUMENTATION' && row.documentation !== null)
       sendAnnotationAction('UPDATE_DOCUMENTATIONS', {
@@ -66,7 +65,6 @@ export default class DocumentationsList extends PureComponent<
       sendAnnotationAction('UPDATE_CONTRACTS', { keys: [row.contract.key] })
   }
 
-  // The copy follows CONTRACT_LOADED (handled in App.tsx).
   handleCopyContract = (key: string) => () =>
     sendAnnotationAction('GET_CONTRACT', { key })
 
@@ -86,8 +84,6 @@ export default class DocumentationsList extends PureComponent<
     </span>
   )
 
-  // One row per documentation, carrying the contract written alongside; a
-  // contract whose documentation is not on the page keeps its own row.
   Item = (row: GeneratedRow) => {
     const { t } = this.props
     const { pendingAction } = this.state
