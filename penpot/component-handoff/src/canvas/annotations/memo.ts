@@ -15,6 +15,24 @@
 
 const TTL = 2500
 
+/** Last time the plugin itself wrote to the file (see `isSelfSave`). */
+let lastSelfWrite = 0
+const SELF_SAVE_WINDOW = 3000
+
+/** Call right after the plugin writes to the file (shapes, plugin data). */
+export const markSelfWrite = (): void => {
+  lastSelfWrite = Date.now()
+}
+
+/**
+ * A contentsave this soon after the plugin's own write is most likely that
+ * write being saved: it changed no documented component, so fingerprints can
+ * be kept. Trade-off: an edit made by the designer within the window is only
+ * detected at the next save.
+ */
+export const isSelfSave = (): boolean =>
+  Date.now() - lastSelfWrite <= SELF_SAVE_WINDOW
+
 interface Slot {
   at: number
   value: unknown
@@ -32,10 +50,14 @@ export const invalidate = (...keepPrefixes: Array<string>): void => {
   reads.clear()
 }
 
-export const remember = <T>(key: string, compute: () => T): T => {
+export const remember = <T>(
+  key: string,
+  compute: () => T,
+  ttl: number = TTL
+): T => {
   const now = Date.now()
   const hit = kept.get(key)
-  if (hit && now - hit.at <= TTL) return hit.value as T
+  if (hit && now - hit.at <= ttl) return hit.value as T
   const value = compute()
   kept.set(key, { at: Date.now(), value })
   return value

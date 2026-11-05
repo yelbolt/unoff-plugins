@@ -1,5 +1,5 @@
 import globalConfig from '../global.config'
-import { invalidate } from '../canvas/annotations/memo'
+import { invalidate, isSelfSave } from '../canvas/annotations/memo'
 import { tolgee } from '..'
 import enableTrial from './plans/enableTrial'
 import checkUserPreferences from './checks/checkUserPreferences'
@@ -248,8 +248,11 @@ const loadUI = async () => {
   // file, and when the designer changes page.
   // The file changed: what was read from it is stale.
   penpot.on('contentsave', () => {
-    invalidate()
-    pushStatusDebounced(500)
+    // Saving the plugin's own write changed no documented component: keep the
+    // fingerprints and the reference catalog, drop the rest.
+    if (isSelfSave()) invalidate('fp:', 'refs')
+    else invalidate()
+    pushStatusDebounced()
   })
   penpot.on('pagechange', () => {
     invalidate()

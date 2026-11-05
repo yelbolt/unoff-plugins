@@ -1,4 +1,4 @@
-import { collectStatus } from '../../canvas/annotations/status'
+import { collectStatus, warmTarget } from '../../canvas/annotations/status'
 import { updateDocumentations as run } from '../../canvas/annotations/run'
 import { refreshContracts } from '../../canvas/annotations/contract'
 import { surfaceError } from './surfaceError'
@@ -31,18 +31,36 @@ export const pushDocumentationsStatus = (): void => {
 
 export const getDocumentationsStatus = (): void => pushDocumentationsStatus()
 
-// contentsave fires after every save: collapse bursts into one check.
+/**
+ * contentsave fires after every save: bursts collapse into one check, and the
+ * check computes one target's fingerprint per tick before pushing (from the
+ * cache), so Penpot gets the hand back between targets instead of freezing
+ * for the whole page. A newer save restarts the run.
+ */
 let timer: ReturnType<typeof setTimeout> | undefined
-export const pushStatusDebounced = (delay = 500): void => {
+let refreshRun = 0
+export const pushStatusDebounced = (delay = 1000): void => {
   if (typeof setTimeout !== 'function') {
     pushDocumentationsStatus()
     return
   }
   if (timer !== undefined) clearTimeout(timer)
-  timer = setTimeout(() => {
-    timer = undefined
-    pushDocumentationsStatus()
-  }, delay)
+  const current = ++refreshRun
+  const step = (index: number) => {
+    if (current !== refreshRun) return
+    let more = false
+    try {
+      more = warmTarget(index)
+    } catch (error) {
+      console.error('[component-handoff] status warm-up failed', error)
+    }
+    if (more) timer = setTimeout(() => step(index + 1), 0)
+    else {
+      timer = undefined
+      pushDocumentationsStatus()
+    }
+  }
+  timer = setTimeout(() => step(0), delay)
 }
 
 export const updateDocumentations = (data: UpdateDocumentationsData): void => {

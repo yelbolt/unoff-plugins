@@ -170,7 +170,9 @@ const subtree = (root: Shape): Json =>
  */
 export const fingerprintOf = (root: Shape): string =>
   // Shared by the status refresh, the contract refresh and a generation.
-  remember(`fp:${root.id}`, () => computeFingerprint(root))
+  // Long TTL: fingerprints are dropped by invalidate() on every real change,
+  // and the sliced status refresh warms them one target at a time.
+  remember(`fp:${root.id}`, () => computeFingerprint(root), 60_000)
 
 const computeFingerprint = (root: Shape): string => {
   if (isContainer(root) && root.variants) {

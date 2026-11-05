@@ -35,12 +35,26 @@ const documentedRoot = (
   return c.main ?? s
 }
 
-const countNested = (s: Shape): number =>
-  visibleChildren(s).reduce((n, k) => n + 1 + countNested(k), 0)
+/**
+ * Nested visible layers, counted up to `NESTED_CAP`: past it the count only
+ * feeds the slowness warning, and walking a whole large board (a generated
+ * documentation, a page-sized board) on every selection change freezes Penpot.
+ */
+const NESTED_CAP = 1000
+const countNested = (s: Shape): number => {
+  const stack = [...visibleChildren(s)]
+  let n = 0
+  while (stack.length > 0 && n < NESTED_CAP) {
+    n++
+    stack.push(...visibleChildren(stack.pop() as Shape))
+  }
+  return n
+}
 
 const toItem = (s: Shape): SelectionItem => {
   const c = classify(s)
   const root = documentedRoot(s, c)
+  const annotation = isAnnotationShape(s)
   const variantProps =
     c.kind === 'VARIANT' || c.kind === 'COPY'
       ? safe(
@@ -67,12 +81,13 @@ const toItem = (s: Shape): SelectionItem => {
           ...(safe(() => v.variantProps) ?? {}),
         }))
       : [],
-    topLevelLayers: visibleChildren(root).map((k) => k.name),
-    nestedLayerCount: countNested(root),
+    // A generated documentation is never documented: skip its layer walk.
+    topLevelLayers: annotation ? [] : visibleChildren(root).map((k) => k.name),
+    nestedLayerCount: annotation ? 0 : countNested(root),
     isRotated: isRotated(s),
     hasChildren:
       'children' in s && Array.isArray(s.children) && s.children.length > 0,
-    isAnnotation: isAnnotationShape(s),
+    isAnnotation: annotation,
     targetIds: {
       COMPONENT: rootIdOf(s, 'COMPONENT'),
       FAMILY: rootIdOf(s, 'FAMILY'),

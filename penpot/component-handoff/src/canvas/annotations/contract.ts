@@ -10,7 +10,7 @@ import { resolveTarget, safe } from './target'
 import { makeRefCtx } from './refs'
 import { readOptions } from './options'
 import { buildMerged } from './merged'
-import { invalidate, readPhase } from './memo'
+import { invalidate, readPhase, markSelfWrite } from './memo'
 import { currentPage, findExistingAnywhere } from './layer'
 import { collectEntries } from './groups'
 import { fingerprintOf } from './fingerprint'
@@ -60,6 +60,7 @@ const file = () => {
 const setIfChanged = (key: string, value: string): boolean => {
   if (file().getSharedPluginData(NS, key) === value) return false
   file().setSharedPluginData(NS, key, value)
+  markSelfWrite()
   return true
 }
 

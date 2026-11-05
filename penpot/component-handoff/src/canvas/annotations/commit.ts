@@ -1,5 +1,6 @@
 import { makeScale } from './scale'
 import { Placer } from './placement'
+import { markSelfWrite } from './memo'
 import {
   findExistingAnywhere,
   findLayer,
@@ -60,6 +61,7 @@ export const commitAnnotation = (
 ): CommitResult => {
   // Children read in z-order, appendChild goes on top.
   penpot.flags.naturalChildOrdering = true
+  markSelfWrite()
 
   const lk = layerKeyFor(targets[0])
   const layer = findLayer(lk.key)
