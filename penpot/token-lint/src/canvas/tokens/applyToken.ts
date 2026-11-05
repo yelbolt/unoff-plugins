@@ -5,14 +5,7 @@ export interface ApplyTokenOutcome {
   error?: string
 }
 
-/**
- * Wraps `shape.applyToken()`: it's reported unreliable for some
- * color/dimension/opacity configurations (Penpot GH #9290) and can throw or
- * silently no-op. We catch the throw case here; the silent no-op is caught
- * by the caller (`verifyIssuedWrites` in bridges/audit/applyTokens.ts),
- * which re-reads `shape.tokens[property]` in polled rounds instead of
- * judging on the first read.
- */
+/** Penpot GH #9290: applyToken() can throw or silently no-op; only the throw is caught here, verifyIssuedWrites catches the no-op. */
 export const applyTokenToShape = (
   shape: Shape,
   token: Token,

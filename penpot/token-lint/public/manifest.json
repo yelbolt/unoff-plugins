@@ -11,8 +11,6 @@
     "library:read",
     "library:write",
     "selection:read",
-    "file:read",
-    "file:write",
     "allow:localstorage"
   ]
 }

@@ -5,11 +5,6 @@ import type { Token, TokenType } from '@penpot/plugin-types'
 import type { TokenCategory } from '../../app/types/tokens'
 import type { CreateTokenRequest, CreateTokenResult } from '../../app/types/audit'
 
-/**
- * Picks a Penpot TokenType from the audit category + the propertyPath the
- * request hints at. Optimizes for the common case (a group is almost
- * always homogeneous) rather than trying to be exhaustive.
- */
 const inferTokenType = (
   category: TokenCategory,
   propertyPathHint: string
@@ -25,24 +20,16 @@ const inferTokenType = (
     if (propertyPathHint === 'fontFamily') return 'fontFamilies'
     if (propertyPathHint === 'textCase') return 'textCase'
     if (propertyPathHint === 'textDecoration') return 'textDecoration'
-    // fontSize, and the lineHeight fallback (lineHeight itself has no
-    // discrete TokenType — the UI does not offer "create token" for a
-    // lineHeight-only group, see DeviationGroupRow.tsx).
+    // lineHeight has no discrete TokenType and falls back here; the UI never offers it.
     return 'fontSizes'
   }
-  // dimension
   if (propertyPathHint === 'width' || propertyPathHint === 'height')
     return 'sizing'
   if (propertyPathHint.endsWith('strokeWidth')) return 'borderWidth'
   return 'dimension'
 }
 
-/**
- * The set the user picked in the dialog (see listActiveTokenSets.ts /
- * GET_ACTIVE_TOKEN_SETS). Re-validated here rather than trusted as-is — the
- * UI's list can be a moment stale (a set could be deactivated between the
- * dialog opening and the user confirming).
- */
+/** Re-validated: the UI's set list can be stale (set deactivated while the dialog is open). */
 const findTargetSet = (setId: string) => {
   const set = penpot.library.local.tokens.getSetById(setId)
   return set && set.active ? set : undefined
@@ -72,8 +59,7 @@ export const createToken = async (
       value: request.rawValue,
     })
   } catch {
-    // Penpot's own uniqueness/validation rules can still reject a name this
-    // pre-check didn't catch (e.g. a case-insensitive collision).
+    // Penpot can still reject a name the pre-check missed (e.g. case-insensitive collision).
     return {
       groupId: request.groupId,
       success: false,
@@ -81,15 +67,11 @@ export const createToken = async (
     }
   }
 
-  // Local, synchronous read of a mutation this call just made — unlike
-  // shape.applyToken(), no known eventual-consistency gap here. Safe to
-  // re-match immediately so the UI can move the group without a full re-audit.
+  // Unlike shape.applyToken(), addToken is synchronous: safe to re-match immediately.
   const index = buildResolvedIndex()
   const match = matchValue(request.rawValue, request.category, index)
 
-  // The token was created to hold exactly this raw value, so the match is
-  // (barring a normalization edge case) always EXACT — apply it to every
-  // occurrence right away, reusing the normal GROUP-mode apply path.
+  // Barring a normalization edge case the match is always EXACT.
   const applyResult =
     match.tier === 'EXACT'
       ? await applyTokens({

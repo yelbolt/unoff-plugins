@@ -72,7 +72,7 @@ const isTokenCompatible = (
   token: Token,
   tokenProperties: TokenProperty[]
 ): boolean => {
-  if (tokenProperties.length === 0) return false // e.g. lineHeight — see auditableProperties.ts
+  if (tokenProperties.length === 0) return false
   const allowed = VALID_PROPERTIES_BY_TOKEN_TYPE[token.type] ?? []
   return tokenProperties.every((property) => allowed.includes(property))
 }
@@ -187,8 +187,7 @@ const verifyIssuedWrites = async (
   return { applied, failed: pending }
 }
 
-// Serializes undo blocks — two apply requests overlapping across an
-// await would otherwise interleave undoBlockBegin/undoBlockFinish pairs.
+// Serializes undo blocks: overlapping applies would interleave undoBlockBegin/Finish pairs.
 let applyQueue: Promise<unknown> = Promise.resolve()
 
 const runWithinUndoBlock = <T>(fn: () => Promise<T>): Promise<T> => {

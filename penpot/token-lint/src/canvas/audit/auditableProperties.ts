@@ -10,8 +10,7 @@ export interface RawOccurrenceCandidate {
   propertyPath: string
   category: TokenCategory
   rawValue: string | number
-  // Empty array = no discrete TokenProperty for this value (lineHeight) —
-  // apply must refuse with ApplySkipReason.TYPE_INCOMPATIBLE.
+  // Empty = no discrete TokenProperty (lineHeight): apply refuses with TYPE_INCOMPATIBLE.
   tokenProperties: TokenProperty[]
   ownership: OccurrenceOwnership
   componentMainId?: string
@@ -23,11 +22,8 @@ export interface RawOccurrenceCandidate {
   isOffBoard: boolean
 }
 
-// Penpot's shape API and its own textDecoration token don't share a
-// vocabulary ('line-through' vs. the token's 'strike-through') — remapped
-// here, at the read site, so rawValue already speaks the token's language
-// everywhere downstream (matching, grouping, and "Create token" writing it
-// straight back via addToken()).
+// Shape API says 'line-through', the textDecoration token says 'strike-through':
+// remapped at read so rawValue is already in token vocabulary (matching, addToken()).
 const remapTextDecoration = (
   value: Text['textDecoration']
 ): string | undefined =>

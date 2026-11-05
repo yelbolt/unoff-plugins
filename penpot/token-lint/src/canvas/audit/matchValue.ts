@@ -14,11 +14,6 @@ export interface MatchResult {
   candidateTokens: MatchedToken[]
 }
 
-// ── Normalization ───────────────────────────────────────────────────────
-// Penpot doesn't guarantee matching casing/formatting between a shape's raw
-// value and a token's resolvedValue, so all comparisons go through these
-// normalizers on both sides instead of comparing raw values directly.
-
 const NUMERIC_EPSILON_DECIMALS = 4
 
 /** Guards against float representation noise (e.g. 8 vs 7.999999999998). */
@@ -27,7 +22,6 @@ const normalizeNumeric = (value: number): number => {
   return Math.round(value * factor) / factor
 }
 
-/** Trim + lowercase, and expand short hex (#abc -> #aabbcc). */
 const normalizeColor = (value: string): string => {
   const trimmed = value.trim().toLowerCase()
   const short = trimmed.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/)
@@ -38,7 +32,6 @@ const normalizeColor = (value: string): string => {
   return trimmed
 }
 
-/** Generic string normalization for non-color string categories (currently only `fontWeight`). */
 const normalizeString = (value: string): string => value.trim().toLowerCase()
 
 const normalizeForCompare = (
@@ -50,17 +43,9 @@ const normalizeForCompare = (
 }
 
 /**
- * Coerces an index entry's `resolvedValue` to the same JS type as the raw
- * shape value it's compared against, instead of trusting
- * `typeof entry.resolvedValue` to match the `.d.ts` (Penpot's runtime has
- * been observed to disagree with it, e.g. returning `"16"` for a numeric
- * token). Returns `undefined` when the entry genuinely can't be compared —
- * a real type mismatch, not a formatting one.
- *
- * Goes through `parseNumericLike`, not a bare `Number(...)`, since a
- * resolvedValue can carry a unit suffix ("16px") or a locale decimal comma
- * ("16,5") that would otherwise return NaN and drop an otherwise-comparable
- * token.
+ * Penpot's runtime resolvedValue can disagree with the .d.ts (e.g. "16" for a numeric
+ * token), so it is coerced to the raw value's type; `undefined` = genuine type mismatch.
+ * parseNumericLike, not Number(): handles "16px" and "16,5".
  */
 const coerceToRawType = (
   entryValue: string | number,
@@ -87,9 +72,8 @@ const toMatched = (
   }))
 
 /**
- * Pure match of one raw value against the resolved-value index for its
- * category. EXACT = equality on normalized values on both sides; several
- * tokens resolving to the same value all surface, unpicked.
+ * EXACT = equality on normalized values; several tokens resolving to the same value
+ * all surface, unpicked.
  *
  * - ORPHAN: zero active tokens of a comparable type in this category (a
  *   same-type restriction matters here: within 'typography', string
@@ -104,14 +88,13 @@ export const matchValue = (
   category: TokenCategory,
   index: ResolvedTokenIndex
 ): MatchResult => {
-  // Defensive backstop — a gap in upstream filtering degrades to "no match"
-  // instead of crashing `.trim()` on null in normalizeForCompare.
+  // Null guard: degrades to "no match" instead of crashing `.trim()` in normalizeForCompare.
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (rawValue == null) return { tier: 'ORPHAN', candidateTokens: [] }
 
   const entries = index.byCategory[category]
 
-  // Coerce first, don't filter by strict `typeof` — see coerceToRawType.
+  // Coerce, don't filter by strict `typeof` (see coerceToRawType).
   const comparable: { entry: ResolvedTokenIndexEntry; value: string | number }[] = []
   for (const entry of entries) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -128,11 +111,8 @@ export const matchValue = (
     ({ value }) => normalizeForCompare(value, category) === rawNorm
   )
   if (exact.length > 0) {
-    // Dedupe by tokenId: a composite 'typography' token decomposes into up
-    // to four index entries sharing the same tokenId (buildResolvedIndex.ts).
-    // If two of those decomposed fields hold the same value, both would
-    // otherwise pass the `exact` filter and appear twice for one token —
-    // a phantom tie, not a real one (real ties are different tokenIds).
+    // A composite 'typography' token yields up to four entries sharing a tokenId;
+    // dedupe so equal fields don't create a phantom tie (real ties differ by tokenId).
     const seenTokenIds = new Set<string>()
     const dedupedEntries: ResolvedTokenIndexEntry[] = []
     for (const { entry } of exact) {

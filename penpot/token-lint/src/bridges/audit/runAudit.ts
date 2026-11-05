@@ -2,30 +2,17 @@ import globalConfig from '../../global.config'
 import { runAudit as runAuditOnCanvas } from '../../canvas/audit/runAudit'
 import type { RunAuditRequest } from '../../app/types/audit'
 
-// Module-scope cancellation flag — owned here, flipped by
-// bridges/audit/cancelAudit.ts (the CANCEL_AUDIT handler). The canvas-layer
-// orchestrator (canvas/audit/runAudit.ts) has no cancellation state of its
-// own; it only reads `isCancelled()` at the top of every chunk.
 let cancelled = false
 
 export const setAuditCancelled = (): void => {
   cancelled = true
 }
 
-/**
- * RUN_AUDIT is the one action in loadUI.ts that sends MULTIPLE replies over
- * time: AUDIT_STARTED -> repeated SHAPES_SCANNED -> AUDIT_COMPLETED (or
- * AUDIT_CANCELLED). Errors are caught and surfaced via POST_MESSAGE — never
- * thrown, per this repo's error-handling convention (Canvas handlers must
- * not throw, or the plugin sandbox crashes).
- */
+/** Never throws: a throwing Canvas handler crashes the plugin sandbox. */
 export const runAudit = async (request: RunAuditRequest): Promise<void> => {
   cancelled = false
 
-  // The real shape count is only known once traversal finishes inside
-  // canvas/audit/runAudit.ts — announcing it here would mean traversing
-  // twice. AUDIT_STARTED announces 0; the first SHAPES_SCANNED message
-  // carries the real totalShapesEstimate.
+  // Real count is only known after traversal: 0 here, the first SHAPES_SCANNED carries it.
   penpot.ui.sendMessage({
     type: 'AUDIT_STARTED',
     data: { totalShapesEstimate: 0 },

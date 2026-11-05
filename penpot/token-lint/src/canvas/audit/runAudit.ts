@@ -35,8 +35,6 @@ const zeroByCategory = (): Record<TokenCategory, number> => ({
   rotation: 0,
 })
 
-// Reused by bridges/audit/applyTokens.ts to skip already-compliant
-// properties and to verify a write took.
 export const isCandidateCompliant = (
   candidate: RawOccurrenceCandidate
 ): boolean => {

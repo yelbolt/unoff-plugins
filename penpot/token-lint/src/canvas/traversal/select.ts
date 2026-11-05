@@ -5,23 +5,13 @@ import type {
   OccurrenceOwnership,
 } from '../../app/types/audit'
 
-// Canvas-internal traversal layer — "Select". Meant to be reused by every
-// heavy consumer in this plugin; the audit pass is currently its only caller.
-
 export interface TraversedShape {
   shape: Shape
   isHidden: boolean
   isLocked: boolean
   isOffBoard: boolean
-  /**
-   * Coarse, shape-level ownership signal. For component *copy* instances
-   * this is a tentative 'INSTANCE_OVERRIDE' — it does NOT by itself mean a
-   * property is overridden; auditableProperties.ts compares each property
-   * against `componentRefShape` and only treats it as a deviation when the
-   * two differ. MAIN_COMPONENT / STANDALONE need no such check.
-   */
+  /** For component copies, 'INSTANCE_OVERRIDE' is tentative: a property is a deviation only if it differs from `componentRefShape`. */
   ownership: OccurrenceOwnership
-  /** Set only when ownership === 'INSTANCE_OVERRIDE'. */
   componentRefShape: Shape | null
 }
 
@@ -116,18 +106,12 @@ const traverseScope = (scope: AuditScope): TraversedShape[] => {
     return result
   }
 
-  // DOCUMENT
   const pages = penpot.currentFile?.pages ?? []
   for (const page of pages) walkChildrenOnly(page.root, result, seen)
   return result
 }
 
-/**
- * Resolves an AuditScope to the flat list of shapes to audit, applying the
- * hidden/locked/off-board exclusions from AuditOptions. Excluded elements
- * are still traversed (so counts stay reproducible) and only dropped from
- * `included`.
- */
+/** Excluded elements are still traversed (counts stay reproducible) and only dropped from `included`. */
 export const resolveScope = (
   scope: AuditScope,
   options: AuditOptions

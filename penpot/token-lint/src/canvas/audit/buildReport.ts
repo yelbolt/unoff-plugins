@@ -18,7 +18,6 @@ const ALL_CATEGORIES: TokenCategory[] = [
   'dimension',
 ]
 
-/** One already-matched deviation, ready to be grouped into an AuditReport. */
 export interface OccurrenceInput {
   shapeId: string
   shapeName: string
@@ -47,10 +46,7 @@ export interface BuildReportInput {
   durationMs: number
 }
 
-// Small, deterministic, non-cryptographic string hash (FNV-1a) — gives
-// DeviationGroup.id its "reproducible across runs" property without
-// pulling in a hashing dependency. Exported so applyTokens.ts can recompute
-// the same group key at apply time without round-tripping the full report.
+// FNV-1a: DeviationGroup.id must be reproducible across runs; applyTokens.ts recomputes it.
 export const stableHash = (input: string): string => {
   let hash = 0x811c9dc5
   for (let i = 0; i < input.length; i++) {
@@ -79,19 +75,10 @@ const emptyCoverageByCategory = (): CoverageSummary['byCategory'] => ({
 const rate = (compliant: number, auditable: number): number =>
   auditable === 0 ? 0 : compliant / auditable
 
-/**
- * Pure function: occurrences[] -> AuditReport. No `penpot.*` calls. Deviations
- * are always grouped by value, never listed layer by layer; a
- * DeviationGroup's id/tier/candidateTokens are fully determined by
- * (category, rawValue).
- */
+/** A group's id/tier/candidateTokens are fully determined by (category, rawValue). */
 export const buildReport = (input: BuildReportInput): AuditReport => {
   const groups = new Map<string, DeviationGroup>()
-  // Defensive dedupe insurance against two RawOccurrenceCandidate entries
-  // with the identical (shapeId, propertyPath) pair — cheap insurance, not
-  // a fix for a live bug. Must NOT collapse the same shape having two
-  // DIFFERENT properties (e.g. fills[0] and fills[1]) matching the same
-  // rawValue+category — those keep distinct propertyPaths.
+  // Dedupe on (shapeId, propertyPath) only: fills[0] and fills[1] of one shape stay distinct.
   const seenOccurrenceKeys = new Set<string>()
 
   for (const occ of input.occurrences) {
@@ -134,8 +121,7 @@ export const buildReport = (input: BuildReportInput): AuditReport => {
     if (occ.ownership === 'INSTANCE_OVERRIDE') group.instanceOverrideCount++
   }
 
-  // Priority list: exact first, near next, orphan last; within a tier,
-  // biggest-impact-first (most occurrences = cheapest win).
+  // Within a tier, most occurrences first (cheapest win).
   const allGroups = Array.from(groups.values()).sort(
     (a, b) => b.occurrenceCount - a.occurrenceCount
   )

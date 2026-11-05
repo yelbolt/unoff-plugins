@@ -181,7 +181,6 @@ const loadUI = async () => {
           type: 'WELCOME_TO_PRO',
         }),
 
-      // ── Audit ────────────────────────────────────────────────────────
       RUN_AUDIT: () => runAudit(path.data),
       CANCEL_AUDIT: () => cancelAudit(),
       SELECT_LAYERS_ON_CANVAS: () => selectLayers(path.data.shapeIds),
@@ -211,7 +210,6 @@ const loadUI = async () => {
           data: { sets: listActiveTokenSets() },
         }),
 
-      // ── Canvas ───────────────────────────────────────────────────────
       GET_SELECTION: () => sendSelectionInfo(),
 
       // ── Auth ──────────────────────────────────────────────────────────
@@ -249,7 +247,6 @@ const loadUI = async () => {
   penpot.on('selectionchange', () => sendSelectionInfo())
 }
 
-// ── Selection helper ──────────────────────────────────────────────────────
 const sendSelectionInfo = () => {
   penpot.ui.sendMessage({
     type: 'SELECTION_CHANGED',

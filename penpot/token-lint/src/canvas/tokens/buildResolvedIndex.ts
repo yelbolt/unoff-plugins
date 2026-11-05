@@ -35,11 +35,7 @@ const pushEntriesForToken = (
     aliasChain: [token.name],
   }
 
-  // Sets are iterated in `penpot.library.local.tokens.sets` order, which is
-  // ascending precedence (see dedupeKey doc) — a plain Map.set() overwrite
-  // on a colliding key therefore always leaves the highest-precedence
-  // (latest-active-set) token's metadata as the winner, matching Penpot's
-  // own resolution rule.
+  // Sets iterate in ascending precedence, so Map.set() overwrite leaves the highest-precedence token as winner.
   const put = (
     category: TokenCategory,
     resolvedValue: string | number,
@@ -89,9 +85,7 @@ const pushEntriesForToken = (
       put(category, token.resolvedValue)
       return
     }
-    // Standalone fontFamilies token — resolvedValue is a string[] (a font
-    // stack), joined the same way as the composite 'typography' case below
-    // so both paths land in the index as a comparable single string.
+    // resolvedValue is a string[] (font stack); joined like the composite 'typography' case.
     case 'fontFamilies': {
       if (!token.resolvedValue || token.resolvedValue.length === 0) return
       put('typography', token.resolvedValue.join(', '), 'fontFamily')
