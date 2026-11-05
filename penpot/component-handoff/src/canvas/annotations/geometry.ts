@@ -19,7 +19,9 @@ export const round2 = (n: number): number => {
   return Object.is(r, -0) ? 0 : r
 }
 
-// Same rounding as the properties panel: max 2 decimals, no trailing zeros.
+/**
+ * Same rounding as the properties panel: max 2 decimals, no trailing zeros.
+ */
 export const trimNumber = (n: number): string => String(round2(n))
 
 export const boundsRect = (shape: Shape): Rect => ({
@@ -29,8 +31,10 @@ export const boundsRect = (shape: Shape): Rect => ({
   h: shape.bounds.height,
 })
 
-// Rect as the properties panel reports it: width/height for upright shapes,
-// the bounding box for rotated ones.
+/**
+ * Rect as the properties panel reports it: width/height for upright shapes,
+ * the bounding box for rotated ones.
+ */
 export const shapeRect = (shape: Shape): Rect =>
   isRotated(shape)
     ? boundsRect(shape)
@@ -48,7 +52,6 @@ export const rectCenter = (r: Rect): Point => ({
   y: r.y + r.h / 2,
 })
 
-// Strict overlap; `margin` inflates both rects.
 export const intersects = (a: Rect, b: Rect, margin = 0): boolean =>
   a.x < b.x + b.w + margin - EPS &&
   b.x < a.x + a.w + margin - EPS &&

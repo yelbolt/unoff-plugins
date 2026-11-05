@@ -5,9 +5,6 @@ import { docName } from './name'
 import type { DocCtx } from './shared'
 import type { PanelNode } from '../panel'
 
-// Header: the title on the left, the metadata (kind and library path,
-// generation date, variant filter) aligned on the right. A full-width card
-// holding a space-between row of fill width.
 export const buildHeader = (dc: DocCtx): PanelNode => {
   const { panel, res, isFamily } = dc
   const kind = tr(`doc.kind.${isFamily ? 'FAMILY' : res.kind}`)

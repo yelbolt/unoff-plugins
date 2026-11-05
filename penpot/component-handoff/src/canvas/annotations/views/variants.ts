@@ -5,9 +5,6 @@ import { headerCell } from './merged'
 import type { DocCtx, ViewBuild } from './shared'
 import type { PanelNode, TableRow } from '../panel'
 
-// VARIANTS (family only): one card per variant, packed in a wrapping grid.
-// The instance on top, a Property | Value table of its own values below.
-// No default, no comparison.
 export const buildVariants = (dc: DocCtx): ViewBuild | null => {
   const { panel, env } = dc
   if (!dc.isFamily || dc.entries.length === 0) return null

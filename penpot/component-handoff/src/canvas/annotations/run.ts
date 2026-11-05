@@ -41,9 +41,11 @@ const refuse = (reason: RefusalReason): { refused: AnnotationRefusedData } => ({
   refused: { kind: KIND, reason },
 })
 
-// Resolves the target, draws, then writes the machine contract of the same
-// target; returns a refusal reason when the target cannot be documented.
-// Shared by GENERATE_DOCUMENTATION and the update.
+/**
+ * Resolves the target, draws, then writes the machine contract of the same
+ * target; returns a refusal reason when the target cannot be documented.
+ * Shared by GENERATE_DOCUMENTATION and the update.
+ */
 export const documentShape = (
   shape: Shape,
   data: GenerateDocumentationData,
@@ -111,8 +113,10 @@ export const generateDocumentation = (
   }
 }
 
-// Regenerates documentations in place from their stored options; removes the
-// ones whose target is gone (or no longer documentable).
+/**
+ * Regenerates documentations in place from their stored options; removes the
+ * ones whose target is gone (or no longer documentable).
+ */
 export const updateDocumentations = (
   data: UpdateDocumentationsData
 ): UpdateOutcome => {

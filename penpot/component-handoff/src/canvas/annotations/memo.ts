@@ -1,15 +1,17 @@
-// Short-lived caches. Every read of a Penpot shape property crosses into the
-// host (ClojureScript) and converts data: the same property must be read once
-// per run, not once per consumer.
-//
-//  - `remember`  : results shared between runs for a few seconds (fingerprints,
-//                  reference catalog, analysis). Dropped by `invalidate()` on
-//                  each user-triggered action, on contentsave and pagechange,
-//                  and by TTL.
-//  - `memoRead`  : raw shape reads (children, tokens, spacing…). Active ONLY
-//                  inside `readPhase`, where the plugin reads and never
-//                  writes; dropped when the outermost phase ends, so drawing
-//                  code (which mutates shapes) never sees a stale value.
+/**
+ * Short-lived caches. Every read of a Penpot shape property crosses into the
+ * host (ClojureScript) and converts data: the same property must be read once
+ * per run, not once per consumer.
+ *
+ *  - `remember`  : results shared between runs for a few seconds (fingerprints,
+ *                  reference catalog, analysis). Dropped by `invalidate()` on
+ *                  each user-triggered action, on contentsave and pagechange,
+ *                  and by TTL.
+ *  - `memoRead`  : raw shape reads (children, tokens, spacing…). Active ONLY
+ *                  inside `readPhase`, where the plugin reads and never
+ *                  writes; dropped when the outermost phase ends, so drawing
+ *                  code (which mutates shapes) never sees a stale value.
+ */
 
 const TTL = 2500
 

@@ -9,7 +9,6 @@ import type { PropertyRow } from './properties'
 
 export type { Category }
 
-// Display order of the measurement cards.
 export const CATEGORIES: Array<Category> = ['SIZE', 'PADDING', 'GAP', 'RADIUS', 'LAYOUT']
 
 export type MeasureRows = Record<Category, Array<PropertyRow>>
@@ -17,9 +16,11 @@ export type MeasureRows = Record<Category, Array<PropertyRow>>
 const nonZero = (r: PropertyRow): boolean =>
   r.ref === 'token' || parseFloat(r.value) !== 0
 
-// The values the redlines of each category show, as the properties panel
-// reports them: token name, else the raw value. Empty categories are simply
-// empty arrays (the card is omitted).
+/**
+ * The values the redlines of each category show, as the properties panel
+ * reports them: token name, else the raw value. Empty categories are simply
+ * empty arrays (the card is omitted).
+ */
 export const measureRows = (
   shape: Shape,
   style: AnnotationStyle,
@@ -64,10 +65,12 @@ export const measureRows = (
   return withOrigins(shape, out, info?.source === 'layout')
 }
 
-// Where a measurement comes from: `rule` when a layout property or a token
-// produces it, `measured` when it is a distance observed between parts that no
-// layout places, a size the content or the parent decides (fill / fit), or
-// anything on an absolutely positioned part.
+/**
+ * Where a measurement comes from: `rule` when a layout property or a token
+ * produces it, `measured` when it is a distance observed between parts that no
+ * layout places, a size the content or the parent decides (fill / fit), or
+ * anything on an absolutely positioned part.
+ */
 const withOrigins = (
   shape: Shape,
   rows: MeasureRows,

@@ -2,8 +2,6 @@
 // This file is the message contract for Component Handoff — change a `type`
 // or a payload shape here and on both sides, never on one side only.
 
-// ── Domain ─────────────────────────────────────────────────────────────────
-
 /**
  * One generation, two readers (spec: "One generation, two readers"):
  * DOCUMENTATION is drawn on the canvas for humans; CONTRACT is JSON written to
@@ -27,7 +25,7 @@ export type DocView =
   | 'MEASUREMENTS' // separate copy with redlines: size, padding, gap, radius
   | 'COLORS' // separate copy + per-part fills/strokes/typography/effects with token / style / raw
 
-// Section order in the generated documentation (spec: Variants first).
+/** Section order in the generated documentation (Variants first). */
 export const DOC_VIEWS: Array<DocView> = [
   'VARIANTS',
   'PROPS',
@@ -35,9 +33,6 @@ export const DOC_VIEWS: Array<DocView> = [
   'MEASUREMENTS',
   'COLORS',
 ]
-
-// ── Machine contract (spec: "Machine contract") ────────────────────────────
-// Shared by the Canvas (writes) and the UI (agent instructions it copies).
 
 /** Shared plugin data namespace on `penpot.currentFile`, readable by any plugin. */
 export const CONTRACT_NAMESPACE = 'unoff.handoff'
@@ -50,15 +45,18 @@ export const contractKey = (targetId: string): string => `contract:${targetId}`
 
 /** What a contract holds, in one line (`2 props · 14 rules · 92 % tokenized · 2 exceptions`). */
 export interface ContractSummary {
-  props: number // variant properties (0 for a component)
+  /** Variant properties (0 for a component). */
+  props: number
   rules: number
-  tokenizedShare: number // 0..1 — share of token-capable rule values backed by a token
+  /** 0..1 — share of token-capable rule values backed by a token. */
+  tokenizedShare: number
   exceptions: number
 }
 
 /** Document-level contract settings, stored on the file (private plugin data). */
 export interface ContractSettings {
-  autoUpdate: boolean // rewrite outdated contracts without asking (default false)
+  /** Rewrite outdated contracts without asking (default false). */
+  autoUpdate: boolean
 }
 
 export const DEFAULT_CONTRACT_SETTINGS: ContractSettings = {
@@ -67,13 +65,17 @@ export const DEFAULT_CONTRACT_SETTINGS: ContractSettings = {
 
 /** One contract of the current page, with its freshness. */
 export interface ContractStatus {
-  key: string // `contract:<targetId>`
+  /** `contract:<targetId>`. */
+  key: string
   targetId: string
   name: string
   target: DocTarget
-  outdated: boolean // as written in the contract's `status`, refreshed at launch and after each save
-  missing: boolean // the documented target no longer exists
-  generatedAt: number // epoch ms
+  /** As written in the contract's `status`, refreshed at launch and after each save. */
+  outdated: boolean
+  /** The documented target no longer exists. */
+  missing: boolean
+  /** Epoch ms. */
+  generatedAt: number
   summary: ContractSummary
 }
 
@@ -110,10 +112,13 @@ export type LabelPlacement = 'AUTO' | 'OUTSIDE' | 'INSIDE'
 export type ScaleMode = 'DESIGN' | 'VIEWPORT'
 
 export interface AnnotationStyle {
-  color: string // hex, e.g. '#FF3D7F'
-  textSize: number // px
+  /** Hex, e.g. '#FF3D7F'. */
+  color: string
+  /** In px. */
+  textSize: number
   unit: Unit
-  remBase: number // px per rem, used only when unit === 'rem'
+  /** Px per rem, used only when unit === 'rem'. */
+  remBase: number
   labelPlacement: LabelPlacement
   scaleMode: ScaleMode
 }
@@ -136,60 +141,78 @@ export const DEFAULT_ANNOTATION_STYLE: AnnotationStyle = {
  * OTHER   → any other shape
  */
 export type ComponentKind =
-  | 'FAMILY'
-  | 'VARIANT'
-  | 'MAIN'
-  | 'COPY'
-  | 'BOARD'
-  | 'OTHER'
+  'FAMILY' | 'VARIANT' | 'MAIN' | 'COPY' | 'BOARD' | 'OTHER'
 
 export interface VariantProperty {
   name: string
-  values: Array<string> // in the family's own order; no value is a default
+  /** In the family's own order; no value is a default. */
+  values: Array<string>
 }
 
 export interface SelectionItem {
   id: string
   name: string
-  type: string // Penpot shape type: 'board' | 'rectangle' | 'text' | …
+  /** Penpot shape type: 'board' | 'rectangle' | 'text' | … */
+  type: string
   componentKind: ComponentKind
-  componentName: string | null // library component name (COPY → its main)
-  familyName: string | null // variant container name when FAMILY / VARIANT / COPY of a variant
-  variantProperties: Array<VariantProperty> // empty unless a family is reachable
-  variantCount: number // 0 unless a family is reachable
-  variantValues: Record<string, string> | null // VARIANT (or COPY of a variant): its own variantProps; null otherwise
-  familyVariants: Array<Record<string, string>> // every variant's variantProps when a family is reachable (lets the UI count filter matches); empty otherwise
-  topLevelLayers: Array<string> // names of the documented root's direct visible layers (first variant for a family) — makes PartsDetail 'MAIN' concrete
-  nestedLayerCount: number // count of every nested visible layer under that root — makes PartsDetail 'ALL' concrete
+  /** Library component name (COPY → its main). */
+  componentName: string | null
+  /** Variant container name when FAMILY / VARIANT / COPY of a variant. */
+  familyName: string | null
+  /** Empty unless a family is reachable. */
+  variantProperties: Array<VariantProperty>
+  /** 0 unless a family is reachable. */
+  variantCount: number
+  /** VARIANT (or COPY of a variant): its own variantProps; null otherwise. */
+  variantValues: Record<string, string> | null
+  /** Every variant's variantProps when a family is reachable (lets the UI count filter matches); empty otherwise. */
+  familyVariants: Array<Record<string, string>>
+  /** Names of the documented root's direct visible layers (first variant for a family) — makes PartsDetail 'MAIN' concrete. */
+  topLevelLayers: Array<string>
+  /** Count of every nested visible layer under that root — makes PartsDetail 'ALL' concrete. */
+  nestedLayerCount: number
   isRotated: boolean
   hasChildren: boolean
-  isAnnotation: boolean // shape belongs to a Component Handoff documentation layer
-  // The documented root for each choice of "What to document" (variant
-  // container for FAMILY, main component otherwise), null when that choice is
-  // refused. Lets the UI find the stored contract (contractKey(id)) in the
-  // status list without computing anything.
+  /** Shape belongs to a Component Handoff documentation layer. */
+  isAnnotation: boolean
+  /**
+   * The documented root for each choice of "What to document" (variant
+   * container for FAMILY, main component otherwise), null when that choice is
+   * refused. Lets the UI find the stored contract (contractKey(id)) in the
+   * status list without computing anything.
+   */
   targetIds: { COMPONENT: string | null; FAMILY: string | null }
 }
 
 export interface SelectionDigest {
   count: number
-  items: Array<SelectionItem> // capped at 2 meaningful items; count stays exact
-  boardId: string | null // top-level board hosting the first item
+  /** Capped at 2 meaningful items; `count` stays exact. */
+  items: Array<SelectionItem>
+  /** Top-level board hosting the first item. */
+  boardId: string | null
   boardName: string | null
-  annotatedCount: number // existing documentations targeting the selected items
-  containsAnnotation: boolean // true if ANY selected shape (not only items) is a documentation shape
+  /** Existing documentations targeting the selected items. */
+  annotatedCount: number
+  /** True if ANY selected shape (not only items) is a documentation shape. */
+  containsAnnotation: boolean
 }
 
 /** One documentation found on the current page, with its freshness. */
 export interface DocumentationStatus {
-  docId: string // id of the documentation group
-  targetId: string // documented root (variant container for a family, main otherwise)
-  name: string // component or family name
+  /** Id of the documentation group. */
+  docId: string
+  /** Documented root (variant container for a family, main otherwise). */
+  targetId: string
+  /** Component or family name. */
+  name: string
   target: DocTarget
   boardName: string | null
-  outdated: boolean // fingerprint of the target differs from the one stored at generation
-  missing: boolean // the documented target no longer exists
-  generatedAt: number // epoch ms
+  /** Fingerprint of the target differs from the one stored at generation. */
+  outdated: boolean
+  /** The documented target no longer exists. */
+  missing: boolean
+  /** Epoch ms. */
+  generatedAt: number
 }
 
 export type RefusalReason =
@@ -202,49 +225,59 @@ export type RefusalReason =
   | 'NOTHING_TO_UPDATE' // UPDATE_DOCUMENTATIONS / UPDATE_CONTRACTS found nothing matching
   | 'NO_CONTRACT' // GET_CONTRACT / REMOVE_CONTRACT: no contract under that key
 
-// ── UI → Canvas payloads (VERB_NOUN) ───────────────────────────────────────
-
 export interface GenerateDocumentationData {
   target: DocTarget
   views: Array<DocView>
-  depth: PartsDetail // which layers become numbered parts
-  grouping: Grouping // FAMILY only; ignored for COMPONENT
-  variantFilter: VariantFilter | null // FAMILY only; null = every variant
+  /** Which layers become numbered parts. */
+  depth: PartsDetail
+  /** FAMILY only; ignored for COMPONENT. */
+  grouping: Grouping
+  /** FAMILY only; null = every variant. */
+  variantFilter: VariantFilter | null
 }
 
 export interface LocateDocumentationData {
-  docId: string // selects the documentation and brings it into view
+  /** Selects the documentation and brings it into view. */
+  docId: string
 }
 
 export interface UpdateDocumentationsData {
-  docIds: Array<string> | 'OUTDATED' // explicit ids, or every outdated one on the page
+  /** Explicit ids, or every outdated one on the page. */
+  docIds: Array<string> | 'OUTDATED'
 }
 
 export interface GetContractData {
-  key: string // `contract:<targetId>`
+  /** `contract:<targetId>`. */
+  key: string
 }
 
 export interface UpdateContractsData {
-  keys: Array<string> | 'OUTDATED' // explicit keys, or every outdated, non-missing one on the page
+  /** Explicit keys, or every outdated, non-missing one on the page. */
+  keys: Array<string> | 'OUTDATED'
 }
 
 export interface RemoveContractData {
-  key: string // explicit removal only — a missing target never removes a contract by itself
+  /** Explicit removal only — a missing target never removes a contract by itself. */
+  key: string
 }
-
-// ── Canvas → UI payloads (NOUN_PAST_TENSE) ─────────────────────────────────
 
 export interface AnnotationAppliedData {
   kind: AnnotationKind
   created: number
-  updated: number // re-runs update in place instead of duplicating
+  /** Re-runs update in place instead of duplicating. */
+  updated: number
   boardName: string | null
-  rotatedNotice: boolean // at least one measured element was rotated (bbox)
-  parts?: number // anatomy parts numbered
-  variants?: number // FAMILY: variants documented
-  // The machine contract written alongside, for the same target and always
-  // for the whole family (no filter, views or style); null if it could not be
-  // written — the documentation itself is still generated.
+  /** At least one measured element was rotated (bbox). */
+  rotatedNotice: boolean
+  /** Anatomy parts numbered. */
+  parts?: number
+  /** FAMILY: variants documented. */
+  variants?: number
+  /**
+   * The machine contract written alongside, for the same target and always
+   * for the whole family (no filter, views or style); null if it could not be
+   * written — the documentation itself is still generated.
+   */
   contract: ContractSummary | null
 }
 
@@ -256,42 +289,44 @@ export interface AnnotationRefusedData {
 export interface DocumentationsStatusData {
   items: Array<DocumentationStatus>
   outdatedCount: number
-  contracts: Array<ContractStatus> // contracts whose documented target is on the current page (or missing, last seen on it)
+  /** Contracts whose documented target is on the current page (or missing, last seen on it). */
+  contracts: Array<ContractStatus>
   contractsOutdatedCount: number
 }
 
 export interface DocumentationsUpdatedData {
   updated: number
-  removed: number // documentations whose target is gone, removed
+  /** Documentations whose target is gone, removed. */
+  removed: number
 }
 
 export interface ContractLoadedData {
   key: string
-  json: string // the stored contract, pretty-printed, ready to copy
+  /** The stored contract, pretty-printed, ready to copy. */
+  json: string
 }
 
 export interface ContractsUpdatedData {
   updated: number
-  removed: number // only through REMOVE_CONTRACT
+  /** Only through REMOVE_CONTRACT. */
+  removed: number
 }
-
-// ── Message type registry ──────────────────────────────────────────────────
 
 export type AnnotationAction =
   | 'GET_SELECTION' //                  → SELECTION_CHANGED
   | 'GET_ANNOTATION_STYLE' //           → ANNOTATION_STYLE_LOADED
   | 'SET_ANNOTATION_STYLE' //   AnnotationStyle → ANNOTATION_STYLE_SAVED
   | 'GENERATE_DOCUMENTATION' // GenerateDocumentationData → ANNOTATION_APPLIED | ANNOTATION_REFUSED
-//                                        (also writes the machine contract of the same target)
+  //                                        (also writes the machine contract of the same target)
   | 'GET_DOCUMENTATIONS_STATUS' //      → DOCUMENTATIONS_STATUS_CHANGED
   | 'LOCATE_DOCUMENTATION' //  LocateDocumentationData → (no reply; selection changes, SELECTION_CHANGED follows)
   | 'UPDATE_DOCUMENTATIONS' //  UpdateDocumentationsData → DOCUMENTATIONS_UPDATED | ANNOTATION_REFUSED
-//                                        (also rewrites the contracts of the updated targets; then DOCUMENTATIONS_STATUS_CHANGED)
+  //                                        (also rewrites the contracts of the updated targets; then DOCUMENTATIONS_STATUS_CHANGED)
   | 'GET_CONTRACT' //           GetContractData → CONTRACT_LOADED | ANNOTATION_REFUSED (NO_CONTRACT)
   | 'UPDATE_CONTRACTS' //       UpdateContractsData → CONTRACTS_UPDATED | ANNOTATION_REFUSED (NOTHING_TO_UPDATE)
-//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+  //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
   | 'REMOVE_CONTRACT' //        RemoveContractData → CONTRACTS_UPDATED | ANNOTATION_REFUSED (NO_CONTRACT)
-//                                        (then DOCUMENTATIONS_STATUS_CHANGED)
+  //                                        (then DOCUMENTATIONS_STATUS_CHANGED)
   | 'GET_CONTRACT_SETTINGS' //            → CONTRACT_SETTINGS_LOADED
   | 'SET_CONTRACT_SETTINGS' //  ContractSettings → CONTRACT_SETTINGS_SAVED
 

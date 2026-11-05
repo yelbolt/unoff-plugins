@@ -16,7 +16,6 @@ import type {
 const refused = (r: { refused: unknown }): void =>
   penpot.ui.sendMessage({ type: 'ANNOTATION_REFUSED', data: r.refused })
 
-// GET_CONTRACT -> CONTRACT_LOADED | ANNOTATION_REFUSED (NO_CONTRACT)
 export const getContract = (data: GetContractData): void => {
   try {
     const out = read(data.key)
@@ -28,7 +27,6 @@ export const getContract = (data: GetContractData): void => {
   }
 }
 
-// UPDATE_CONTRACTS -> CONTRACTS_UPDATED | ANNOTATION_REFUSED (then status)
 export const updateContracts = (data: UpdateContractsData): void => {
   try {
     const out = refresh(data)
@@ -42,7 +40,6 @@ export const updateContracts = (data: UpdateContractsData): void => {
   }
 }
 
-// REMOVE_CONTRACT -> CONTRACTS_UPDATED | ANNOTATION_REFUSED (then status)
 export const removeContract = (data: RemoveContractData): void => {
   try {
     const out = drop(data.key)
@@ -55,7 +52,6 @@ export const removeContract = (data: RemoveContractData): void => {
   }
 }
 
-// GET_CONTRACT_SETTINGS -> CONTRACT_SETTINGS_LOADED
 export const getContractSettings = (): void => {
   try {
     penpot.ui.sendMessage({
@@ -67,8 +63,9 @@ export const getContractSettings = (): void => {
   }
 }
 
-// SET_CONTRACT_SETTINGS (ContractSettings) -> CONTRACT_SETTINGS_SAVED
-// Turning auto-update on settles contracts that are already outdated on the next status push.
+/**
+ * Turning auto-update on settles contracts that are already outdated on the next status push.
+ */
 export const setContractSettings = (settings: unknown): void => {
   try {
     penpot.ui.sendMessage({

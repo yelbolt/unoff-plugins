@@ -18,10 +18,12 @@ import type { MergedModel, MergedPart } from './merged'
 import type { Entry } from './groups'
 import type { PropertyOrder, Sample } from './drivers'
 
-// THE analysis. Parts, drivers, references and layout are computed once here,
-// from the same functions the visual views use (measureRows, collectProperties,
-// resolveValue's drivers). The contract and the documentation's header / Props
-// view are serializers of this result: they cannot drift apart.
+/**
+ * THE analysis. Parts, drivers, references and layout are computed once here,
+ * from the same functions the visual views use (measureRows, collectProperties,
+ * resolveValue's drivers). The contract and the documentation's header / Props
+ * view are serializers of this result: they cannot drift apart.
+ */
 
 export type Value =
   | string
@@ -60,7 +62,6 @@ export interface TokenOut {
   set: string | null
 }
 
-// What a variant property drives, for the Props view.
 export interface Drive {
   by: Array<string>
   part: string // layer name
@@ -84,7 +85,6 @@ export interface Analysis {
 
 const PX = { ...DEFAULT_ANNOTATION_STYLE, unit: 'px' as const }
 
-// Token types able to back a property.
 const TOKEN_TYPES: Record<string, Array<string>> = {
   width: ['sizing', 'dimension'],
   height: ['sizing', 'dimension'],
@@ -212,10 +212,12 @@ const isPlaced = (part: MergedPart): boolean =>
     )
   })
 
-// The analysis of a target, computed once and shared: the documentation's
-// header / Props view and the contract read the same one when they are
-// generated together (same target, same variants kept, same property order).
-// Entries and order are part of the result.
+/**
+ * The analysis of a target, computed once and shared: the documentation's
+ * header / Props view and the contract read the same one when they are
+ * generated together (same target, same variants kept, same property order).
+ * Entries and order are part of the result.
+ */
 export const analysisFor = (
   res: Resolved,
   isFamily: boolean,
@@ -455,11 +457,9 @@ const analyzeEntries = (
   }
 }
 
-// The properties that explain where a part appears (null when everywhere).
 const pres = (p: PartOut['in']): Array<string> | null =>
   p === 'all' ? null : Object.keys(p)[0].split('|')
 
-// The tokens of a backing type, in catalog order, listed once per catalog.
 const CANDIDATES = new WeakMap<RefCtx, Map<string, Array<TokenInfo>>>()
 const candidates = (refs: RefCtx, backing: Array<string>): Array<TokenInfo> => {
   let byBacking = CANDIDATES.get(refs)
@@ -474,7 +474,6 @@ const candidates = (refs: RefCtx, backing: Array<string>): Array<TokenInfo> => {
   return list
 }
 
-// A token of a backing type whose resolved value equals the raw value.
 const matchingToken = (
   refs: RefCtx,
   backing: Array<string>,
@@ -497,7 +496,6 @@ const matchingToken = (
 const asValue = (v: unknown): Value =>
   v === undefined ? null : (v as Value)
 
-// Every token the rules reference, with the chains followed.
 const collectTokens = (
   refs: RefCtx,
   rules: Array<RuleOut>,
@@ -520,9 +518,11 @@ const collectTokens = (
   return expandTokens(refs, [...wanted])
 }
 
-// The token entries for `names` and every token they reference, as they are
-// now, sorted by name. Also used to tell whether a stored contract's tokens
-// changed since it was written.
+/**
+ * The token entries for `names` and every token they reference, as they are
+ * now, sorted by name. Also used to tell whether a stored contract's tokens
+ * changed since it was written.
+ */
 export const expandTokens = (
   refs: RefCtx,
   names: Array<string>

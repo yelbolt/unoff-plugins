@@ -10,10 +10,11 @@ export const getAppliedTokenName = (
   // shape.tokens converts the whole map on every access: read it once per run.
   memoRead(`tokens:${shape.id}`, () => shape.tokens ?? null)?.[property] || undefined
 
-// ── Token catalog ───────────────────────────────────────────────────────────
-// Read once per generation (RefCtx). Only ACTIVE sets count: they decide which
-// token a name designates, and the later set wins when a name exists in
-// several of them (TokenCatalog.sets documents that precedence).
+/**
+ * Read once per generation (RefCtx). Only ACTIVE sets count: they decide which
+ * token a name designates, and the later set wins when a name exists in
+ * several of them (TokenCatalog.sets documents that precedence).
+ */
 
 export interface TokenInfo {
   name: string
@@ -31,7 +32,6 @@ export const referenceOf = (value: unknown): string | null => {
   return m ? m[1] : null
 }
 
-// `{a}` references anywhere inside a value (composite tokens).
 export const referencesIn = (value: unknown): Array<string> => {
   const text = typeof value === 'string' ? value : JSON.stringify(value) ?? ''
   const out: Array<string> = []
@@ -52,8 +52,10 @@ export class TokenIndex {
     return this.byName.get(name)
   }
 
-  // `button.bg → color.action.primary → #0B5FFF`, or null when the token does
-  // not reference another one (or is unknown).
+  /**
+   * `button.bg → color.action.primary → #0B5FFF`, or null when the token does
+   * not reference another one (or is unknown).
+   */
   chain(name: string): Array<string> | null {
     const path = [name]
     let cur = this.byName.get(name)

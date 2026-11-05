@@ -5,10 +5,12 @@ import { surfaceError } from './surfaceError'
 import { getSelection } from './getSelection'
 import type { UpdateDocumentationsData } from '../../app/types/annotations'
 
-// Pushes DOCUMENTATIONS_STATUS_CHANGED. Used by GET_DOCUMENTATIONS_STATUS,
-// the penpot 'contentsave' / 'pagechange' listeners and after generate/update.
-// Fired by listeners: log instead of surfacing, so a persistent failure does
-// not raise a notification on every save.
+/**
+ * Pushes DOCUMENTATIONS_STATUS_CHANGED. Used by GET_DOCUMENTATIONS_STATUS,
+ * the penpot 'contentsave' / 'pagechange' listeners and after generate/update.
+ * Fired by listeners: log instead of surfacing, so a persistent failure does
+ * not raise a notification on every save.
+ */
 export const pushDocumentationsStatus = (): void => {
   try {
     // Contract freshness first (flags outdated ones, or rewrites them when the
@@ -27,7 +29,6 @@ export const pushDocumentationsStatus = (): void => {
   }
 }
 
-// GET_DOCUMENTATIONS_STATUS -> DOCUMENTATIONS_STATUS_CHANGED
 export const getDocumentationsStatus = (): void => pushDocumentationsStatus()
 
 // contentsave fires after every save: collapse bursts into one check.
@@ -44,8 +45,6 @@ export const pushStatusDebounced = (delay = 500): void => {
   }, delay)
 }
 
-// UPDATE_DOCUMENTATIONS -> DOCUMENTATIONS_UPDATED | ANNOTATION_REFUSED
-// (then DOCUMENTATIONS_STATUS_CHANGED and SELECTION_CHANGED)
 export const updateDocumentations = (data: UpdateDocumentationsData): void => {
   try {
     const outcome = run(data)

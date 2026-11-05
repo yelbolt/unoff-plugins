@@ -30,10 +30,12 @@ import type {
 } from '../../app/types/annotations'
 import type { Resolved } from './target'
 
-// The machine contract: JSON in the file's SHARED plugin data (readable by any
-// plugin, so by the Penpot MCP one). Strings only; parsed inside try/catch;
-// written only when the stored value actually changes, so the contentsave a
-// write triggers does not loop.
+/**
+ * The machine contract: JSON in the file's SHARED plugin data (readable by any
+ * plugin, so by the Penpot MCP one). Strings only; parsed inside try/catch;
+ * written only when the stored value actually changes, so the contentsave a
+ * write triggers does not loop.
+ */
 
 const NS = CONTRACT_NAMESPACE
 
@@ -93,7 +95,6 @@ const writeIndex = (list: Array<IndexEntry>): void => {
   )
 }
 
-// ── Build ──────────────────────────────────────────────────────────────────
 
 interface Built {
   key: string
@@ -198,12 +199,13 @@ const refuse = (reason: RefusalReason): Refused => ({
   refused: { kind: 'CONTRACT', reason },
 })
 
-// ── Actions ────────────────────────────────────────────────────────────────
 
-// Written by every documentation generation and update, for the same target
-// (spec: "One generation, two readers"). Called right after the documentation
-// is drawn, so the analysis and references computed for it are reused and
-// part numbers come from the documentation just generated.
+/**
+ * Written by every documentation generation and update, for the same target
+ * (spec: "One generation, two readers"). Called right after the documentation
+ * is drawn, so the analysis and references computed for it are reused and
+ * part numbers come from the documentation just generated.
+ */
 export const writeContract = (res: Resolved): ContractSummary => {
   const built = build(res)
   store(built)
@@ -236,7 +238,6 @@ export const removeContract = (
   return { updated: { updated: 0, removed: 1 } }
 }
 
-// ── Status and freshness ───────────────────────────────────────────────────
 
 export const collectContractStatuses = (): Array<ContractStatus> => {
   const page = currentPage()
@@ -271,8 +272,10 @@ const setStatus = (entry: IndexEntry, status: 'current' | 'outdated'): void => {
   writeIndex(index.map((e) => (e.key === entry.key ? { ...e, status } : e)))
 }
 
-// Launch and after each save, BEFORE the status is pushed. Flagging is the only
-// write made on the designer's behalf, unless auto-update is on.
+/**
+ * Launch and after each save, BEFORE the status is pushed. Flagging is the only
+ * write made on the designer's behalf, unless auto-update is on.
+ */
 export const refreshContracts = (): void => {
   const page = currentPage()
   let index = readIndex()
@@ -363,7 +366,6 @@ export const updateContracts = (
   return { updated: { updated, removed: 0 } }
 }
 
-// ── Settings (private plugin data on the file) ─────────────────────────────
 
 export const loadContractSettings = (): ContractSettings => {
   try {

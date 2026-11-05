@@ -42,9 +42,11 @@ export const layoutOf = (shape: Shape) =>
 const overlap1d = (a1: number, a2: number, b1: number, b2: number): boolean =>
   Math.min(a2, b2) - Math.max(a1, b1) > 0.001
 
-// Paddings and gaps of one container, or null when there is nothing to
-// measure. Layout containers report their layout values (what the panel
-// shows); others report computed insets and measured distances.
+/**
+ * Paddings and gaps of one container, or null when there is nothing to
+ * measure. Layout containers report their layout values (what the panel
+ * shows); others report computed insets and measured distances.
+ */
 export const spacingOf = (shape: Shape): SpacingInfo | null =>
   memoRead(`spacing:${shape.id}`, () => computeSpacing(shape))
 

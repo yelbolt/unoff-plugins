@@ -1,6 +1,13 @@
 import { PureComponent } from 'preact/compat'
 import { doClassnames } from '@unoff/utils'
-import { Button, Chip, Section, SemanticMessage, layouts, texts } from '@unoff/ui'
+import {
+  Button,
+  Chip,
+  Section,
+  SemanticMessage,
+  layouts,
+  texts,
+} from '@unoff/ui'
 import Documentation from '../contexts/Document'
 import { WithTranslationProps } from '../components/WithTranslation'
 import { WithConfigProps } from '../components/WithConfig'
@@ -24,9 +31,7 @@ import {
 } from '../../stores/annotations'
 
 interface SelectionHeaderProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface SelectionHeaderState {
   selection: SelectionDigest
@@ -53,7 +58,6 @@ export default class SelectionHeader extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeSelection = $selection.subscribe((value) =>
       this.setState({ selection: value })
@@ -72,7 +76,6 @@ export default class SelectionHeader extends PureComponent<
     if (this.unsubscribePending) this.unsubscribePending()
   }
 
-  // Helpers
   getSelectionLabel = (): string => {
     const { t } = this.props
     const { count } = this.state.selection
@@ -127,7 +130,6 @@ export default class SelectionHeader extends PureComponent<
     const { selection, settings } = this.state
     const blocker = this.getBlocker()
 
-
     if (this.isDocumentation()) return null
     if (blocker !== null) return getRefusalMessage(blocker, t)
     if (hasNoVariant(selection, settings))
@@ -158,7 +160,6 @@ export default class SelectionHeader extends PureComponent<
     })
   }
 
-  // Renders
   Secondary = (props: { children: string; title?: string }) => (
     <span
       className={doClassnames([texts.type, texts['type--secondary']])}
@@ -182,11 +183,16 @@ export default class SelectionHeader extends PureComponent<
 
     return (
       <div
-        className={doClassnames([layouts['stackbar--tight'], layouts['stackbar--fill']])}
+        className={doClassnames([
+          layouts['stackbar--tight'],
+          layouts['stackbar--fill'],
+        ])}
       >
         <this.Secondary
           title={item.variantProperties
-            .map((property) => `${property.name}: ${property.values.join(', ')}`)
+            .map(
+              (property) => `${property.name}: ${property.values.join(', ')}`
+            )
             .join('\n')}
         >
           {summary}
@@ -232,7 +238,11 @@ export default class SelectionHeader extends PureComponent<
     return (
       <>
         {message !== null && (
-          <SemanticMessage type="INFO" message={message} isAnchored />
+          <SemanticMessage
+            type="INFO"
+            message={message}
+            isAnchored
+          />
         )}
         <Section
           body={[

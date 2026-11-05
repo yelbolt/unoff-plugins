@@ -25,9 +25,7 @@ import {
 import { $annotationStyle, $contractSettings } from '../../stores/annotations'
 import { ConfigContextType } from '../../config/ConfigContext'
 
-interface StyleProps extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+interface StyleProps extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface StyleState {
   draft: AnnotationStyle
@@ -90,7 +88,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeContractSettings = $contractSettings.subscribe((value) =>
       this.setState({ contractSettings: value })
@@ -117,7 +114,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     if (this.unsubscribeContractSettings) this.unsubscribeContractSettings()
   }
 
-  // Helpers
   isColorValid = () => HEX_COLOR.test(this.state.draft.color)
 
   parsedTextSize = () => Number.parseFloat(this.state.textSize)
@@ -147,7 +143,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     sendAnnotationAction('SET_CONTRACT_SETTINGS', next)
   }
 
-  // Autosave
   save = (draft: AnnotationStyle, textSize: string, remBase: string) => {
     const size = Number.parseFloat(textSize)
     const base = Number.parseFloat(remBase)
@@ -187,7 +182,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
     this.saveTimer = setTimeout(this.flush, AUTOSAVE_DELAY)
   }
 
-  // Handlers
   handleColorChange = (e: Event) => {
     const value = (e.currentTarget as HTMLInputElement).value
     this.setState(
@@ -236,8 +230,6 @@ export default class Style extends PureComponent<StyleProps, StyleState> {
   handleScaleModeChange = (scaleMode: ScaleMode) =>
     this.handleDraftChange({ scaleMode })
 
-  // Renders
-  // A labelled control with its description as the FormItem's embedded helper.
   Field = (label: string, control: preact.ComponentChildren, hint: string) => (
     <FormItem
       label={label}

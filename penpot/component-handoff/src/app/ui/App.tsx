@@ -187,9 +187,7 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  // Lifecycle
   componentDidMount = async () => {
-    // Load
     sendPluginMessage(
       {
         pluginMessage: {
@@ -202,13 +200,9 @@ class App extends Component<AppProps, AppState> {
       '*'
     )
 
-    // Component Handoff: selection and persisted annotation style
     sendPluginMessage({ pluginMessage: { type: 'GET_SELECTION' } }, '*')
     sendPluginMessage({ pluginMessage: { type: 'GET_ANNOTATION_STYLE' } }, '*')
-    sendPluginMessage(
-      { pluginMessage: { type: 'GET_CONTRACT_SETTINGS' } },
-      '*'
-    )
+    sendPluginMessage({ pluginMessage: { type: 'GET_CONTRACT_SETTINGS' } }, '*')
     // Outdated documentations: requested once LOAD_DATA is sent, then pushed
     // spontaneously by the Canvas.
     sendPluginMessage(
@@ -260,7 +254,6 @@ class App extends Component<AppProps, AppState> {
       userConsent: $userConsent.get(),
     })
 
-    // Authentication
     if (getSupabase() !== null && this.props.config.env.isSupabaseEnabled)
       getSupabase()?.auth.onAuthStateChange((event, session) => {
         const actions: {
@@ -317,7 +310,6 @@ class App extends Component<AppProps, AppState> {
         return actions[event]?.()
       })
 
-    // Listener
     window.addEventListener(
       'platformMessage',
       this.handleMessage as EventListener
@@ -338,7 +330,6 @@ class App extends Component<AppProps, AppState> {
     window.removeEventListener('resize', this.handleResize)
   }
 
-  // Handlers
   // Results of two requests sent together (documentation + contract) arrive
   // within moments of each other: they share one notification instead of the
   // second one erasing the first.
@@ -544,7 +535,10 @@ class App extends Component<AppProps, AppState> {
       const handleAnnotationStyleSaved = () => setAnnotationStyle(path.data)
 
       const handleAnnotationApplied = () =>
-        notify(buildAppliedNotification(path.data, this.props.t), 'DOCUMENTATION')
+        notify(
+          buildAppliedNotification(path.data, this.props.t),
+          'DOCUMENTATION'
+        )
 
       const handleAnnotationRefused = () =>
         notify(
@@ -828,7 +822,6 @@ class App extends Component<AppProps, AppState> {
       : ''
   }
 
-  // Direct Actions
   onDetectBrowserLanguage = (userLanguage: Language) => {
     const browserLang = navigator.language
     const currentLang = userLanguage
@@ -875,7 +868,6 @@ class App extends Component<AppProps, AppState> {
     )
   }
 
-  // Render
   render() {
     if (this.state.isLoaded)
       return (
@@ -893,7 +885,10 @@ class App extends Component<AppProps, AppState> {
               this.state.service === 'COMPONENT_HANDOFF'
             }
           >
-            <Handoff {...this.props} {...this.state} />
+            <Handoff
+              {...this.props}
+              {...this.state}
+            />
           </Feature>
           <Feature isActive={this.state.modalContext !== 'EMPTY'}>
             {document.getElementById('modal') &&

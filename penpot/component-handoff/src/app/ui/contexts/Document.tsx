@@ -44,9 +44,7 @@ import {
 import { ConfigContextType } from '../../config/ConfigContext'
 
 interface DocumentProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface DocumentState {
   selection: SelectionDigest
@@ -99,7 +97,6 @@ export default class Documentation extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeSelection = $selection.subscribe((value) =>
       this.setState({ selection: value })
@@ -114,11 +111,9 @@ export default class Documentation extends PureComponent<
     if (this.unsubscribeSettings) this.unsubscribeSettings()
   }
 
-  // Helpers
   getTarget = (): DocTarget =>
     getTarget(this.state.selection, this.state.settings)
 
-  // Handlers
   handleValueToggle = (property: string, value: string) => () =>
     updateDocSettings((previous) => {
       const hidden = previous.unticked[property] ?? []
@@ -156,14 +151,12 @@ export default class Documentation extends PureComponent<
           ),
     }))
 
-  // Renders
   Hint = (props: { label: string }) => (
     <span className={doClassnames([texts.type, texts['type--secondary']])}>
       {props.label}
     </span>
   )
 
-  // A control with its description as the FormItem's embedded helper.
   Field = (props: {
     helper?: string | null
     children: preact.ComponentChildren

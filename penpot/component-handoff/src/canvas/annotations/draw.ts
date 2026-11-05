@@ -4,7 +4,6 @@ import type { AnnotationStyle } from '../../app/types/annotations'
 import type { Scale } from './scale'
 import type { Point, Rect } from './geometry'
 
-// WCAG relative luminance, no dependency.
 export const contrastColor = (hex: string): string => {
   const m = /^#([0-9a-f]{6})$/i.exec(hex)
   if (!m) return '#FFFFFF'
@@ -34,7 +33,6 @@ export const labelSize = (str: string, sc: Scale): { w: number; h: number } => {
   return { w: Math.ceil(e.w + sc.pad * 3), h: Math.ceil(e.h + sc.pad * 1.5) }
 }
 
-// Collects every native shape of one annotation, then groups them.
 export class Pen {
   shapes: Array<Shape> = []
 
@@ -188,7 +186,6 @@ export class Pen {
     this.track(board, o.name)
   }
 
-  // Filled pill + text, named "Label".
   label(str: string, r: Rect): void {
     this.badge(str, r, {
       name: 'Label',
@@ -197,13 +194,11 @@ export class Pen {
     })
   }
 
-  // Connected horizontal/vertical segments, one thin rectangle each.
   polyline(points: Array<Point>, opts: { width?: number; name?: string } = {}): void {
     for (let i = 1; i < points.length; i++)
       this.line(points[i - 1], points[i], opts)
   }
 
-  // Dashed outline of a rectangle (a stroke-only rectangle, not lines).
   outline(r: Rect, name = 'Outline'): void {
     const rect = penpot.createRectangle()
     rect.resize(Math.max(r.w, 0.01), Math.max(r.h, 0.01))
@@ -242,7 +237,6 @@ export class Pen {
     this.dot(anchor, this.sc.stroke * 3, 'Leader anchor')
   }
 
-  // Extension line + measure line with end ticks, horizontal measure.
   measureH(x1: number, x2: number, y: number): void {
     const t = this.sc.tick
     this.line({ x: x1, y }, { x: x2, y }, { name: 'Measure' })

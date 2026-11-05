@@ -39,7 +39,6 @@ export default class DocumentationsList extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeStatus = $documentationsStatus.subscribe((value) =>
       this.setState({ status: value })
@@ -54,7 +53,6 @@ export default class DocumentationsList extends PureComponent<
     if (this.unsubscribePending) this.unsubscribePending()
   }
 
-  // Handlers
   handleLocate = (docId: string) => () =>
     sendAnnotationAction('LOCATE_DOCUMENTATION', { docId })
 
@@ -82,7 +80,6 @@ export default class DocumentationsList extends PureComponent<
   handleRemoveContract = (key: string) => () =>
     sendAnnotationAction('REMOVE_CONTRACT', { key })
 
-  // Renders
   Hint = (props: { label: string }) => (
     <span className={doClassnames([texts.type, texts['type--secondary']])}>
       {props.label}
@@ -102,7 +99,8 @@ export default class DocumentationsList extends PureComponent<
     const missing = source.missing
     const isBusy = pendingAction !== null
     const needsDocumentationUpdate =
-      documentation !== null && (documentation.outdated || documentation.missing)
+      documentation !== null &&
+      (documentation.outdated || documentation.missing)
     const generatedAt = source.generatedAt
     const lines = [
       [
@@ -158,7 +156,10 @@ export default class DocumentationsList extends PureComponent<
             />
           ))}
         </div>
-        <div className={layouts['snackbar--medium']} style={{ flexShrink: 0 }}>
+        <div
+          className={layouts['snackbar--medium']}
+          style={{ flexShrink: 0 }}
+        >
           {contract !== null && !missing && (
             <Menu
               id={`contract-menu-${contract.key}`}
@@ -209,7 +210,9 @@ export default class DocumentationsList extends PureComponent<
               type={contract.missing ? 'secondary' : 'icon'}
               icon={contract.missing ? undefined : 'trash'}
               label={
-                contract.missing ? t('handoff.documentations.remove') : undefined
+                contract.missing
+                  ? t('handoff.documentations.remove')
+                  : undefined
               }
               helper={{ label: t('handoff.documentations.removeContract') }}
               isDisabled={isBusy}

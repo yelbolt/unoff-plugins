@@ -25,7 +25,6 @@ const REFUSAL_KEYS: Record<RefusalReason, string> = {
   NO_CONTRACT: 'handoff.refusal.noContract',
 }
 
-// A refusal can read differently depending on the output it concerns.
 const CONTRACT_REFUSAL_KEYS: Partial<Record<RefusalReason, string>> = {
   NOTHING_TO_UPDATE: 'handoff.refusal.nothingToUpdateContract',
 }

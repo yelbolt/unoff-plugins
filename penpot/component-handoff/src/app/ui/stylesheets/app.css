@@ -94,5 +94,5 @@ section.context {
 
 /* Rhythm: secondary text and sub-options read as subordinate */
 .handoff-suboption {
-  padding-left: var(--scale-pos-xxsmall);
+  padding-left: var(--scale-pos-small);
 }

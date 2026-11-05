@@ -48,8 +48,10 @@ export interface CommitResult {
   variants?: number
 }
 
-// Prepare the environment, run `draw`, tag the result, place it in the layer
-// and drop the previous drawing of the same target (wherever it lives).
+/**
+ * Prepare the environment, run `draw`, tag the result, place it in the layer
+ * and drop the previous drawing of the same target (wherever it lives).
+ */
 export const commitAnnotation = (
   kind: AnnotationKind,
   targets: Array<Shape>,

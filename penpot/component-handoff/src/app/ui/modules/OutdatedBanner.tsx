@@ -25,7 +25,6 @@ export default class OutdatedBanner extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeStatus = $documentationsStatus.subscribe((value) =>
       this.setState({ rows: buildGeneratedRows(value) })
@@ -40,7 +39,6 @@ export default class OutdatedBanner extends PureComponent<
     if (this.unsubscribePending) this.unsubscribePending()
   }
 
-  // Handlers
   // A documentation update rewrites its contract too: a contract is updated on
   // its own only when its documentation is current (or not on the page).
   handleUpdateAll = () => {
@@ -57,7 +55,6 @@ export default class OutdatedBanner extends PureComponent<
     if (keys.length > 0) sendAnnotationAction('UPDATE_CONTRACTS', { keys })
   }
 
-  // Render
   render() {
     const { t } = this.props
     const { rows, pendingAction } = this.state

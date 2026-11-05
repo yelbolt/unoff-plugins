@@ -1,6 +1,8 @@
-// Plugin-data keys carried by documentation groups and layers. They are the
-// stable identity that lets re-runs update in place and feeds outdated
-// detection.
+/**
+ * Plugin-data keys carried by documentation groups and layers. They are the
+ * stable identity that lets re-runs update in place and feeds outdated
+ * detection.
+ */
 export const KEYS = {
   kind: 'ch:kind', // 'DOCUMENTATION'
   targets: 'ch:targets', // JSON array of target shape ids (documented root)
@@ -17,8 +19,10 @@ export const PAGE_KEY = 'page'
 
 export const MARKER_NAME = 'Marker'
 
-// Spacing scale: an 8-point rhythm, every padding, gap and margin of the
-// documentation is one of these values (design px, multiplied by `sc.k`).
+/**
+ * Spacing scale: an 8-point rhythm, every padding, gap and margin of the
+ * documentation is one of these values (design px, multiplied by `sc.k`).
+ */
 export const SPACING = {
   4: 4,
   8: 8,
@@ -32,7 +36,6 @@ export const SPACING = {
   64: 64,
 } as const
 
-// Brand style of the documentation's own surfaces and text.
 export const FONT_TITLE = 'Martian Mono'
 export const FONT_BODY = 'Lexend'
 
@@ -44,15 +47,16 @@ export const BRAND = {
   mutedOpacity: 0.6, // secondary text
 } as const
 
-// Radii, from the 4-px scale.
 export const RADIUS = {
   board: 32, // documentation board and cards
   box: 16, // inner sub-boxes (exploded parts)
   swatch: 4, // swatches
 } as const
 
-// Layout constants of the documentation board, in design px. Multiplied by
-// `sc.k` so they stay proportional in VIEWPORT scale mode.
+/**
+ * Layout constants of the documentation board, in design px. Multiplied by
+ * `sc.k` so they stay proportional in VIEWPORT scale mode.
+ */
 export const LAYOUT = {
   gridColumns: 6, // columns of the documentation grid
   gridColumn: 200, // minimum width of one grid column

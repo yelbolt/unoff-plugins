@@ -5,16 +5,13 @@ import type { Point, Rect } from './geometry'
 
 export interface PlaceRequest {
   size: { w: number; h: number }
-  // Midpoint of the measured span; leaders start here.
   anchor: Point
-  // Unit direction pointing away from the measured element.
   outward: Point
   // Axis along which `span` is measured; the label "fits" when its extent on
   // that axis is <= span.
   axis: 'h' | 'v'
   span: number
   pref: LabelPlacement
-  // Distance anchor -> label center for the natural OUTSIDE position.
   dist0?: number
   // Natural OUTSIDE position is not adjacent to the measured line (padding):
   // it needs a leader.
@@ -26,8 +23,10 @@ export interface Placement {
   leader: boolean
 }
 
-// Collision-aware label placement. Obstacles = the measured design elements
-// (where relevant) + labels already placed in the same layer.
+/**
+ * Collision-aware label placement. Obstacles = the measured design elements
+ * (where relevant) + labels already placed in the same layer.
+ */
 export class Placer {
   constructor(
     public obstacles: Array<Rect>,
@@ -93,8 +92,6 @@ export class Placer {
     return { rect: last, leader: true }
   }
 
-  // Try each outward direction (the side with room wins); prefer a placement
-  // that needs no leader.
   findBestSide(
     outwards: Array<Point>,
     build: (outward: Point) => PlaceRequest

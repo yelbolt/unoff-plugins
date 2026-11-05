@@ -23,8 +23,6 @@ import type {
   SelectionItem,
 } from '../../app/types/annotations'
 
-// The root whose layers get numbered: a family shows its first variant, a
-// copy its main component.
 const documentedRoot = (
   s: Shape,
   c: ReturnType<typeof classify>
@@ -82,8 +80,10 @@ const toItem = (s: Shape): SelectionItem => {
   }
 }
 
-// The documented root for a choice; null when that choice is refused. Only
-// classifies the selection: no analysis, no fingerprint.
+/**
+ * The documented root for a choice; null when that choice is refused. Only
+ * classifies the selection: no analysis, no fingerprint.
+ */
 const rootIdOf = (s: Shape, target: DocTarget): string | null => {
   const res = safe(() => resolveTarget(s, target))
   return res && typeof res !== 'string' ? res.root.id : null
@@ -107,7 +107,6 @@ const buildDigest = (): SelectionDigest => {
   const first = selection[0]
   const lk = layerKeyFor(first)
   const ids = new Set(selection.map((s) => s.id))
-  // A copy is documented through its main component.
   for (const s of selection.slice(0, 2)) {
     const main = classify(s).main
     if (main) ids.add(main.id)

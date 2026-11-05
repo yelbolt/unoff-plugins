@@ -38,7 +38,6 @@ const READ_ONLY_ACTIONS: Array<AnnotationAction> = [
   'SET_CONTRACT_SETTINGS',
 ]
 
-// Actions that wait for a result message, and the channel it comes on.
 const PENDING_CHANNELS: Partial<Record<AnnotationAction, PendingChannel>> = {
   GENERATE_DOCUMENTATION: 'DOCUMENTATION',
   UPDATE_DOCUMENTATIONS: 'DOCUMENTATION',

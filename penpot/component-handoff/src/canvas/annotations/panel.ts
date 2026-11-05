@@ -4,11 +4,13 @@ import type { Board, Font, Shape, Text } from '@penpot/plugin-types'
 import type { AnnotationStyle } from '../../app/types/annotations'
 import type { Scale } from './scale'
 
-// A shape built by the panel plus its ESTIMATED size. The estimate is derived
-// from known numbers only (font size, character count, fixed sizes); it is
-// never read back from the platform, because Penpot resolves auto layout
-// asynchronously. It only balances columns and sizes things that are fixed
-// up front. The layout itself is always done by native flex.
+/**
+ * A shape built by the panel plus its ESTIMATED size. The estimate is derived
+ * from known numbers only (font size, character count, fixed sizes); it is
+ * never read back from the platform, because Penpot resolves auto layout
+ * asynchronously. It only balances columns and sizes things that are fixed
+ * up front. The layout itself is always done by native flex.
+ */
 export interface PanelNode {
   shape: Shape
   w: number
@@ -21,8 +23,10 @@ export interface PanelNode {
   outerW?: number // card only: real outer width, when wider than its span
 }
 
-// A table row: its cells (null = empty cell), or an empty array for a spacer
-// between two groups of rows.
+/**
+ * A table row: its cells (null = empty cell), or an empty array for a spacer
+ * between two groups of rows.
+ */
 export type TableRow = Array<PanelNode | null>
 
 interface BoxOptions {
@@ -56,11 +60,8 @@ interface TextOptions {
 // Rough glyph widths relative to the default estimate, per brand font.
 const WIDEN: Record<FontRole, number> = { title: 1.2, body: 1.05 }
 
-// Builds property sheets / documentation as native flex boards and text.
 export class Panel {
-  // Every shape the panel created, so a failed draw can remove them all.
   readonly created: Array<Shape> = []
-  // Dry runs: measure what a table needs, then drop the shapes it created.
   mark(): number {
     return this.created.length
   }
@@ -82,12 +83,10 @@ export class Panel {
     private sc: Scale
   ) {}
 
-  // A spacing value of the scale, in viewport-scaled px.
   sp(n: number): number {
     return n * this.sc.k
   }
 
-  // Height of one text line, derived from the font size only.
   get lineHeight(): number {
     return Math.round(this.sc.font * 1.4)
   }
@@ -157,14 +156,12 @@ export class Panel {
     }
   }
 
-  // Marks a node as taking the width of its flex parent.
   fillWidth(node: PanelNode, estimatedW = node.w): PanelNode {
     node.fill = true
     node.w = estimatedW
     return node
   }
 
-  // Transparent placeholder of a known size (empty cell, gap between groups).
   spacer(w: number, h: number): PanelNode {
     const rect = penpot.createRectangle()
     this.created.push(rect)
@@ -197,8 +194,6 @@ export class Panel {
     return { shape: rect, w: size, h: size, lines: 1 }
   }
 
-  // A pill for a short value: fit sizing, padding 4/8, full radius, light
-  // tint, body font.
   chip(str: string, o: { size?: number; name?: string } = {}): PanelNode {
     const size = o.size ?? this.sc.font * 0.9
     const label = this.text(str, { size, name: 'Chip text' })
@@ -234,7 +229,6 @@ export class Panel {
     if (o.justify) flex.justifyContent = o.justify
     this.auto(board, 'h')
     this.auto(board, 'v')
-    // Called in the order of visual appearance.
     for (const k of kids) {
       board.appendChild(k.shape)
       if (k.fill) {
@@ -243,7 +237,6 @@ export class Panel {
       }
     }
 
-    // Estimated size.
     const sum = (f: (k: PanelNode) => number) =>
       kids.reduce((n, k) => n + f(k), 0)
     const gaps = Math.max(0, kids.length - 1) * o.gap
@@ -297,8 +290,6 @@ export class Panel {
     }
   }
 
-  // Estimated width each column needs (with a safety margin), from the cells'
-  // known estimates.
   private colNeeds(rows: Array<TableRow>): Array<number> {
     const cols = Math.max(0, ...rows.map((r) => r.length))
     const needs: Array<number> = []
@@ -309,7 +300,6 @@ export class Panel {
     return needs
   }
 
-  // Width a table needs so that no cell is narrower than its content.
   tableNeed(rows: Array<TableRow>): number {
     const needs = this.colNeeds(rows)
     return (

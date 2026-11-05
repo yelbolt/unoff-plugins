@@ -40,14 +40,15 @@ export const variantPropertiesOf = (
     values: safe(() => variants.currentValues(name)) ?? [],
   }))
 
-// "Size=M, State=Hover": the variant's own property values, nothing else.
 export const variantLabel = (comp: LibraryVariantComponent): string =>
   Object.entries(comp.variantProps ?? {})
     .map(([k, v]) => `${k}=${v}`)
     .join(', ')
 
-// The variants in the family's own order: the order of the container's
-// children when it can be read, else the order variantComponents() returns.
+/**
+ * The variants in the family's own order: the order of the container's
+ * children when it can be read, else the order variantComponents() returns.
+ */
 export const orderedVariantsOf = (
   variants: Variants,
   container: VariantContainer | null
@@ -166,7 +167,6 @@ export const resolveTarget = (
   }
 
   if (c.kind === 'FAMILY' && c.variants) {
-    // A container has no single anatomy: document its first variant alone.
     const r = viaFirst(c.variants, c.container, null)
     if (r) return { ...r, kind: 'VARIANT' }
   }

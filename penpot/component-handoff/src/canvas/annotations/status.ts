@@ -18,9 +18,11 @@ const readOptions = (g: Group): { target: 'COMPONENT' | 'FAMILY' } => {
   }
 }
 
-// Freshness of every documentation of the current page. A documentation whose
-// target is gone is reported `missing` AND `outdated`, so that "update all"
-// also clears it (it is removed by UPDATE_DOCUMENTATIONS).
+/**
+ * Freshness of every documentation of the current page. A documentation whose
+ * target is gone is reported `missing` AND `outdated`, so that "update all"
+ * also clears it (it is removed by UPDATE_DOCUMENTATIONS).
+ */
 export const collectStatus = (): DocumentationsStatusData => {
   const page = currentPage()
   const items: Array<DocumentationStatus> = []

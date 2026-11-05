@@ -18,7 +18,6 @@ export interface RedlineCtx {
   placer: Placer
   sc: Scale
   style: AnnotationStyle
-  // Labels never leave these bounds (the specimen stage).
   bounds?: Rect
 }
 
@@ -31,7 +30,6 @@ const OUT = {
   right: { x: 1, y: 0 },
 }
 
-// Keeps a label rect inside the stage so it never reaches a title.
 const inside = (rc: RedlineCtx, r: Rect): Rect => {
   const b = rc.bounds
   if (!b) return r
@@ -43,8 +41,6 @@ const inside = (rc: RedlineCtx, r: Rect): Rect => {
   }
 }
 
-// Places a label by collision-aware search and draws it (with a leader to
-// `anchor` when it had to move away).
 const putLabel = (
   rc: RedlineCtx,
   text: string,
@@ -80,7 +76,6 @@ const putLabel = (
   pen.label(text, rect)
 }
 
-// Root: width line above/below and height line left/right, with extensions.
 const rootDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   const { pen, sc, style } = rc
   const wText = formatLength(r.w, style) + suffix
@@ -131,7 +126,6 @@ const rootDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   pen.label(hText, hRect)
 }
 
-// Marked part: dashed outline + one "W × H" label, inside when it fits.
 const partDimensions = (rc: RedlineCtx, r: Rect, suffix: string): void => {
   const { sc, style, placer, pen } = rc
   const text = `${formatLength(r.w, style)} × ${formatLength(r.h, style)}${suffix}`
@@ -240,8 +234,10 @@ const radius = (rc: RedlineCtx, part: Part): void => {
   }
 }
 
-// Redlines of ONE category, drawn on its own specimen. Parts carry live
-// shapes of the copy. Returns true when a measured part was rotated.
+/**
+ * Redlines of ONE category, drawn on its own specimen. Parts carry live
+ * shapes of the copy. Returns true when a measured part was rotated.
+ */
 export const drawRedlines = (
   rc: RedlineCtx,
   parts: Array<Part>,
@@ -264,10 +260,12 @@ export const drawRedlines = (
   return rotated
 }
 
-// Numbered markers in two aligned margin columns (left / right of the copy).
-// Each pin sits at its part's height when the column has room, pushed down
-// otherwise; its leader is orthogonal: along the row, one vertical elbow
-// when the pin was pushed, then along the part's row to the anchor.
+/**
+ * Numbered markers in two aligned margin columns (left / right of the copy).
+ * Each pin sits at its part's height when the column has room, pushed down
+ * otherwise; its leader is orthogonal: along the row, one vertical elbow
+ * when the pin was pushed, then along the part's row to the anchor.
+ */
 export const drawMarkers = (
   rc: RedlineCtx,
   parts: Array<Part>,
@@ -324,7 +322,6 @@ export const drawMarkers = (
     placer.commit(pr)
     const cy = pin.y + d / 2
     const edge = pin.left ? x + d : x
-    // Elbow lane between the column and the copy, staggered per pin.
     const laneX =
       edge + (pin.left ? 1 : -1) * sc.gap * (2 + (lane++ % 4)) * 1.5
     leaders.push(() => {

@@ -22,7 +22,6 @@ import type { Shape } from '@penpot/plugin-types'
 import type { DocCtx, ViewBuild } from './shared'
 import type { PanelNode, TableRow } from '../panel'
 
-// The reference rows of one part: swatch | property | value + reference chip.
 const partRows = (dc: DocCtx, shape: Shape): Array<TableRow> => {
   const { panel, env, refs } = dc
   const sc = env.sc
@@ -32,7 +31,6 @@ const partRows = (dc: DocCtx, shape: Shape): Array<TableRow> => {
       env.style,
       refs
     )
-    // One table per part: swatch | property | value + reference chip.
     const rows: Array<TableRow> = []
     groups.forEach((g, gi) => {
       if (gi > 0) rows.push([])
@@ -61,7 +59,6 @@ const partRows = (dc: DocCtx, shape: Shape): Array<TableRow> => {
   return rows
 }
 
-// Widest part table, from a dry run whose shapes are dropped.
 export const colorsNeed = (dc: DocCtx): number => {
   if (dc.merged) return colorsNeedMerged(dc, dc.merged)
   const mark = dc.panel.mark()
@@ -74,9 +71,11 @@ export const colorsNeed = (dc: DocCtx): number => {
   return need
 }
 
-// COLORS: per color group, a specimen card (title + copy with part numbers)
-// followed by one card per part: a table of fills, strokes, typography and
-// effects: swatch, then token, else style, else raw.
+/**
+ * COLORS: per color group, a specimen card (title + copy with part numbers)
+ * followed by one card per part: a table of fills, strokes, typography and
+ * effects: swatch, then token, else style, else raw.
+ */
 export const buildColors = (dc: DocCtx): ViewBuild => {
   if (dc.merged) return buildColorsMerged(dc, dc.merged)
   const { panel, env } = dc

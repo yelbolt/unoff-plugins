@@ -3,7 +3,6 @@ import type { PartsDetail } from '../../app/types/annotations'
 import type { Part, PartPlan } from './parts'
 import type { Entry } from './groups'
 
-// One part of the UNION of every variant's parts, keyed by layer path + type.
 export interface MergedPart {
   n: number
   key: string
@@ -20,10 +19,12 @@ export interface MergedModel {
   parts: Array<MergedPart> // ordered by number; 0 is the root
 }
 
-// Numbering: the first variant keeps its own walk order (0..k); each later
-// variant then contributes its unseen parts, in walk order, after the last
-// number already given. A part absent from the first variant therefore has a
-// number but no marker on the specimen.
+/**
+ * Numbering: the first variant keeps its own walk order (0..k); each later
+ * variant then contributes its unseen parts, in walk order, after the last
+ * number already given. A part absent from the first variant therefore has a
+ * number but no marker on the specimen.
+ */
 export const buildMerged = (
   entries: Array<Entry>,
   depth: PartsDetail

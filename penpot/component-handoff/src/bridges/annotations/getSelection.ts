@@ -1,6 +1,5 @@
 import { digestSelection } from '../../canvas/annotations/selection'
 
-// GET_SELECTION and penpot 'selectionchange' -> SELECTION_CHANGED
 export const getSelection = (): void => {
   try {
     penpot.ui.sendMessage({

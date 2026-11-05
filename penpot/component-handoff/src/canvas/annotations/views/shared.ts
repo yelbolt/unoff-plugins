@@ -18,8 +18,10 @@ import type { DrawEnv } from '../commit'
 import type { Analysis } from '../analysis'
 import type { PartsDetail } from '../../../app/types/annotations'
 
-// A view: a title and its cards. Everything a card holds, specimen overlays
-// included, is fully drawn when the view is returned.
+/**
+ * A view: a title and its cards. Everything a card holds, specimen overlays
+ * included, is fully drawn when the view is returned.
+ */
 export interface ViewBuild {
   title?: PanelNode
   cards: Array<PanelNode> // packed into the grid by the documentation, by span
@@ -66,7 +68,6 @@ export const subheading = (dc: DocCtx, text: string): PanelNode =>
     name: 'Heading',
   })
 
-// A property name (Martian Mono, secondary).
 export const propCell = (dc: DocCtx, text: string, name = 'Property'): PanelNode =>
   dc.panel.text(text, {
     font: 'title',
@@ -75,8 +76,6 @@ export const propCell = (dc: DocCtx, text: string, name = 'Property'): PanelNode
     name,
   })
 
-// A value followed by its reference tag (token, style, raw) as a chip right
-// next to it.
 export const refValue = (dc: DocCtx, value: string, ref?: string): PanelNode =>
   ref
     ? dc.panel.box(
@@ -93,15 +92,12 @@ export const refValue = (dc: DocCtx, value: string, ref?: string): PanelNode =>
       )
     : dc.panel.text(value, { name: 'Value' })
 
-// Outer width of `span` columns: a known number.
 export const spanW = (dc: DocCtx, span: number): number =>
   span * dc.colW + (span - 1) * px(dc, LAYOUT.cardGap)
 
-// Width a card of `span` columns offers to its content: a known number.
 export const contentW = (dc: DocCtx, span: number): number =>
   spanW(dc, span) - px(dc, LAYOUT.cardPad) * 2
 
-// Estimated width a variant card needs (instance or table, plus padding).
 export const variantNeed = (
   sc: { k: number; font: number; pad: number },
   instanceW: number,
@@ -117,10 +113,12 @@ export const variantNeed = (
   )
 }
 
-// The size of a card: its span, its outer width and the width left to its
-// content. The span is the smallest one, from `span` up, whose content width
-// holds `need` (a specimen stage, a table). When even the whole grid is too
-// narrow, the card grows: it takes the full row and the width it needs.
+/**
+ * The size of a card: its span, its outer width and the width left to its
+ * content. The span is the smallest one, from `span` up, whose content width
+ * holds `need` (a specimen stage, a table). When even the whole grid is too
+ * narrow, the card grows: it takes the full row and the width it needs.
+ */
 export interface CardSize {
   span: number
   outer: number
@@ -138,15 +136,16 @@ export const sizeOf = (dc: DocCtx, span: number, need = 0): CardSize => {
   }
 }
 
-// A card size of exactly `span` columns: never widened. A table that needs
-// more is scaled down by the table itself.
+/**
+ * A card size of exactly `span` columns: never widened. A table that needs
+ * more is scaled down by the table itself.
+ */
 export const fixedSize = (dc: DocCtx, span: number): CardSize => ({
   span,
   outer: spanW(dc, span),
   inner: contentW(dc, span),
 })
 
-// Column width that lets `span` columns hold a content `need` wide.
 export const colWFor = (
   sc: { k: number },
   span: number,
@@ -157,9 +156,11 @@ export const colWFor = (
       span
   )
 
-// A card: a flex column of FIXED width (from its span) and fit height, on the
-// light brand surface. Its children that hold containers use fill width. The
-// documentation packs cards by span; `join` keeps one next to the previous.
+/**
+ * A card: a flex column of FIXED width (from its span) and fit height, on the
+ * light brand surface. Its children that hold containers use fill width. The
+ * documentation packs cards by span; `join` keeps one next to the previous.
+ */
 export const card = (
   dc: DocCtx,
   kids: Array<PanelNode>,
@@ -184,7 +185,6 @@ export const card = (
   return node
 }
 
-// A smaller box inside a card (an exploded part).
 export const subCard = (
   dc: DocCtx,
   kids: Array<PanelNode>,
@@ -199,8 +199,10 @@ export const subCard = (
     name,
   })
 
-// Sub-boxes of a wrapping flex row of FILL width: it wraps inside the card
-// holding it and grows downwards.
+/**
+ * Sub-boxes of a wrapping flex row of FILL width: it wraps inside the card
+ * holding it and grows downwards.
+ */
 export const wrapRows = (
   dc: DocCtx,
   nodes: Array<PanelNode>,
@@ -216,8 +218,6 @@ export const wrapRows = (
     })
   )
 
-// The variants a group covers: "All variants" when it covers every one, else
-// one prop=value line per variant. A component is titled by its name.
 export const groupLines = (dc: DocCtx, entries: Array<Entry>): Array<string> => {
   if (!dc.isFamily)
     return [
@@ -227,8 +227,6 @@ export const groupLines = (dc: DocCtx, entries: Array<Entry>): Array<string> => 
   return entries.map((e) => e.label)
 }
 
-// Component or family title: a title, or the variants a group covers as
-// chips in a fill-width wrapping row.
 export const titleBlock = (dc: DocCtx, entries: Array<Entry>): PanelNode => {
   const lines = groupLines(dc, entries)
   if (dc.isFamily && entries.length < dc.entries.length)
@@ -258,11 +256,13 @@ export interface Stage {
   copy: Shape
 }
 
-// Absolutely positioned content lives only here: a board with NO layout,
-// sized up front from the copy's own width and height plus fixed margins.
-// Everything (copy, redlines, markers, leaders) is drawn inside it, in
-// coordinates relative to its position at creation. Appended afterwards into
-// its card with fixed sizing, flex layout moves it and its children with it.
+/**
+ * Absolutely positioned content lives only here: a board with NO layout,
+ * sized up front from the copy's own width and height plus fixed margins.
+ * Everything (copy, redlines, markers, leaders) is drawn inside it, in
+ * coordinates relative to its position at creation. Appended afterwards into
+ * its card with fixed sizing, flex layout moves it and its children with it.
+ */
 export const makeStage = (
   dc: DocCtx,
   copy: Shape,
@@ -296,8 +296,10 @@ export const makeStage = (
   }
 }
 
-// Centres a fixed-size specimen in its card: a fill-width flex row whose
-// content is justified to the centre. No offset is ever computed.
+/**
+ * Centres a fixed-size specimen in its card: a fill-width flex row whose
+ * content is justified to the centre. No offset is ever computed.
+ */
 export const centered = (dc: DocCtx, node: PanelNode): PanelNode =>
   dc.panel.fillWidth(
     dc.panel.box([node], {

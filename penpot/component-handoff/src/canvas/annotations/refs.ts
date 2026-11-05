@@ -13,7 +13,6 @@ interface TypoEntry {
   letterSpacing: string
 }
 
-// Reference resolution context. Precedence: token, else style, else raw.
 export interface RefCtx {
   colors: Map<string, string> // color style id -> display name
   typos: Array<TypoEntry>
@@ -23,7 +22,6 @@ export interface RefCtx {
 const fullName = (e: { name: string; path: string }): string =>
   e.path ? `${e.path} / ${e.name}` : e.name
 
-// Tokens and styles are always resolved.
 export const makeRefCtx = (): RefCtx => remember('refs', buildRefCtx)
 
 const buildRefCtx = (): RefCtx => {
@@ -72,8 +70,10 @@ const same = (a: unknown, b: unknown): boolean => {
   return !isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 0.0001
 }
 
-// Typography styles have no readable reference: match the text values
-// exactly against the libraries. The result is "matched", never "applied".
+/**
+ * Typography styles have no readable reference: match the text values
+ * exactly against the libraries. The result is "matched", never "applied".
+ */
 export const matchTypography = (
   ctx: RefCtx,
   text: Text

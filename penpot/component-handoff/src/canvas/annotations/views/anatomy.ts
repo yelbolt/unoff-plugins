@@ -26,8 +26,6 @@ import type { DocCtx, ViewBuild } from './shared'
 import type { PanelNode, TableRow } from '../panel'
 import type { MergedModel } from '../merged'
 
-// A clone of one part, or a neutral placeholder when the platform refuses to
-// clone a nested shape.
 const cloneOf = (dc: DocCtx, shape: Shape): PanelNode => {
   const clone = safe(() => shape.clone())
   if (clone) {
@@ -42,9 +40,11 @@ const cloneOf = (dc: DocCtx, shape: Shape): PanelNode => {
   return { shape: ph, w: shape.width, h: shape.height }
 }
 
-// Compact anatomy (1 to 4 parts, specimen within 2 columns): a specimen card
-// of 2 columns and a parts card of 4. Otherwise a single card of 6. `body`
-// builds the parts content for a known content width.
+/**
+ * Compact anatomy (1 to 4 parts, specimen within 2 columns): a specimen card
+ * of 2 columns and a parts card of 4. Otherwise a single card of 6. `body`
+ * builds the parts content for a known content width.
+ */
 const anatomyCards = (
   dc: DocCtx,
   title: PanelNode,
@@ -74,8 +74,6 @@ const anatomyCards = (
   ]
 }
 
-// ANATOMY: one card per structure group. The assembled copy with numbered
-// parts, then the same parts pulled apart as small cards.
 export const buildAnatomy = (dc: DocCtx): ViewBuild => {
   if (dc.merged) return buildAnatomyMerged(dc, dc.merged)
   const { panel, env } = dc
@@ -139,9 +137,6 @@ export const buildAnatomy = (dc: DocCtx): ViewBuild => {
   }
 }
 
-// MERGED: one card for the whole family. The first variant carries the
-// numbered markers; the table lists every part of the union and the variants
-// it appears in (a component has no such column).
 const buildAnatomyMerged = (dc: DocCtx, model: MergedModel): ViewBuild => {
   const { panel, env } = dc
   const first = model.entries[0]

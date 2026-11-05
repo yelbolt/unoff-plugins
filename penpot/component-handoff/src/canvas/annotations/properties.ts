@@ -51,7 +51,9 @@ interface Env {
 const hex = (c?: string): string => (c ? c.toUpperCase() : '')
 const pct = (n: number): string => `${trimNumber(n * 100)}%`
 
-// token, else style, else raw. Returns null when there is nothing to show.
+/**
+ * token, else style, else raw. Returns null when there is nothing to show.
+ */
 const row = (
   key: string,
   label: string,
@@ -287,7 +289,6 @@ const typography = (s: Shape, { style, ctx }: Env): Array<PropertyRow> => {
   const size = parseNumericLike(t.fontSize)
   const lh = parseNumericLike(t.lineHeight)
   const ls = parseNumericLike(t.letterSpacing)
-  // Properties a matched style covers (when no token backs them).
   const covered = (token?: string) => (token ? undefined : matched)
   const styleLabel = (name: string) => `${name} ${tr('doc.matched')}`
   const rows: Array<PropertyRow | null> = []
@@ -407,7 +408,6 @@ const READERS: Record<PropFamily, (s: Shape, e: Env) => Array<PropertyRow>> = {
   EFFECTS: effects,
 }
 
-// A token that references another token carries its chain down to the value.
 const withChain =
   (ctx: RefCtx) =>
   (r: PropertyRow): PropertyRow => {

@@ -5,8 +5,6 @@ import type { Drive } from '../analysis'
 import type { DocCtx, ViewBuild } from './shared'
 import type { TableRow } from '../panel'
 
-// What a set of drives amounts to, one line per part:
-// `Button: height, padding` / `Icon: appears with this value`.
 const linesOf = (dc: DocCtx, drives: Array<Drive>, suffix = ''): Array<string> => {
   const byPart = new Map<string, { props: Array<string>; presence: boolean }>()
   for (const d of drives) {
@@ -23,11 +21,13 @@ const linesOf = (dc: DocCtx, drives: Array<Drive>, suffix = ''): Array<string> =
   return out
 }
 
-// PROPS (family only): the component's API, read the other way round from the
-// measurement and color tables. One row per variant property, with its values
-// and what it drives; a property that drives nothing says so; values no single
-// property explains are listed under Combined. Read from the same analysis as
-// the machine contract.
+/**
+ * PROPS (family only): the component's API, read the other way round from the
+ * measurement and color tables. One row per variant property, with its values
+ * and what it drives; a property that drives nothing says so; values no single
+ * property explains are listed under Combined. Read from the same analysis as
+ * the machine contract.
+ */
 export const buildProps = (dc: DocCtx): ViewBuild | null => {
   if (!dc.isFamily || dc.order.length === 0) return null
   const { panel, analysis } = dc
@@ -62,7 +62,6 @@ export const buildProps = (dc: DocCtx): ViewBuild | null => {
       panel.text(involved.join(' · '), { name: 'Values' }),
       linesCell(
         dc,
-        // Each line also names the group that explains the value.
         [
           ...new Set(
             combined.flatMap((d) =>

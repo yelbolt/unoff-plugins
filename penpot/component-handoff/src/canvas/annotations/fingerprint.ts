@@ -8,15 +8,17 @@ import { remember } from './memo'
 import { round2 } from './geometry'
 import type { Shape, Text } from '@penpot/plugin-types'
 
-// Stable hash of a documented target, stored at generation and recomputed on
-// contentsave. It covers what the documentation shows: names, structure,
-// size, layout paddings and gaps, radii, fills (refs included), strokes, text
-// properties, shadows, blurs and `shape.tokens`.
-//
-// Determinism: object keys are written in a fixed order, token keys are
-// sorted, variants are ordered by their property values. The root's absolute
-// x/y is NOT covered, so moving the component never flags it; children carry
-// their offset from the root, which is stable under a move.
+/**
+ * Stable hash of a documented target, stored at generation and recomputed on
+ * contentsave. It covers what the documentation shows: names, structure,
+ * size, layout paddings and gaps, radii, fills (refs included), strokes, text
+ * properties, shadows, blurs and `shape.tokens`.
+ *
+ * Determinism: object keys are written in a fixed order, token keys are
+ * sorted, variants are ordered by their property values. The root's absolute
+ * x/y is NOT covered, so moving the component never flags it; children carry
+ * their offset from the root, which is stable under a move.
+ */
 
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json }
 
@@ -146,7 +148,6 @@ const describe = (shape: Shape, origin: { x: number; y: number }, isRoot: boolea
   return out
 }
 
-// cyrb53: small, deterministic, no dependency.
 const hash = (str: string): string => {
   let h1 = 0xdeadbeef
   let h2 = 0x41c6ce57
@@ -163,8 +164,10 @@ const hash = (str: string): string => {
 const subtree = (root: Shape): Json =>
   describe(root, { x: root.x, y: root.y }, true)
 
-// `root` is the documented root: a variant container (FAMILY: every
-// variant's main is covered) or a component / board (its own subtree).
+/**
+ * `root` is the documented root: a variant container (FAMILY: every
+ * variant's main is covered) or a component / board (its own subtree).
+ */
 export const fingerprintOf = (root: Shape): string =>
   // Shared by the status refresh, the contract refresh and a generation.
   remember(`fp:${root.id}`, () => computeFingerprint(root))

@@ -18,7 +18,7 @@ export const getSelectionBlocker = (
   kind: AnnotationKind,
   selection: SelectionDigest
 ): RefusalReason | null => {
-  void kind // NOTE and DOCUMENTATION share the same selection rules
+  void kind
 
   if (selection.count === 0) return 'NO_SELECTION'
   if (selection.containsAnnotation) return 'ANNOTATION_SELECTED'
@@ -41,8 +41,6 @@ export const canDocumentFamily = (item: SelectionItem | null): boolean =>
 
 export const getDefaultTarget = (item: SelectionItem | null): DocTarget =>
   item !== null && item.componentKind === 'FAMILY' ? 'FAMILY' : 'COMPONENT'
-
-// ── Derivations from the shared documentation settings ──────────────────────
 
 export const getTarget = (
   selection: SelectionDigest,
@@ -77,7 +75,6 @@ export const isFamilyFiltered = (
     : false
 }
 
-// Counts the variants whose every value is ticked.
 export const getVariantCounts = (
   selection: SelectionDigest,
   settings: DocSettings
@@ -171,8 +168,7 @@ export const buildGeneratedRows = (
         documentation: null,
         contract,
         outdated: contract.outdated && !contract.missing,
-        updateWith:
-          contract.outdated && !contract.missing ? 'CONTRACT' : null,
+        updateWith: contract.outdated && !contract.missing ? 'CONTRACT' : null,
       })
     )
 

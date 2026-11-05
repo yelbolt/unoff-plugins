@@ -27,7 +27,6 @@ export const normalizeFilter = (f: unknown): VariantFilter | null => {
   return Object.keys(out).length > 0 ? out : null
 }
 
-// Views in canonical order, VARIANTS dropped for a COMPONENT target.
 export const sanitizeViews = (
   views: unknown,
   target: DocTarget
@@ -39,7 +38,9 @@ export const sanitizeViews = (
       !((v === 'VARIANTS' || v === 'PROPS') && target === 'COMPONENT')
   )
 
-// Options come from plugin data (string) and may be missing or malformed.
+/**
+ * Options come from plugin data (string) and may be missing or malformed.
+ */
 export const readOptions = (raw: string): GenerateDocumentationData => {
   try {
     const o = JSON.parse(raw || '{}')

@@ -11,8 +11,10 @@ export interface Part {
   idx: Array<number> // child indexes (visible children) from the root
 }
 
-// MAIN = direct children, ALL = every nested visible layer. Hidden parts are
-// skipped.
+/**
+ * MAIN = direct children, ALL = every nested visible layer. Hidden parts are
+ * skipped.
+ */
 export const walkParts = (root: Shape, depth: PartsDetail): Array<Part> => {
   const out: Array<Part> = []
   const max = depth === 'ALL' ? Infinity : 1
@@ -48,9 +50,11 @@ export const walkParts = (root: Shape, depth: PartsDetail): Array<Part> => {
   return out
 }
 
-// The numbering, computed ONCE. Anatomy, measurements and colors copies are
-// structural clones, so each one binds this plan to its own shapes instead of
-// walking again: the numbers cannot drift between views.
+/**
+ * The numbering, computed ONCE. Anatomy, measurements and colors copies are
+ * structural clones, so each one binds this plan to its own shapes instead of
+ * walking again: the numbers cannot drift between views.
+ */
 export interface PartPlan {
   n: number
   level: number

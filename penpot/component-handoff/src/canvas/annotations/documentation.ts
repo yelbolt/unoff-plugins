@@ -34,9 +34,11 @@ import type { PanelNode } from './panel'
 import type { Pen } from './draw'
 import type { DrawEnv, DrawResult } from './commit'
 
-// The documentation board: a flex column holding the header, then
-// one section per ticked view (VARIANTS, ANATOMY, MEASUREMENTS, COLORS), each
-// a full-width title over its cards.
+/**
+ * The documentation board: a flex column holding the header, then
+ * one section per ticked view (VARIANTS, ANATOMY, MEASUREMENTS, COLORS), each
+ * a full-width title over its cards.
+ */
 export const drawDocumentation = (
   env: DrawEnv,
   res: Resolved,
@@ -59,10 +61,8 @@ export const drawDocumentation = (
     const refs = makeRefCtx()
     const filter = isFamily ? (data.variantFilter ?? null) : null
     const fullOrder = res.variants ? variantPropertiesOf(res.variants) : []
-    // One analysis, shared with the contract generated right after.
     const analysis = analysisFor(res, isFamily, filter, 'ANY_VARIANTS')
     const { entries, order } = analysis
-    // Header line, only when the filter actually excludes something.
     const total = isFamily ? countMatching(res, null) : 0
     const restricted = fullOrder.flatMap((o, i) =>
       filter?.[o.name] && order[i].values.length < o.values.length
@@ -100,8 +100,6 @@ export const drawDocumentation = (
           )
         : []
 
-    // Grid column width, from known numbers: the minimum column, widened when
-    // a variant card needs more, capped.
     const gridGap = sc.k * LAYOUT.cardGap
     const colW = Math.min(
       LAYOUT.gridColumnMax * sc.k,
@@ -167,7 +165,6 @@ export const drawDocumentation = (
     const sections: Array<PanelNode> = [buildHeader(dc)]
     const section = (b: ViewBuild | null) => {
       if (!b) return
-      // Units: a card flagged `join` sticks to the previous one.
       const units: Array<Array<PanelNode>> = []
       for (const c of b.cards)
         if (c.join && units.length > 0) units[units.length - 1].push(c)

@@ -52,7 +52,6 @@ const refLine = (dc: DocCtx, r: Ref, prefix = ''): PanelNode => {
     })
   }
 
-// The reference rows of one part of the union.
 const partRows = (dc: DocCtx, part: MergedPart): Array<TableRow> => {
   const { panel, env, refs } = dc
   const sc = env.sc
@@ -63,7 +62,6 @@ const partRows = (dc: DocCtx, part: MergedPart): Array<TableRow> => {
         collectProperties(p.shape, [...COLOR_FAMILIES], env.style, refs)
       )
 
-    // Families and keys, in first-seen order.
     const families: Array<{
       family: PropertyGroup['family']
       keys: Array<{ key: string; label: string }>
@@ -148,7 +146,6 @@ const partRows = (dc: DocCtx, part: MergedPart): Array<TableRow> => {
   return rows
 }
 
-// Widest part table, from a dry run whose shapes are dropped.
 export const colorsNeedMerged = (dc: DocCtx, model: MergedModel): number => {
   const mark = dc.panel.mark()
   const need = Math.max(
@@ -159,9 +156,11 @@ export const colorsNeedMerged = (dc: DocCtx, model: MergedModel): number => {
   return need
 }
 
-// COLORS, merged: ONE specimen of the first variant with the part numbers,
-// then one card per part of the union. A reference that differs between
-// variants is keyed by the property that drives it.
+/**
+ * COLORS, merged: ONE specimen of the first variant with the part numbers,
+ * then one card per part of the union. A reference that differs between
+ * variants is keyed by the property that drives it.
+ */
 export const buildColorsMerged = (
   dc: DocCtx,
   model: MergedModel

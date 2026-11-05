@@ -28,8 +28,6 @@ export type Presence =
   | { kind: 'driven'; property: string; values: Array<string> }
   | { kind: 'variants'; labels: Array<string> }
 
-// Property names to try: the family's order first, then any other name found
-// on the samples.
 const namesOf = (
   samples: Array<{ props: Record<string, string> }>,
   order: Array<PropertyOrder>
@@ -40,11 +38,13 @@ const namesOf = (
   return names
 }
 
-// The single property that functionally determines the value: for each of its
-// values, every sample sharing it has the same key. Among several, the one
-// with the fewest distinct values wins; a tie goes to the earlier property in
-// the family's order. Null when none qualifies (or there is nothing to
-// explain).
+/**
+ * The single property that functionally determines the value: for each of its
+ * values, every sample sharing it has the same key. Among several, the one
+ * with the fewest distinct values wins; a tie goes to the earlier property in
+ * the family's order. Null when none qualifies (or there is nothing to
+ * explain).
+ */
 export const findDriver = (
   samples: Array<{ props: Record<string, string>; key: string }>,
   order: Array<PropertyOrder>
@@ -73,8 +73,6 @@ export const findDriver = (
   return best?.name ?? null
 }
 
-// Property values sorted by the family's own order (unknown values last, in
-// encounter order).
 const sortValues = (
   values: Array<string>,
   name: string,
@@ -118,8 +116,6 @@ export const resolveValue = <T>(
   }
 }
 
-// Where a part appears: everywhere, else the values of the property that
-// explains its presence, else the variants one by one.
 export const resolvePresence = (
   all: Array<{ label: string; props: Record<string, string>; present: boolean }>,
   order: Array<PropertyOrder>
@@ -151,20 +147,19 @@ export const presenceLines = (p: Presence, allLabel: string): Array<string> =>
       ? [`${p.property}=${p.values.join(' · ')}`]
       : p.labels
 
-// `Size: sm 32 · md 40 · lg 48`
 export const drivenText = (
   property: string,
   items: Array<{ value: string; text: string }>
 ): string => `${property}: ${items.map((i) => `${i.value} ${i.text}`).join(' · ')}`
 
-// `Variant=a, Size=b: 40`
 export const variantText = (label: string, text: string): string =>
   `${label}: ${text}`
 
-// ── Combined drivers (machine contract, Props view) ────────────────────────
-// When no single property explains a value, the smallest group of properties
-// that does: same combined values, same value. Groups are tried by size, then
-// in the family's property order. Falls back to every property.
+/**
+ * When no single property explains a value, the smallest group of properties
+ * that does: same combined values, same value. Groups are tried by size, then
+ * in the family's property order. Falls back to every property.
+ */
 
 const combinations = <T>(items: Array<T>, size: number): Array<Array<T>> => {
   if (size === 0) return [[]]
@@ -200,7 +195,6 @@ export const findCombinedDriver = (
   return names
 }
 
-// `"sm|hover"`: the combined values of a group of properties.
 export const combinedKey = (
   props: Record<string, string>,
   by: Array<string>
@@ -214,8 +208,10 @@ export type Keyed<T> =
       items: Array<{ value: string; data: T }> // `value` is the property value, or "a|b" when combined
     }
 
-// resolveValue, but a value no single property explains is keyed by the
-// combined values of the smallest group of properties that does.
+/**
+ * resolveValue, but a value no single property explains is keyed by the
+ * combined values of the smallest group of properties that does.
+ */
 export const resolveKeyed = <T>(
   samples: Array<Sample<T>>,
   order: Array<PropertyOrder>
