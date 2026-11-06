@@ -87,8 +87,7 @@ const suggestTokenName = (
   group: Pick<DeviationGroup, 'category' | 'rawValue'>
 ): string => `${group.category}.${slugifyTokenNameSegment(group.rawValue)}`
 
-// "Create token" has no useful target for a lineHeight-only group — there's
-// no discrete Penpot TokenType for lineHeight alone (see auditableProperties.ts).
+// Penpot has no discrete TokenType for lineHeight alone, so "Create token" has no target.
 const isCreateTokenEligible = (group: DeviationGroup): boolean =>
   group.tier !== 'EXACT' && group.occurrences[0]?.propertyPath !== 'lineHeight'
 
@@ -279,7 +278,6 @@ export default class DeviationGroupRow extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     const { group } = this.props
     this.previousApplyInProgressId = $applyInProgressId.get()
@@ -290,8 +288,6 @@ export default class DeviationGroupRow extends PureComponent<
     this.unsubscribeApplied = $appliedGroupIds.subscribe((value) =>
       this.setState({ isApplied: value.has(group.id) })
     )
-    // Individually-applied occurrences are tracked centrally (see
-    // applyTokenApplied in stores/audit.ts); this row just mirrors the store.
     this.unsubscribeAppliedOccurrenceKeys = $appliedOccurrenceKeys.subscribe(
       (value) => this.setState({ appliedOccurrenceKeys: value })
     )
@@ -334,8 +330,6 @@ export default class DeviationGroupRow extends PureComponent<
         this.setState({ tokenCreateInProgressId: id })
       }
     )
-    // A fresh list arrives every time this row's dialog opens — default to
-    // the first set only when nothing's been picked yet.
     this.unsubscribeActiveTokenSets = $activeTokenSets.subscribe((sets) => {
       const nextSets = sets ? [...sets] : null
       this.setState((previousState) => ({
@@ -343,8 +337,6 @@ export default class DeviationGroupRow extends PureComponent<
         selectedSetId: previousState.selectedSetId ?? nextSets?.[0]?.id ?? null,
       }))
     })
-    // $selectedTokenIds is the single source of truth so it survives a row
-    // remount; seed this row's default without clobbering an existing pick.
     const defaultCandidate = pickDefaultCandidate(group.candidateTokens)
     if (defaultCandidate)
       seedSelectedTokenId(group.id, defaultCandidate.tokenId)
@@ -365,7 +357,6 @@ export default class DeviationGroupRow extends PureComponent<
     if (this.unsubscribeSelectedTokenId) this.unsubscribeSelectedTokenId()
   }
 
-  // Direct
   occurrenceKey = (occurrence: AuditOccurrence) =>
     buildOccurrenceKey(this.props.group.id, occurrence)
 
@@ -421,11 +412,7 @@ export default class DeviationGroupRow extends PureComponent<
     )
   }
 
-  // Shared by the group-apply and occurrence-apply branches of the
-  // $applyInProgressId subscription below. `announcedCount === 0` with
-  // nothing skipped is its own outcome, not a failure — usually a group
-  // that's already compliant (see applyTokenApplied's isAlreadyResolved
-  // check in stores/audit.ts).
+  // `announcedCount === 0` with nothing skipped is not a failure: the group was already compliant.
   notifyApplyOutcome = (result: ApplyTokenResult | null) => {
     if (!result) return
     if (result.appliedCount > 0) this.notifyApplySuccess(result.appliedCount)
@@ -455,7 +442,6 @@ export default class DeviationGroupRow extends PureComponent<
     )
   }
 
-  // Handlers
   handleToggleExpand = () => toggleExpandedGroup(this.props.group.id)
 
   handleSelectCandidate = (tokenId: string) => () =>
@@ -466,10 +452,6 @@ export default class DeviationGroupRow extends PureComponent<
       isCreateTokenDialogOpen: true,
       tokenNameDraft: suggestTokenName(this.props.group),
       createTokenError: null,
-      // Reset the pick — the subscription in componentDidMount repopulates
-      // it (to the first set) once the fresh list below comes back, or
-      // immediately if $activeTokenSets already held one from an earlier
-      // dialog in this session.
       selectedSetId: null,
     })
     sendPluginMessage({ pluginMessage: { type: 'GET_ACTIVE_TOKEN_SETS' } }, '*')
@@ -682,7 +664,6 @@ export default class DeviationGroupRow extends PureComponent<
     )
   }
 
-  // Render
   render() {
     const { t, group } = this.props
     const {
@@ -699,13 +680,10 @@ export default class DeviationGroupRow extends PureComponent<
       selectedSetId,
     } = this.state
     const isApplying = applyInProgressId === group.id
-    // Individually-applied occurrences are removed from view entirely; the
-    // header count follows the same live total.
     const remainingOccurrences = group.occurrences.filter(
       (occurrence) => !appliedOccurrenceKeys.has(this.occurrenceKey(occurrence))
     )
 
-    // Both ownership warnings share one chip instead of two identical icons.
     const warnings = [
       group.instanceOverrideCount > 0 &&
         t('tokenLint.report.group.instanceOverrideCount', {

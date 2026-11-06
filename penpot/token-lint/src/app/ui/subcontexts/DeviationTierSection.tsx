@@ -47,7 +47,6 @@ const GROUP_SEPARATOR_STYLE: Record<string, string> = {
 }
 
 export default class DeviationTierSection extends PureComponent<DeviationTierSectionProps> {
-  // Render
   render() {
     const { tier, groups, scope, categories, options, t } = this.props
 

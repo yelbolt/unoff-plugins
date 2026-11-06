@@ -14,11 +14,6 @@ import type {
   DeviationTier,
 } from '../types/audit'
 
-// Audit run + report lifecycle — see specs/token-list-audit-and-application.md.
-// Populated exclusively from confirmed Canvas → UI messages, routed in
-// App.tsx's handleMessage. Components never mutate these atoms directly
-// from a UI event handler except for the local-only $expandedGroupIds toggle.
-
 export type AuditStatus =
   'IDLE' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ERROR'
 
@@ -27,74 +22,37 @@ export const $auditStatus = atom<AuditStatus>('IDLE')
 export const $auditProgress = atom<AuditProgress | null>(null)
 export const $auditReport = atom<AuditReport | null>(null)
 
-/** Local-only UI state — which deviation groups are expanded in the report. */
 export const $expandedGroupIds = atom<Set<string>>(new Set())
 
-/**
- * Id of the deviation group currently being applied (OCCURRENCE/GROUP mode),
- * or the literal 'ALL_EXACT_MATCHES' during a bulk apply. Drives the
- * disabled/spinner state of the acting button. Cleared back to null once
- * TOKEN_APPLIED is received.
- */
+/** Group id being applied, or 'ALL_EXACT_MATCHES' during a bulk apply. */
 export const $applyInProgressId = atom<string | null>(null)
 
-/** Most recent apply result — discriminated by `requestedMode`. */
 export const $lastApplyResult = atom<ApplyTokenResult | null>(null)
 
-/** Local "Applied ✓" marking — never re-derived from a re-scan. A group
- * lands here once it has nothing left to show (bulk/group apply, or every
- * occurrence applied one by one). `AuditReport` filters these out of the
- * visible tiers and the live coverage figures. */
+/** Groups with nothing left to apply; never re-derived from a re-scan. */
 export const $appliedGroupIds = atom<Set<string>>(new Set())
 
-/** Local "occurrence removed from view" marking, keyed via `buildOccurrenceKey`.
- * Lets `AuditReport` compute live coverage inside a group that isn't fully done yet. */
+/** Applied occurrences, keyed via `buildOccurrenceKey`. */
 export const $appliedOccurrenceKeys = atom<Set<string>>(new Set())
 
-/**
- * Id of the deviation group currently having a token created for it (see
- * createToken.ts / DeviationGroupRow's "Create token" action). Drives the
- * create-token dialog's loading state. Cleared back to null once
- * TOKEN_CREATED is received.
- */
 export const $tokenCreateInProgressId = atom<string | null>(null)
 
-/** Most recent create-token result. */
 export const $lastTokenCreateResult = atom<CreateTokenResult | null>(null)
 
-/**
- * Active token sets for the create-token dialog's "which set?" picker.
- * `null` means "not fetched yet" (distinct from `[]`) — DeviationGroupRow
- * requests a fresh list every time the dialog opens, since a set can be
- * activated/deactivated between opens.
- */
+/** `null` means not fetched yet (distinct from `[]`); refetched on every dialog open. */
 export const $activeTokenSets = atom<TokenSetSummary[] | null>(null)
 
-/**
- * Which candidate token is currently selected in each EXACT group's own
- * dropdown — keyed by DeviationGroup.id. Lifted out of DeviationGroupRow's
- * local state so it survives a row remount (e.g. the category-tab filter
- * reshuffling groups). This is the single source of truth, not a mirror of it.
- */
+/** Selected candidate token per DeviationGroup.id; lives here to survive row remounts. */
 export const $selectedTokenIds = atom<Record<string, string>>({})
 
-/** Live selection count from the Canvas — drives the Selection scope option. */
 export const $selectionCount = atom<number>(0)
 
-/** Result of the last SELECT_LAYERS_ON_CANVAS round-trip, for row feedback. */
 export const $lastLayerSelection = atom<{
   requested: number
   resolved: number
   selectionApplied: boolean
 } | null>(null)
 
-// ── Actions ─────────────────────────────────────────────────────────────
-
-/**
- * Confirms the run once Canvas responds with AUDIT_STARTED. `$auditRequest`
- * is already populated by AuditSetup before sending RUN_AUDIT, so this only
- * needs the confirmed shape estimate to seed progress.
- */
 export const startAudit = (totalShapesEstimate: number) => {
   $auditStatus.set('RUNNING')
   $auditProgress.set({
@@ -158,14 +116,11 @@ export const setApplyInProgress = (id: string | null) => {
   $applyInProgressId.set(id)
 }
 
-/** Explicit user pick — always overwrites. */
 export const setSelectedTokenId = (groupId: string, tokenId: string) => {
   $selectedTokenIds.set({ ...$selectedTokenIds.get(), [groupId]: tokenId })
 }
 
-/** Row-mount default — never overwrites an existing pick (a remount, e.g.
- * from the category-tab filter reshuffling groups, must not clobber a
- * choice the user already made). */
+/** Row-mount default; never overwrites an existing pick. */
 export const seedSelectedTokenId = (groupId: string, tokenId: string) => {
   const current = $selectedTokenIds.get()
   if (current[groupId] !== undefined) return
@@ -203,25 +158,7 @@ const countAppliedOccurrencesForGroup = (groupId: string): number =>
     (key) => groupIdFromOccurrenceKey(key) === groupId
   ).length
 
-/**
- * Routes a TOKEN_APPLIED result to the store: records it, and marks the
- * relevant group(s) "Applied ✓" locally when something was actually written
- * (`appliedCount > 0`), or when there was nothing left to write in the
- * first place (`isAlreadyResolved`) — a defensive fallback for the case
- * where a write actually landed on canvas but this pass still reports 0
- * applied (e.g. after Penpot's own eventual-consistency lag outlasted
- * `verifyIssuedWrites`'s retries), which would otherwise leave the group
- * stuck forever re-offering an apply action that can't do anything.
- *
- * - bulk ('ALL_EXACT_MATCHES'): every exact group that existed when the
- *   request was sent is considered done.
- * - GROUP-mode: that one group.
- * - OCCURRENCE-mode: just that occurrence, via `$appliedOccurrenceKeys` —
- *   unless it was the last remaining occurrence in its group, in which case
- *   the group itself is marked "Applied ✓" too. The originating id is read
- *   from `$applyInProgressId` before it gets cleared, so this must run
- *   before `setApplyInProgress(null)`.
- */
+/** Reads the originating id from `$applyInProgressId`, so must run before `setApplyInProgress(null)`. */
 export const applyTokenApplied = (result: ApplyTokenResult) => {
   const inProgressId = $applyInProgressId.get()
   $lastApplyResult.set(result)
@@ -262,11 +199,6 @@ const TIER_KEY: Record<DeviationTier, 'exact' | 'near' | 'orphan'> = {
   ORPHAN: 'orphan',
 }
 
-/**
- * Moves a group to its freshly re-matched tier after a token was created for
- * its raw value. Coverage is untouched: creating a token doesn't write
- * anything to a shape, so nothing becomes compliant until it's applied.
- */
 const moveGroupToTier = (
   report: AuditReport,
   groupId: string,
@@ -295,18 +227,7 @@ const moveGroupToTier = (
   return { ...report, tiers: nextTiers }
 }
 
-/**
- * Routes a TOKEN_CREATED result to the store. The success signal is set
- * BEFORE the report patch below: the toast fires from DeviationGroupRow's
- * subscription to `$lastTokenCreateResult`, and that same row is about to
- * be unmounted by the report patch (a group changing tier), so the toast
- * must reach the still-mounted instance first.
- *
- * When the new token matched EXACT, createToken.ts already applied it to
- * every occurrence (its `applyResult`) — routed through the same
- * `applyTokenApplied` pipeline a manual apply uses, so the group is marked
- * "Applied ✓" instead of sitting there newly-EXACT and unapplied.
- */
+/** The success signal is set before the report patch: the toast fires from the row that the patch then unmounts. */
 export const applyTokenCreated = (result: CreateTokenResult) => {
   $lastTokenCreateResult.set(result)
 

@@ -29,9 +29,7 @@ import {
 import { ConfigContextType } from '../../config/ConfigContext'
 
 interface AuditSetupProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 interface AuditSetupState {
   scope: AuditScopeKind
@@ -107,7 +105,6 @@ export default class AuditSetup extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeSelectionCount = $selectionCount.subscribe((value) => {
       this.setState((previous) => ({
@@ -124,7 +121,6 @@ export default class AuditSetup extends PureComponent<
     if (this.unsubscribeSelectionCount) this.unsubscribeSelectionCount()
   }
 
-  // Handlers
   handleScopeChange = (e: Event) =>
     this.setState({
       scope: (e.currentTarget as HTMLInputElement).value as AuditScopeKind,
@@ -171,7 +167,6 @@ export default class AuditSetup extends PureComponent<
     )
   }
 
-  // Render
   render() {
     const { t } = this.props
     const {

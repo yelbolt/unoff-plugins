@@ -1,14 +1,10 @@
 import { atom, computed } from 'nanostores'
 
-// --- Types ---
-
 interface ItemsHistoryState {
   past: string[][]
   present: string[]
   future: string[][]
 }
-
-// --- Atoms ---
 
 export const $itemsHistory = atom<ItemsHistoryState>({
   past: [],
@@ -16,12 +12,8 @@ export const $itemsHistory = atom<ItemsHistoryState>({
   future: [],
 })
 
-// --- Computed (read-only, derived) ---
-
 export const $canUndo = computed($itemsHistory, (h) => h.past.length > 0)
 export const $canRedo = computed($itemsHistory, (h) => h.future.length > 0)
-
-// --- Actions ---
 
 export const pushItems = (newPresent: string[]): void => {
   const { past, present } = $itemsHistory.get()

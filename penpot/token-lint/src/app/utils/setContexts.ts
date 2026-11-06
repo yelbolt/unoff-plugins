@@ -48,7 +48,6 @@ export const setContexts = (
       isNew: featuresList.AUDIT_REPORT.isNew(),
       isActive: featuresList.AUDIT_REPORT.isActive(),
     },
-    // Add more contexts as needed
   ]
 
   const filteredContexts = contexts.filter((context) => {

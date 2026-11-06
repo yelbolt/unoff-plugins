@@ -181,9 +181,7 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  // Lifecycle
   componentDidMount = async () => {
-    // Load
     sendPluginMessage(
       {
         pluginMessage: {
@@ -237,7 +235,6 @@ class App extends Component<AppProps, AppState> {
       userConsent: $userConsent.get(),
     })
 
-    // Authentication
     if (getSupabase() !== null && this.props.config.env.isSupabaseEnabled)
       getSupabase()?.auth.onAuthStateChange((event, session) => {
         const actions: {
@@ -294,7 +291,6 @@ class App extends Component<AppProps, AppState> {
         return actions[event]?.()
       })
 
-    // Listener
     window.addEventListener(
       'platformMessage',
       this.handleMessage as EventListener
@@ -314,7 +310,6 @@ class App extends Component<AppProps, AppState> {
     window.removeEventListener('resize', this.handleResize)
   }
 
-  // Handlers
   handleResize = () => {
     this.setState({
       documentWidth: document.documentElement.clientWidth,
@@ -736,7 +731,6 @@ class App extends Component<AppProps, AppState> {
       : ''
   }
 
-  // Direct Actions
   onDetectBrowserLanguage = (userLanguage: Language) => {
     const browserLang = navigator.language
     const currentLang = userLanguage
@@ -783,7 +777,6 @@ class App extends Component<AppProps, AppState> {
     )
   }
 
-  // Render
   render() {
     if (this.state.isLoaded)
       return (

@@ -1,12 +1,4 @@
-// Domain types for the design-token model this plugin audits against.
-// Separate from `audit.ts` (the audit-run/report domain).
-
-/**
- * Product-facing audit categories. Not 1:1 with Penpot's own `TokenType`
- * union — `buildResolvedIndex.ts` maps one or more Penpot token types onto
- * each category (e.g. `typography` covers the composite token plus the
- * granular fontSizes/fontWeights/letterSpacing/fontFamilies tokens).
- */
+/** Not 1:1 with Penpot's `TokenType`; `buildResolvedIndex.ts` maps one or more token types onto each category. */
 export type TokenCategory =
   | 'color'
   | 'spacing'
@@ -16,7 +8,6 @@ export type TokenCategory =
   | 'opacity'
   | 'rotation'
 
-/** One entry in the resolved-value index built from active token sets before matching starts. */
 export interface ResolvedTokenIndexEntry {
   tokenId: string
   tokenName: string // full path, e.g. 'color.action.primary'
@@ -42,7 +33,6 @@ export interface MatchedToken {
   residual?: number
 }
 
-/** One active token set, for the "which set?" picker in the create-token dialog. */
 export interface TokenSetSummary {
   id: string
   name: string

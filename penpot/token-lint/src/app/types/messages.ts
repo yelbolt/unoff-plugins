@@ -21,12 +21,8 @@ export interface PluginMessageData {
   data: any
 }
 
-// ── Token Lint message contract ──────────────────────────────────────────
-// UI → Canvas is VERB_NOUN, Canvas → UI is NOUN_PAST_TENSE (see core.md).
-// A new action here means three coordinated edits on Penpot (loadUI.ts IS
-// both the Canvas handler and the routing entry): the union member below,
-// the bridge function in src/bridges/audit/, and the actions-map key in
-// src/bridges/loadUI.ts.
+// UI -> Canvas is VERB_NOUN, Canvas -> UI is NOUN_PAST_TENSE.
+// A new action also needs a bridge function in src/bridges/audit/ and an actions-map key in src/bridges/loadUI.ts.
 
 export type UIMessage =
   | { type: 'RUN_AUDIT'; data: RunAuditRequest }

@@ -42,9 +42,7 @@ import {
 import { ConfigContextType } from '../../config/ConfigContext'
 
 interface AuditReportProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 type CategoryTab = TokenCategory | 'ALL'
 
@@ -73,16 +71,7 @@ const SKIP_REASON_ORDER: Array<ApplySkipReason> = [
   'WRITE_FAILED',
 ]
 
-/**
- * Recomputes coverage from what's actually still non-compliant right now,
- * instead of the static figure from the original audit run. `auditable` per
- * category never changes, and every auditable property is either counted
- * compliant at audit time or is exactly one occurrence inside exactly one
- * DeviationGroup, so `compliant = auditable - stillNonCompliant` holds. A
- * group in `appliedGroupIds` contributes 0; otherwise each occurrence is
- * checked against `appliedOccurrenceKeys` individually, since a group can
- * be partially resolved without disappearing from the list yet.
- */
+/** `compliant = auditable - stillNonCompliant` holds: each auditable property is either compliant or exactly one occurrence of one group. */
 const computeLiveCoverage = (
   report: AuditReportType,
   appliedGroupIds: Set<string>,
@@ -217,18 +206,13 @@ export default class AuditReport extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeReport = $auditReport.subscribe((value) =>
       this.setState({ report: value })
     )
-    // Drives the visible-groups filter below — a fully "Applied" group is
-    // dropped from the report entirely instead of lingering with a checkmark.
     this.unsubscribeAppliedGroupIds = $appliedGroupIds.subscribe((value) =>
       this.setState({ appliedGroupIds: value })
     )
-    // Drives the live coverage figures — a group can be partially resolved
-    // without being fully done yet, so coverage needs this too.
     this.unsubscribeAppliedOccurrenceKeys = $appliedOccurrenceKeys.subscribe(
       (value) => this.setState({ appliedOccurrenceKeys: value })
     )
@@ -259,9 +243,6 @@ export default class AuditReport extends PureComponent<
             },
             '*'
           )
-        // Nothing left to write — most commonly a group whose occurrences
-        // turn out to already be compliant. Worth its own toast rather than
-        // staying silent.
         else if (result.announcedCount === 0)
           sendPluginMessage(
             {
@@ -307,7 +288,6 @@ export default class AuditReport extends PureComponent<
       this.unsubscribeAppliedOccurrenceKeys()
   }
 
-  // Handlers
   handleOpenBulkConfirm = () => this.setState({ isBulkConfirmOpen: true })
 
   handleCloseBulkConfirm = () => this.setState({ isBulkConfirmOpen: false })
@@ -343,7 +323,6 @@ export default class AuditReport extends PureComponent<
         .feature as CategoryTab,
     })
 
-  // Direct
   filterGroupsByCategory = (groups: Array<DeviationGroup>) =>
     this.state.selectedCategoryTab === 'ALL'
       ? groups
@@ -351,7 +330,6 @@ export default class AuditReport extends PureComponent<
           (group) => group.category === this.state.selectedCategoryTab
         )
 
-  // Render
   render() {
     const { t } = this.props
     const {
@@ -379,8 +357,6 @@ export default class AuditReport extends PureComponent<
       appliedOccurrenceKeys
     )
 
-    // A fully resolved group has nothing left to audit; drop it before any
-    // count or list below is built from it.
     const isGroupResolved = (group: DeviationGroup) =>
       appliedGroupIds.has(group.id)
     const visibleTiers = {
@@ -389,9 +365,7 @@ export default class AuditReport extends PureComponent<
       orphan: report.tiers.orphan.filter((group) => !isGroupResolved(group)),
     }
 
-    // The bulk banner only covers unambiguous exact groups — a tied group
-    // is never auto-elected, and stays visible in the tier list to be
-    // resolved one at a time once the user picks a candidate.
+    // Tied groups are never auto-elected, so the bulk banner excludes them.
     const unambiguousExactGroups = visibleTiers.exact.filter(
       (group) => group.candidateTokens.length <= 1
     )
@@ -401,13 +375,9 @@ export default class AuditReport extends PureComponent<
     )
     const unambiguousGroupCount = unambiguousExactGroups.length
 
-    // Derived from liveCoverage so a partially-resolved group's already-
-    // applied occurrences don't keep counting as non-compliant.
     const totalNonCompliantOccurrenceCount =
       liveCoverage.auditableProperties - liveCoverage.compliantProperties
 
-    // Groups actually rendered for the active category tab, computed once
-    // so the empty-state check and the tier-section props stay in sync.
     const filteredExactGroups = this.filterGroupsByCategory(visibleTiers.exact)
     const filteredNearGroups = this.filterGroupsByCategory(visibleTiers.near)
     const filteredOrphanGroups = this.filterGroupsByCategory(
@@ -418,9 +388,6 @@ export default class AuditReport extends PureComponent<
       filteredNearGroups.length +
       filteredOrphanGroups.length
 
-    // Coverage scoped to the active tab — used to tell apart the two
-    // reasons the list can be empty: nothing auditable of this type exists
-    // vs. every occurrence already matches an active token.
     const coverageForTab =
       selectedCategoryTab === 'ALL'
         ? {

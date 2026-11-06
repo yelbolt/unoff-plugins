@@ -18,9 +18,7 @@ import {
 import { ConfigContextType } from '../../config/ConfigContext'
 
 interface AuditServiceProps
-  extends BaseProps, WithConfigProps, WithTranslationProps {
-  //
-}
+  extends BaseProps, WithConfigProps, WithTranslationProps {}
 
 type AuditView = 'SETUP' | 'RUNNING' | 'REPORT'
 
@@ -75,7 +73,6 @@ export default class AuditService extends PureComponent<
     }
   }
 
-  // Lifecycle
   componentDidMount = () => {
     this.unsubscribeStatus = $auditStatus.subscribe((value) =>
       this.setState({ status: value })
@@ -90,7 +87,6 @@ export default class AuditService extends PureComponent<
     if (this.unsubscribeProgress) this.unsubscribeProgress()
   }
 
-  // Handlers
   handleCancel = () =>
     sendPluginMessage(
       {
@@ -101,7 +97,6 @@ export default class AuditService extends PureComponent<
 
   handleBackToSetup = () => resetAuditToSetup()
 
-  // Direct
   deriveView = (status: AuditStatus): AuditView => {
     switch (status) {
       case 'RUNNING':
@@ -113,7 +108,6 @@ export default class AuditService extends PureComponent<
     }
   }
 
-  // Render
   render() {
     const view = this.deriveView(this.state.status)
     const { progress } = this.state
