@@ -34,10 +34,14 @@ const loadUI = async () => {
   penpot.flags.naturalChildOrdering = true
 
   // Setup UI
-  penpot.ui.open('Component Handoff', globalConfig.urls.uiUrl, {
-    width: globalConfig.limits.width,
-    height: globalConfig.limits.height,
-  })
+  penpot.ui.open(
+    `Component Handoff${globalConfig.env.isDev ? ' /dev' : ''}`,
+    globalConfig.urls.uiUrl,
+    {
+      width: globalConfig.limits.width,
+      height: globalConfig.limits.height,
+    }
+  )
 
   // Listen to messages from UI to Canvas
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
